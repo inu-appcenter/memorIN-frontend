@@ -9,6 +9,7 @@
 ## ✨ 핵심 기능
 
 ### 일상 아카이빙
+
 - 사진·영상·텍스트를 결합한 타임라인 기반 미디어 기록 (Setlog 데일리 뷰 형태)
 - 클라이언트 사전 압축 후 **MinIO로 직접 업로드**(Presigned URL) → 백엔드 서버 부하 최소화
 - 게시물별 가변 메타데이터·커스텀 태그는 PostgreSQL `JSONB` 컬럼에 저장
@@ -16,6 +17,7 @@
 - 공개 범위 설정(전체 공개 · 친구 공개 · 나만 보기)
 
 ### 통합 메신저
+
 - 1:1 및 그룹 채팅방
 - 접속 상태: **WebSocket(STOMP / SockJS)** 실시간 메시지 처리
 - 미접속 상태: 소켓 반환 후 **FCM / Web Push** 알림으로 전환
@@ -23,6 +25,7 @@
 - 채팅 내역은 비동기 저장, 커서 기반 무한 스크롤 페이징
 
 ### 유저 & 인증
+
 - 자체 회원가입(이메일 / 학번 기반)
 - **JWT** 기반 경량 인증
 - 웹/앱 도메인 간 접근을 위한 CORS 정책
@@ -55,9 +58,10 @@
 ```
 
 ### 반응형 레이아웃 정책
-| 화면 너비 | 내비게이션 | 부가 정보 |
-|---|---|---|
-| **< 768px** (모바일/세로) | Stack — 화면을 덮으며 Push 이동 | Bottom Sheet |
+
+| 화면 너비                   | 내비게이션                       | 부가 정보         |
+| --------------------------- | -------------------------------- | ----------------- |
+| **< 768px** (모바일/세로)   | Stack — 화면을 덮으며 Push 이동  | Bottom Sheet      |
 | **≥ 768px** (데스크탑/가로) | Split View — 좌우 분할 병렬 배치 | 우측 분할 창 고정 |
 
 - 메신저: `[좌 30%] 채팅방 목록` \| `[우 70%] 채팅방 내부`
@@ -67,15 +71,15 @@
 
 ## 🧰 기술 스택
 
-| 영역 | 기술 |
-|---|---|
-| **Frontend** | React Native (Expo), React Native for Web |
-| **Backend** | Spring Boot 3.5, Hibernate 6.x, Java 17 |
-| **Database** | PostgreSQL 18 (`io_uring`, `JSONB`) |
-| **Storage** | MinIO (AWS S3 호환, Docker) |
+| 영역         | 기술                                            |
+| ------------ | ----------------------------------------------- |
+| **Frontend** | React Native (Expo), React Native for Web       |
+| **Backend**  | Spring Boot 3.5, Hibernate 6.x, Java 17         |
+| **Database** | PostgreSQL 18 (`io_uring`, `JSONB`)             |
+| **Storage**  | MinIO (AWS S3 호환, Docker)                     |
 | **Realtime** | Spring STOMP In-Memory Broker + SockJS Fallback |
-| **Push** | Firebase Cloud Messaging (Web Push 포함) |
-| **Infra** | Docker Compose, pgAdmin 4 |
+| **Push**     | Firebase Cloud Messaging (Web Push 포함)        |
+| **Infra**    | Docker Compose, pgAdmin 4                       |
 
 > **설계 제약:** 100% 교내 온프레미스 저사양 서버. 외부 유료 클라우드·BaaS 사용 배제. 디스크 병목 해소를 위해 클라이언트 사전 극한 압축 + 유저별 스토리지 할당량(Quota) 정책 도입.
 
@@ -84,22 +88,27 @@
 ## 🚀 시작하기
 
 ### 사전 요구사항
+
 - Docker / Docker Compose
 - (백엔드 로컬 개발 시) JDK 17
 
 ### 1. 환경 변수 설정
+
 ```bash
 cp .env.example .env
 # .env 를 열어 비밀번호·JWT_SECRET 등을 환경에 맞게 수정
 ```
 
 ### 2. Firebase 서비스 계정 키 배치
+
 FCM 알림을 사용하려면 Firebase 콘솔에서 발급한 서비스 계정 키를 아래 경로에 둡니다. (이 파일은 `.gitignore`로 커밋이 차단됩니다.)
+
 ```
 backend/src/main/resources/firebase-service-account.json
 ```
 
 ### 3. 인프라 + 백엔드 실행
+
 ```bash
 # postgres + minio + backend
 docker compose up -d --build
@@ -109,14 +118,16 @@ docker compose --profile tools up -d
 ```
 
 ### 접속 정보 (기본값)
-| 서비스 | 주소 |
-|---|---|
-| Backend API | http://localhost:8080 |
+
+| 서비스        | 주소                  |
+| ------------- | --------------------- |
+| Backend API   | http://localhost:8080 |
 | MinIO Console | http://localhost:9001 |
-| pgAdmin | http://localhost:5050 |
-| PostgreSQL | localhost:5432 |
+| pgAdmin       | http://localhost:5050 |
+| PostgreSQL    | localhost:5432        |
 
 ### 백엔드 로컬 개발 (Docker 없이)
+
 ```bash
 cd backend
 ./gradlew bootRun      # 기본 프로파일은 H2 인메모리 DB 사용
@@ -148,14 +159,14 @@ cd backend
 
 ## 👥 팀 역할 (R&R)
 
-| 파트 | 담당 |
-|---|---|
-| **Design** | 모바일(Stack)·데스크탑(Split View) 반응형 디자인 시스템, 화면 분할 비율 가이드 |
-| **Frontend** | `react-native-web` 세팅, 화면 너비 기반 동적 라우팅, 미디어 압축 모듈, FCM·Service Worker |
-| **BE 1 — 유저/인증** | JWT 인증, 친구 도메인 API, 다중 FCM 토큰 저장·갱신 |
-| **BE 2 — 인프라/미디어** | PG 18 `io_uring` 세팅, MinIO·Presigned URL, 스토리지 Quota |
-| **BE 3 — 채팅/알림** | STOMP/SockJS, In-Memory 브로커 채팅·페이징, HikariCP 튜닝 |
-| **BE 4 — 아키텍처/리뷰** | DB 설계 검수(JSONB·스키마 보안), CORS, 소켓 세션/OOM 코드 리뷰 |
+| 파트                     | 담당                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| **Design**               | 모바일(Stack)·데스크탑(Split View) 반응형 디자인 시스템, 화면 분할 비율 가이드            |
+| **Frontend**             | `react-native-web` 세팅, 화면 너비 기반 동적 라우팅, 미디어 압축 모듈, FCM·Service Worker |
+| **BE 1 — 유저/인증**     | JWT 인증, 친구 도메인 API, 다중 FCM 토큰 저장·갱신                                        |
+| **BE 2 — 인프라/미디어** | PG 18 `io_uring` 세팅, MinIO·Presigned URL, 스토리지 Quota                                |
+| **BE 3 — 채팅/알림**     | STOMP/SockJS, In-Memory 브로커 채팅·페이징, HikariCP 튜닝                                 |
+| **BE 4 — 아키텍처/리뷰** | DB 설계 검수(JSONB·스키마 보안), CORS, 소켓 세션/OOM 코드 리뷰                            |
 
 ---
 
