@@ -1,32 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/shared/ui/Text";
 
 export default function Page() {
   return (
-    <View style={styles.container}>
-      <View style={styles.main}>
-        <Text style={styles.subtitle}>Welcome to your new app!</Text>
-      </View>
+    <View className="flex-1 items-center justify-center bg-background">
+      <Text variant="h1" className=" text-primary">
+        루트페이지
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    padding: 24,
-  },
-  main: {
-    flex: 1,
-    justifyContent: "center",
-    maxWidth: 960,
-  },
-  title: {
-    fontSize: 64,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 36,
-    color: "#38434D",
-  },
-});

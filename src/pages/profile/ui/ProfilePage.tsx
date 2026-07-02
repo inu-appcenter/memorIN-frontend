@@ -1,10 +1,15 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/shared/ui/Text";
 
 export function ProfilePage() {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-2xl font-bold text-gray-800">프로필</Text>
-      <Text className="text-sm text-gray-500">프로필페이지</Text>
+    <View className="flex-1 items-center justify-center">
+      <Text variant="h1" className=" text-primary">
+        프로필
+      </Text>
+      <Text variant="h2" className=" text-secondary">
+        프로필페이지
+      </Text>
     </View>
   );
 }

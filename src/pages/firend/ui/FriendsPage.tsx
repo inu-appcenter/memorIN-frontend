@@ -1,14 +1,14 @@
 import { View } from "react-native";
 import { Text } from "@/shared/ui/Text";
 
-export function ChatPage() {
+export function FriendsPage() {
   return (
     <View className="flex-1 items-center justify-center">
       <Text variant="h1" className=" text-primary">
-        채팅
+        친구
       </Text>
       <Text variant="h2" className=" text-secondary">
-        채팅페이지
+        친구페이지
       </Text>
     </View>
   );

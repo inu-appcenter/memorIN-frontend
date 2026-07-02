@@ -8,10 +8,11 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "daylog",
+    "backgroundColor": "#121110",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#121110"
     },
     "ios": {
       "supportsTablet": true
@@ -19,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#121110"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -34,8 +35,11 @@
       "expo-router",
       [
         "expo-image-picker",
-        { "photosPermission": "사진/동영상 접근 권한이 필요합니다." }
-      ]
+        {
+          "photosPermission": "사진/동영상 접근 권한이 필요합니다."
+        }
+      ],
+      "expo-font"
     ]
   }
 }
