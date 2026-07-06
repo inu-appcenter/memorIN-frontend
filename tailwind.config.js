@@ -23,13 +23,18 @@ module.exports = {
       fontFamily: {
         sans: ["Pretendard-Regular"],
       },
-      // 임시로 적용 (색깔별 목적에 맞게 수정 필요 <- 디자이너 협업 후 결정)
+      // 임시로 적용 (색깔별 목적에 맞게 수정 필요 <- 추후 결정)
       colors: {
         primary: "#6b11a0", // 보라
         secondary: "#fcf7d6", // 크림
         brand: "#bff140", // 형광
         stroke: "#a3a2a0", // 회색
         background: "#121110", // 검정
+        // unknown1: "#00D1E0",
+        // unknown2: "#FFFDE0",
+        // unknown3: "#FFC01F",
+        // unknown4: "#DDE1E2",
+        // unknown5: "#121110",
       },
       borderRadius: {
         sm: "8px",

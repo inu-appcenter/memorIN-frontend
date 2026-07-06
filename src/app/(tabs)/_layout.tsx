@@ -19,7 +19,7 @@ export default function TabsLayout() {
   const navigate = (tab: TabItem) => router.navigate(PATH[tab]); // 네비게이션 함수
 
   // 로그인 안된 사용자는 인증 페이지로 리다이렉트
-  // if (!currentUser) return <Redirect href={"/auth"} />;
+  // if (!currentUser) return <Redirect href={"/auth/sing-in"} />;
 
   // 데스크탑(split view)
   if (platform === "desktop") {
