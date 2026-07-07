@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/shared/ui/text";
 import { TABLISTS, TAB_LABELS, type TabItem } from "@/shared/config/tabList";
 import { Logo } from "./Logo";
+import { Link } from "expo-router";
 
 interface TopNavBarProps {
   activeTab: TabItem;
@@ -22,7 +23,11 @@ export function TopNavBar({
   return (
     <View className="flex-row items-center justify-between border-b bg-background px-s24 py-s12">
       {/* 왼쪽: 로고 */}
-      <Logo />
+      <Link href="/" asChild>
+        <Pressable>
+          <Logo />
+        </Pressable>
+      </Link>
       {/* 오른쪽: 탭 + 액션 */}
       <View className="flex-row items-center gap-s16">
         {/* 탭 (활성 탭은 필 테두리) */}

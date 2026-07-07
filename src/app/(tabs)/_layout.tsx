@@ -1,5 +1,5 @@
-import { Slot, usePathname, useRouter } from "expo-router";
-import { View } from "react-native";
+import { Link, Slot, usePathname, useRouter } from "expo-router";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NavBar } from "@/widgets/navigationBar";
 import { useBreakpoints } from "@/shared/lib/useBreakpoints";
@@ -40,7 +40,11 @@ export default function TabsLayout() {
     >
       {/* 화면 상단 레이아웃 구성 */}
       <View className="flex-row items-center gap-s4 border-b py-2">
-        <Logo />
+        <Link href="/" asChild>
+          <Pressable>
+            <Logo />
+          </Pressable>
+        </Link>
       </View>
       <View className="flex-1">
         <Slot />
