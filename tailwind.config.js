@@ -12,7 +12,7 @@ module.exports = {
         desktop: "768px", // 데스크탑이라고 판단할 최소 너비
       },
       maxWidth: {
-        layout: "1440px", // 데스크탑 콘텐츠 최대 폭
+        limit: "1440px", // 데스크탑 콘텐츠 최대 폭
       },
       spacing: {
         // spacing 토큰명 = px값 일치

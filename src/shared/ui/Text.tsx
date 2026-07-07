@@ -1,4 +1,3 @@
-// src/shared/ui/text.tsx
 import * as React from "react";
 import { Text as RNText, type TextProps } from "react-native";
 import { cn } from "@/shared/lib/utils";
@@ -20,7 +19,7 @@ export function Text({ variant, className, ...props }: Props) {
     <RNText
       className={cn(
         "font-sans text-text", // 앱 기본값
-        variant && TYPO_CLASS[variant], // 타이포 토큰
+        variant && TYPO_CLASS[variant], // props로 variant가 있으면 해당 타이포 토큰적용
         textClass, // 부모(Button 등)가 주입한 스타일
         className, // 호출부 명시 — 최우선
       )}

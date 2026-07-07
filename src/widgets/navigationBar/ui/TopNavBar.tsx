@@ -21,7 +21,7 @@ export function TopNavBar({
   notificationCount = 0,
 }: TopNavBarProps) {
   return (
-    <View className="flex-row items-center justify-between border-b bg-background px-s24 py-s12">
+    <View className="self-center border-x w-full max-w-limit flex-row items-center justify-between border-b bg-background px-s24 py-s12">
       {/* 왼쪽: 로고 */}
       <Link href="/" asChild>
         <Pressable>

@@ -6,6 +6,7 @@ import { useBreakpoints } from "@/shared/lib/useBreakpoints";
 import { PATH, TABLISTS, type TabItem } from "@/shared/config/tabList";
 import { TopNavBar } from "@/widgets/navigationBar/ui/TopNavBar";
 import { Logo } from "@/widgets/navigationBar/ui/Logo";
+import { Text } from "@/shared/ui/text";
 
 export default function TabsLayout() {
   const inset = useSafeAreaInsets(); // 안전 영역(모바일 고려)
@@ -27,7 +28,16 @@ export default function TabsLayout() {
     return (
       <View className="flex-1">
         <TopNavBar activeTab={activeTab} navigate={navigate} />
-        <Slot />
+        <View className="w-full max-w-limit flex-1 flex-row self-center">
+          {/* 좌측 패널 — 기획서상 무엇이 들어갈지 확인 필요 (목록? 사이드메뉴?) */}
+          <View className="flex justify-center items-center w-[30%] border-x ">
+            <Text className="p-s16 text-4xl text-primary">좌측 패널(고정)</Text>
+          </View>
+          {/* 우측 콘텐츠 */}
+          <View className="flex-1 border-r">
+            <Slot />
+          </View>
+        </View>
       </View>
     );
   }
