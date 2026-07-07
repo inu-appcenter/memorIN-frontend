@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { Text } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/text";
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import { TABLISTS, TAB_LABELS, type TabItem } from "@/shared/config/tabList";
 
@@ -25,7 +25,7 @@ export const NavBar = ({
           onPress={() => navigate(t)}
         >
           <Text
-            className={`font-semibold ${activeTab === t ? "text-primary" : "text-secondary"}`}
+            className={`font-semibold ${activeTab === t ? "text-primary" : "text-accent"}`}
           >
             {TAB_LABELS[t]}
           </Text>

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { Text } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/text";
 
 export function ChatPage() {
   return (

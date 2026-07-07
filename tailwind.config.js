@@ -1,12 +1,18 @@
 /** @type {import('tailwindcss').Config} */
-/* 아래 내용들은 디자이너와 협업 후 결정 */
 module.exports = {
-  content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
       screens: {
         desktop: "768px", // 데스크탑이라고 판단할 최소 너비
+      },
+      maxWidth: {
+        layout: "1440px", // 데스크탑 콘텐츠 최대 폭
       },
       spacing: {
         // spacing 토큰명 = px값 일치
@@ -23,18 +29,43 @@ module.exports = {
       fontFamily: {
         sans: ["Pretendard-Regular"],
       },
-      // 임시로 적용 (색깔별 목적에 맞게 수정 필요 <- 추후 결정)
       colors: {
-        primary: "#6b11a0", // 보라
-        secondary: "#fcf7d6", // 크림
-        brand: "#bff140", // 형광
-        stroke: "#a3a2a0", // 회색
-        background: "#121110", // 검정
-        // unknown1: "#00D1E0",
-        // unknown2: "#FFFDE0",
-        // unknown3: "#FFC01F",
-        // unknown4: "#DDE1E2",
-        // unknown5: "#121110",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        text: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        yellow: "var(--yellow)",
+        neutral: "var(--neutral)",
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
+        },
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
       },
       borderRadius: {
         sm: "8px",

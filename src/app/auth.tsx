@@ -1,9 +1,9 @@
-import { Text } from "@/shared/ui/Text";
+import { Text } from "@/shared/ui/text";
 import { View } from "react-native";
 
 export default function AuthRoute() {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="flex-1 items-center justify-center bg-background">
       <Text className="text-2xl font-bold text-gray-800">로그인</Text>
       <Text className="text-sm text-gray-500">로그인페이지</Text>
     </View>

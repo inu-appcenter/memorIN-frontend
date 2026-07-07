@@ -1,6 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body {
-  background-color: #121110;
+
+@layer base {
+  :root {
+    --chart-1: #17c6d6;
+    --chart-2: #7adfe6;
+    --chart-3: #ffc73a;
+    --chart-4: #5f6368;
+    --chart-5: #ef4444;
+    --background: #fffdf2; /* 크림 배경 */
+    --foreground: #202124; /* 기본 텍스트 */
+    --primary: #17c6d6; /* 청록 */
+    --primary-foreground: #ffffff; /* 청록 위 글자 */
+    --accent: #7adfe6; /* 연청록 */
+    --accent-foreground: #202124;
+    --yellow: #ffc73a;
+    --neutral: #e3e7e8;
+    --secondary: #e3e7e8; /* = neutral */
+    --secondary-foreground: #202124;
+    --muted: #e3e7e8;
+    --muted-foreground: #5f6368; /* 보조 텍스트용 회색  */
+    --destructive: #ef4444; /* 에러 빨강 */
+    --destructive-foreground: #ffffff;
+    --border: #d5dbdd; /* neutral보다 한 단계 어두운 선 */
+    --input: #d5dbdd;
+    --ring: #17c6d6; /* 포커스 링 = primary */
+    --card: #ffffff;
+    --card-foreground: #202124;
+    --popover: #ffffff;
+    --popover-foreground: #202124;
+  }
 }

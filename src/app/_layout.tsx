@@ -2,6 +2,8 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { AppProviders } from "@/shared/providers/AppProviders";
+import { PortalHost } from "@rn-primitives/portal";
+import "../../global.css";
 
 function RootNav() {
   return (
@@ -10,9 +12,11 @@ function RootNav() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#121110" }, // 모든 스크린 기본 배경
+          contentStyle: { backgroundColor: "#FFFDF2" }, // 모든 스크린 기본 배경색 (bg-background)
         }}
       />
+      {/* reusable 컴포넌트 사용 시 필요 */}
+      <PortalHost />
     </>
   );
 }
