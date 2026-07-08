@@ -1,13 +1,12 @@
-import { Link, Slot, usePathname, useRouter } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Slot, usePathname, useRouter } from 'expo-router';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NavBar } from '@/widgets/navigationBar';
+import { TopNavBar } from '@/widgets/navigationBar/ui/TopNavBar';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { PATH, TABLISTS, type TabItem } from '@/shared/config/tabList';
-import { TopNavBar } from '@/widgets/navigationBar/ui/TopNavBar';
-import { Logo } from '@/widgets/navigationBar/ui/Logo';
 import { Text } from '@/shared/ui/text';
-import { cn } from '@/shared/lib/utils';
+
 
 export default function TabsLayout() {
   const inset = useSafeAreaInsets(); // 안전 영역(모바일 고려)
@@ -19,28 +18,27 @@ export default function TabsLayout() {
   const activeTab: TabItem =
     TABLISTS.find((t) => pathname.startsWith(PATH[t])) ?? 'feed';
 
-  const navigate = (tab: TabItem) => router.navigate(PATH[tab]); // 네비게이션 함수
+  const navigate = (tab: TabItem) => router.navigate(PATH[tab]);
 
   // 로그인 안된 사용자는 인증 페이지로 리다이렉트
-  // if (!currentUser) return <Redirect href={"/auth/sing-in"} />;
+  // if (!currentUser) return <Redirect href={"/auth/sign-in"} />;
 
   // 데스크탑(split view)
   if (device === 'desktop') {
     const showSideTab = activeTab !== 'feed';
     return (
-      <View className="flex-1">
+      <View className="flex-1 gap-sm p-lg">
+        {/* 탭 props 쌍을 넘김 → 탭 렌더 */}
         <TopNavBar activeTab={activeTab} navigate={navigate} />
-        <View className="w-full max-w-limit flex-1 flex-row self-center">
-          {/* 좌측 패널 - feed 페이지가 아닐때만 고정 */}
+        <View className="w-full max-w-limit flex-1 flex-row gap-sm self-center">
           {showSideTab && (
-            <View className="w-[30%] items-center justify-center shadow-card">
+            <View className="w-[30%] items-center justify-center rounded-lg shadow-dropdown">
               <Text className="p-lg text-4xl text-primary">
                 좌측 패널(고정)
               </Text>
             </View>
           )}
-          {/* 우측 콘텐츠 — 좌측 패널이 없다면 전체 폭 */}
-          <View className={cn('flex-1 shadow-card')}>
+          <View className="flex-1 rounded-lg shadow-dropdown">
             <Slot />
           </View>
         </View>
@@ -51,26 +49,15 @@ export default function TabsLayout() {
   // 모바일(stack)
   return (
     <View
-      className="flex-1"
-      style={{ paddingTop: inset.top, paddingBottom: inset.bottom }} // inset은 동적 값이라 style에 설정
+      className="flex-1 bg-page"
+      style={{ paddingTop: inset.top, paddingBottom: inset.bottom }}
     >
-      {/* 화면 상단 레이아웃 구성 */}
-      <View className="flex-row items-center gap-1 border-b py-2">
-        <Link href="/" asChild>
-          <Pressable>
-            <Logo />
-          </Pressable>
-        </Link>
-      </View>
+      {/* 탭 props 생략 → 로고 | Upload + 벨 (between) */}
+      <TopNavBar className="rounded-none border-b shadow-none" />
       <View className="flex-1">
         <Slot />
       </View>
-      {/* 화면 하단 레이아웃 구성 */}
-      <NavBar
-        className="border-t border-secondary"
-        navigate={navigate}
-        activeTab={activeTab}
-      />
+      <NavBar className="border-t" navigate={navigate} activeTab={activeTab} />
     </View>
   );
 }
