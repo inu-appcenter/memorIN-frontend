@@ -1,7 +1,6 @@
 import { View } from "react-native";
 import { Text } from "@/shared/ui/text";
 
-// 추후 이미지로 교체 예정
 export function Logo() {
   return (
     <View className="flex-row items-center gap-xs">
