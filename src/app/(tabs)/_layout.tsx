@@ -7,6 +7,8 @@ import { PATH, TABLISTS, type TabItem } from "@/shared/config/tabList";
 import { TopNavBar } from "@/widgets/navigationBar/ui/TopNavBar";
 import { Logo } from "@/widgets/navigationBar/ui/Logo";
 import { Text } from "@/shared/ui/text";
+import { act } from "react";
+import { cn } from "@/shared/lib/utils";
 
 export default function TabsLayout() {
   const inset = useSafeAreaInsets(); // 안전 영역(모바일 고려)
@@ -25,16 +27,21 @@ export default function TabsLayout() {
 
   // 데스크탑(split view)
   if (device === "desktop") {
+    const showSideTab = activeTab !== "feed";
     return (
       <View className="flex-1">
         <TopNavBar activeTab={activeTab} navigate={navigate} />
         <View className="w-full max-w-limit flex-1 flex-row self-center">
-          {/* 좌측 패널 — 기획서상 무엇이 들어갈지 확인 필요 (목록? 사이드메뉴?) */}
-          <View className="flex justify-center items-center w-[30%] border-x ">
-            <Text className="p-s16 text-4xl text-primary">좌측 패널(고정)</Text>
-          </View>
-          {/* 우측 콘텐츠 */}
-          <View className="flex-1 border-r">
+          {/* 좌측 패널 - feed 페이지가 아닐때만 고정 */}
+          {showSideTab && (
+            <View className="w-[30%] items-center justify-center border-x ">
+              <Text className="p-lg text-4xl text-primary">
+                좌측 패널(고정)
+              </Text>
+            </View>
+          )}
+          {/* 우측 콘텐츠 — 좌측 패널이 없다면 전체 폭 */}
+          <View className={cn(showSideTab ? "border-r" : "border-x", "flex-1")}>
             <Slot />
           </View>
         </View>
@@ -49,7 +56,7 @@ export default function TabsLayout() {
       style={{ paddingTop: inset.top, paddingBottom: inset.bottom }} // inset은 동적 값이라 style에 설정
     >
       {/* 화면 상단 레이아웃 구성 */}
-      <View className="flex-row items-center gap-s4 border-b py-2">
+      <View className="flex-row items-center gap-xs border-b py-2">
         <Link href="/" asChild>
           <Pressable>
             <Logo />

@@ -1,58 +1,67 @@
 import { DefaultTheme, type Theme } from "@react-navigation/native";
 
-// global.css와 동일 값 — 변경 시 같이 수정
+// TS에서 색이 필요할 때의 소스파일 (아이콘 color prop 등)
+// global.css의 CSS 변수와 값 동기화 유지 필요
 export const COLORS = {
-  background: "#FFFDF2",
-  foreground: "#202124",
-  primary: "#17C6D6",
-  border: "#D5DBDD",
-  card: "#FFFFFF",
-  destructive: "#EF4444",
+  brand: "#012EAF", // blue/600
+  accent: "#FEC200", // yellow/400
+  background: "#FFFFFF", // bg/page
+  surface: "#F7F8FA", // bg/surface
+  text: "#131519", // text/primary
+  textMuted: "#8A8F9C", // text/muted
+  border: "#DADCE3", // border/default
+  success: "#2E7D32",
+  warning: "#DFAA00",
+  error: "#D03B3B",
+  white: "#FFFFFF",
 } as const;
 
-// React Navigation용 테마 (expo-router가 내부적으로 사용)
+export type ColorToken = keyof typeof COLORS;
+export type ColorValue = (typeof COLORS)[ColorToken];
+
+// React Navigation용 테마
 export const NAV_THEME: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
     background: COLORS.background,
     border: COLORS.border,
-    card: COLORS.card,
-    notification: COLORS.destructive,
-    primary: COLORS.primary,
-    text: COLORS.foreground,
+    card: COLORS.background,
+    notification: COLORS.error,
+    primary: COLORS.brand,
+    text: COLORS.text,
   },
 };
 
-const lightPalette = {
-  background: "#FFFDF2",
-  foreground: "#202124",
+export const lightPalette = {
+  background: "#FFFFFF",
+  foreground: "#131519",
   card: "#FFFFFF",
-  cardForeground: "#202124",
+  cardForeground: "#131519",
   popover: "#FFFFFF",
-  popoverForeground: "#202124",
-  primary: "#17C6D6",
+  popoverForeground: "#131519",
+  primary: "#012EAF",
   primaryForeground: "#FFFFFF",
-  secondary: "#E3E7E8",
-  secondaryForeground: "#202124",
-  muted: "#E3E7E8",
-  mutedForeground: "#5F6368",
-  accent: "#7ADFE6",
-  accentForeground: "#202124",
-  destructive: "#EF4444",
+  secondary: "#EDEEF2",
+  secondaryForeground: "#131519",
+  muted: "#EDEEF2",
+  mutedForeground: "#8A8F9C",
+  accent: "#FEC200",
+  accentForeground: "#131519",
+  destructive: "#D03B3B",
   destructiveForeground: "#FFFFFF",
-  border: "#D5DBDD",
-  input: "#D5DBDD",
-  ring: "#17C6D6",
-  chart1: "#17C6D6",
-  chart2: "#7ADFE6",
-  chart3: "#FFC73A",
-  chart4: "#5F6368",
-  chart5: "#EF4444",
-  radius: "0.5rem",
+  border: "#DADCE3",
+  input: "#B8BCC7",
+  ring: "#012EAF",
+  chart1: "#012EAF",
+  chart2: "#FEC200",
+  chart3: "#2E7D32",
+  chart4: "#DFAA00",
+  chart5: "#D03B3B",
+  radius: "8px",
 } as const;
 
 export const THEME = {
   light: lightPalette,
-  dark: lightPalette, // 수정 예정
+  dark: lightPalette, // 다크모드 정의 시 교체
 } as const;

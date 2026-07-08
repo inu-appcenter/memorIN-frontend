@@ -44,3 +44,7 @@ yarn-error.*
 .claude/
 CLAUDE.md
 AGENTS.md
+
+# local env files
+.env
+.env.*
