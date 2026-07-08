@@ -7,7 +7,6 @@ import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { PATH, TABLISTS, type TabItem } from '@/shared/config/tabList';
 import { Text } from '@/shared/ui/text';
 
-
 export default function TabsLayout() {
   const inset = useSafeAreaInsets(); // 안전 영역(모바일 고려)
   const router = useRouter();
@@ -49,15 +48,19 @@ export default function TabsLayout() {
   // 모바일(stack)
   return (
     <View
-      className="flex-1 bg-page"
+      className="flex-1"
       style={{ paddingTop: inset.top, paddingBottom: inset.bottom }}
     >
       {/* 탭 props 생략 → 로고 | Upload + 벨 (between) */}
-      <TopNavBar className="rounded-none border-b shadow-none" />
+      <TopNavBar className="rounded-none shadow-dropdown" />
       <View className="flex-1">
         <Slot />
       </View>
-      <NavBar className="border-t" navigate={navigate} activeTab={activeTab} />
+      <NavBar
+        className="rounded-lg border-t"
+        navigate={navigate}
+        activeTab={activeTab}
+      />
     </View>
   );
 }

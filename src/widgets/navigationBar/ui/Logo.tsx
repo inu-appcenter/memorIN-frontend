@@ -6,7 +6,7 @@ import { COLORS } from '@/shared/lib/theme';
 export function Logo() {
   return (
     <View className="flex-row items-center gap-xs">
-      <MemorinIcon width={21} height={21} color={COLORS.accent} />
+      <MemorinIcon width={21} height={21} color={COLORS.brand} />
       <View className="flex-row">
         <Text variant="h3" className="text-text font-bold">
           Memor

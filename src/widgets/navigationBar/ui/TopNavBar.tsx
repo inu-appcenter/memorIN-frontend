@@ -1,5 +1,4 @@
 import { View, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
@@ -32,7 +31,7 @@ export function TopNavBar({
   return (
     <View
       className={cn(
-        'w-full max-w-limit flex-row items-center justify-between self-center rounded-lg px-lg py-sm shadow-dropdown',
+        'w-full max-w-limit flex-row items-center justify-between self-center rounded-lg px-lg py-lg shadow-dropdown',
         className
       )}
     >
