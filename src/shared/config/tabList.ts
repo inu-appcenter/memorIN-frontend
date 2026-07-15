@@ -1,16 +1,17 @@
-export type TabItem = 'feed' | 'chat' | 'profile' | 'social';
-export const TABLISTS: TabItem[] = ['feed', 'chat', 'profile', 'social'];
+export type TabItem = 'feed' | 'search' | 'log' | 'chat';
+
+export const TABLISTS: TabItem[] = ['feed', 'search', 'log', 'chat'];
 
 export const TAB_LABELS: Record<TabItem, string> = {
   feed: '피드',
+  search: '탐색',
+  log: '기록',
   chat: '채팅',
-  profile: '프로필',
-  social: '친구',
 };
 
 export const PATH: Record<TabItem, string> = {
   feed: '/feed',
+  search: '/search',
+  log: '/log',
   chat: '/chat',
-  profile: '/profile',
-  social: '/social',
 };

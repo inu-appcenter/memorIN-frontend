@@ -1,13 +1,24 @@
 export type TypoToken =
-  "display" | "h1" | "h2" | "h3" | "bodyL" | "body" | "caption";
+  | 'display'
+  | 'title'
+  | 'heading'
+  | 'subheading'
+  | 'body'
+  | 'body-strong'
+  | 'body-small'
+  | 'label'
+  | 'caption';
 
-// 모바일 퍼스트
+// display·title·heading은 화면 크기별로 다른 값 (typography-mobile에 정의됨)
+// subheading 이하는 반응형 없이 고정 크기 (typography-mobile에 값 없음)
 export const TYPO_CLASS: Record<TypoToken, string> = {
-  display: "text-[40px] desktop:text-[64px]",
-  h1: "text-[32px] desktop:text-[48px]",
-  h2: "text-[24px] desktop:text-[40px]",
-  h3: "text-[20px] desktop:text-[32px]",
-  bodyL: "text-[16px] desktop:text-[18px]",
-  body: "text-[14px] desktop:text-[16px]",
-  caption: "text-[12px] desktop:text-[14px]",
+  display: 'font-sans-bold text-[28px] leading-[130%] desktop:text-[36px]',
+  title: 'font-sans-bold text-[24px] leading-[130%] desktop:text-[28px]',
+  heading: 'font-sans-bold text-[20px] leading-[130%] desktop:text-[22px]',
+  subheading: 'font-sans-bold text-[18px] leading-[150%]',
+  body: 'font-sans text-[16px] leading-[150%]',
+  'body-strong': 'font-sans-bold text-[16px] leading-[150%]',
+  'body-small': 'font-sans text-[14px] leading-[150%]',
+  label: 'font-sans-bold text-[14px] leading-[150%]',
+  caption: 'font-sans text-[12px] leading-[150%]',
 };

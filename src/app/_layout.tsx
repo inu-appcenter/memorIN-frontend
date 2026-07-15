@@ -1,9 +1,9 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useFonts } from "expo-font";
-import { AppProviders } from "@/shared/providers/AppProviders";
-import { PortalHost } from "@rn-primitives/portal";
-import "../../global.css";
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import { AppProviders } from '@/shared/providers/AppProviders';
+import { PortalHost } from '@rn-primitives/portal';
+import '../../global.css';
 
 function RootNav() {
   return (
@@ -12,7 +12,7 @@ function RootNav() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#FFFDF2" }, // 모든 스크린 기본 배경색 (bg-background)
+          contentStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
       {/* reusable 컴포넌트 사용 시 필요 */}
@@ -23,7 +23,8 @@ function RootNav() {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    "Pretendard-Regular": require("@/shared/assets/fonts/Pretendard-Regular.otf"),
+    'Pretendard-Regular': require('@/shared/assets/fonts/Pretendard-Regular.otf'),
+    'Pretendard-Bold': require('../shared/assets/fonts/Pretendard-Bold.otf'),
   });
 
   if (!loaded && !error) {

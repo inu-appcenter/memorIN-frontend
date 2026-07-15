@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        desktop: '768px', // 데스크탑이라고 판단할 최소 너비
-        tablet: '390px', // 테블릿이라고 판단할 최소 너비
+        desktop: '768px', // 768px ~ 1440px(최대 폭) = 데스크탑
+        tablet: '390px', // 390px ~ 768px = 테블릿
       },
       maxWidth: {
         limit: '1440px', // 데스크탑 콘텐츠 최대 폭
@@ -29,6 +29,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Pretendard-Regular'],
+        'sans-bold': ['Pretendard-Bold'],
       },
       colors: {
         //  Primitive
@@ -160,11 +161,11 @@ module.exports = {
         lg: '12px',
         full: '999px',
       },
-      // boxShadow (실제값 반영필요)
+      // boxShadow
       boxShadow: {
-        card: '0px 1px 4px rgba(19, 21, 25, 0.08)',
-        dropdown: '0px 4px 12px rgba(19, 21, 25, 0.10)',
-        modal: '0px 8px 28px rgba(19, 21, 25, 0.14)',
+        card: '0px 1px 2px 0px rgba(19, 21, 25, 0.06)',
+        dropdown: '0px 2px 8px 0px rgba(19, 21, 25, 0.08)',
+        modal: '0px 4px 16px 0px rgba(19, 21, 25, 0.10)',
       },
     },
   },

@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": "daylog",
+    "scheme": "memorIN",
     "backgroundColor": "#121110",
     "splash": {
       "image": "./assets/splash-icon.png",
