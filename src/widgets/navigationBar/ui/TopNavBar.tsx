@@ -1,18 +1,18 @@
 import { View, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Text } from '@/shared/ui/Text';
+import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import { TABLISTS, TAB_LABELS, type TabItem } from '@/shared/config/tabList';
 import { Logo } from './Logo';
 import BellIcon from '@/shared/assets/icons/example_bell.svg';
 
-// ??props???�으로만: ????주면 ???�더(?�스?�탑), ?????�으�?미렌??모바??
+// ??props???�으로만: ????주면 ???�더(?�스?�탑), ?????�으�?미렌??모바??
 type TopNavBarProps = {
   onPressWrite?: () => void; // 미구??
   onPressNotification?: () => void; // 미구??
   notificationCount?: number;
-  className?: string; // ?�이 컨테?�너 ?��???조정??
+  className?: string; // ?�이 컨테?�너 ?��???조정??
 } & (
   | { activeTab: TabItem; navigate: (tab: TabItem) => void }
   | { activeTab?: undefined; navigate?: undefined }
@@ -35,16 +35,16 @@ export function TopNavBar({
         className
       )}
     >
-      {/* ?�쪽: 로고 (??링크) */}
+      {/* ?�쪽: 로고 (??링크) */}
       <Link href="/" asChild>
         <Pressable>
           <Logo />
         </Pressable>
       </Link>
 
-      {/* ?�른�? (?? + ?�션 */}
+      {/* ?�른�? (?? + ?�션 */}
       <View className="flex-row items-center gap-lg">
-        {/* ?????�스?�탑?�서�?(props ?�이 ?�을 ?? */}
+        {/* ?????�스?�탑?�서�?(props ?�이 ?�을 ?? */}
         {showTabs &&
           TABLISTS.map((t) => {
             const active = t === activeTab;
@@ -67,7 +67,7 @@ export function TopNavBar({
             );
           })}
 
-        {/* �??�이�?+ 뱃�? */}
+        {/* �??�이�?+ 뱃�? */}
         <Pressable onPress={onPressNotification} className="px-xs">
           <BellIcon width={22} height={22} color={COLORS.brand} />
           {notificationCount > 0 && (
@@ -79,7 +79,7 @@ export function TopNavBar({
           )}
         </Pressable>
 
-        {/* 기록 ?�성 버튼 */}
+        {/* 기록 ?�성 버튼 */}
         <Pressable
           onPress={onPressWrite}
           className="rounded-full bg-brand px-lg py-sm active:bg-brand-press"

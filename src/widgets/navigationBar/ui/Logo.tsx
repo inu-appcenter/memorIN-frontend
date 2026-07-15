@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Text } from '@/shared/ui/Text';
+import { Text } from '@/shared/ui/text';
 import MemorinIcon from '@/shared/assets/icons/example_Icon.svg';
 import { COLORS } from '@/shared/lib/theme';
 

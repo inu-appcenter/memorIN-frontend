@@ -1,11 +1,15 @@
 import { Redirect, Slot } from 'expo-router';
 import { AppShell } from '@/widgets/appShell';
-import { useAuthStore } from '@/features/auth';
+import { useAuthStore } from '@/shared/model/useAuthStore';
 
 export default function MainLayout() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const status = useAuthStore((state) => state.status);
 
-  if (!isAuthenticated) {
+  if (status === 'loading') {
+    return null; // 부트스트랩 판정 동안 렌더 보류 (스플래시가 가림)
+  }
+
+  if (status === 'unauthenticated') {
     return <Redirect href="/sign-in" />;
   }
 

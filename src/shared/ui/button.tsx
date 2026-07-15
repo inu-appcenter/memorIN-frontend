@@ -1,4 +1,4 @@
-import { TextClassContext } from "@/shared/ui/Text";
+import { TextClassContext } from "@/shared/ui/text";
 import { cn } from "@/shared/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Platform, Pressable } from "react-native";

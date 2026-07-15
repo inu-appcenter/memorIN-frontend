@@ -1,33 +1,37 @@
-﻿import { Link, useRouter } from 'expo-router';
+﻿import { useMutation } from '@tanstack/react-query';
+import { Link, useRouter } from 'expo-router';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Pressable, TextInput, View } from 'react-native';
-import { useAuthStore } from '@/features/auth';
-import { Text } from '@/shared/ui/Text';
-
-function Field({
-  placeholder,
-  secureTextEntry = false,
-}: {
-  placeholder: string;
-  secureTextEntry?: boolean;
-}) {
-  return (
-    <TextInput
-      className="h-[50px] rounded-md bg-surface px-lg text-primary outline-none"
-      placeholder={placeholder}
-      placeholderTextColor="#8A8F9C"
-      secureTextEntry={secureTextEntry}
-    />
-  );
-}
+import { Text } from '@/shared/ui/text';
+import { login } from '@/shared/api/authApi';
+import { useSetAuthenticated } from '@/shared/model/useAuthStore';
+import { tokenStorage } from '@/shared/lib/tokenStorage';
+import { signInSchema, type SignInInput } from '@/shared/model/authSchema';
 
 export function SignInPage() {
   const router = useRouter();
-  const signIn = useAuthStore((state) => state.signIn);
+  const setAuthenticated = useSetAuthenticated();
 
-  const handleSignIn = () => {
-    signIn();
-    router.replace('/feed');
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: login,
+    onSuccess: async (data) => {
+      await tokenStorage.set('refreshToken', data.refreshToken);
+      setAuthenticated(data.accessToken, data.user);
+      router.replace('/feed');
+    },
+  });
+
+  const onSubmit = (input: SignInInput) => mutate(input);
 
   return (
     <View className="flex-1 items-center justify-center bg-page px-lg">
@@ -41,15 +45,66 @@ export function SignInPage() {
           </Text>
           <Text className="text-muted">소중한 순간을 오래 기억해요</Text>
         </View>
+
         <View className="gap-md">
-          <Field placeholder="아이디를 입력하세요" />
-          <Field placeholder="비밀번호를 입력하세요" secureTextEntry />
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+              <View>
+                <TextInput
+                  className="h-[50px] rounded-md bg-surface px-lg text-primary"
+                  placeholder="아이디를 입력하세요"
+                  value={value}
+                  onChangeText={onChange}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+                {errors.email && (
+                  <Text variant="caption" className="mt-xs text-error">
+                    {errors.email.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { value, onChange } }) => (
+              <View>
+                <TextInput
+                  className="h-[50px] rounded-md bg-surface px-lg text-primary"
+                  placeholder="비밀번호를 입력하세요"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                />
+                {errors.password && (
+                  <Text variant="caption" className="mt-xs text-error">
+                    {errors.password.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
         </View>
+
+        {error && (
+          <Text variant="caption" className="mt-sm text-error">
+            {(error as Error).message}
+          </Text>
+        )}
+
         <Pressable
-          onPress={handleSignIn}
-          className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press"
+          onPress={handleSubmit(onSubmit)}
+          disabled={isPending}
+          className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press disabled:opacity-50"
         >
-          <Text className="font-sans-bold text-on-brand">로그인</Text>
+          <Text className="font-sans-bold text-on-brand">
+            {isPending ? '로그인 중...' : '로그인'}
+          </Text>
         </Pressable>
 
         <View className="mt-md flex-row justify-center gap-sm">
@@ -65,12 +120,14 @@ export function SignInPage() {
             <Text className="text-muted">회원가입</Text>
           </Link>
         </View>
+
         <View className="mt-5xl flex-row items-center gap-md">
           <View className="h-px flex-1 bg-border" />
           <Text className="text-muted">또는 SNS로 로그인</Text>
           <View className="h-px flex-1 bg-border" />
         </View>
-        {/*sns 아이콘이 들어갈 자리 */}
+
+        {/* sns 아이콘이 들어갈 자리 */}
         <View className="mt-xl flex-row justify-center gap-lg">
           {[0, 1, 2].map((item) => (
             <View

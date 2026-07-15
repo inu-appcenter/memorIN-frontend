@@ -3,8 +3,13 @@ import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
-import { Text } from '@/shared/ui/Text';
-import { PATH, TAB_LABELS, TABLISTS, type TabItem } from '@/shared/config/tabList';
+import { Text } from '@/shared/ui/text';
+import {
+  PATH,
+  TAB_LABELS,
+  TABLISTS,
+  type TabItem,
+} from '@/shared/config/tabList';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
@@ -26,11 +31,18 @@ function getActiveTab(pathname: string): TabItem | undefined {
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <View className={cn('flex-row items-center gap-sm', compact && 'justify-center')}>
+    <View
+      className={cn(
+        'flex-row items-center gap-sm',
+        compact && 'justify-center'
+      )}
+    >
       <View className="h-[34px] w-[34px] items-center justify-center rounded-lg bg-brand">
         <Text className="font-sans-bold text-on-brand">m</Text>
       </View>
-      {!compact && <Text className="font-sans-bold text-[24px] text-primary">MemorIN</Text>}
+      {!compact && (
+        <Text className="font-sans-bold text-[24px] text-primary">MemorIN</Text>
+      )}
     </View>
   );
 }
@@ -47,12 +59,24 @@ function UploadButton({ compact = false }: { compact?: boolean }) {
       )}
     >
       <Text className="text-[28px] leading-[28px] text-on-brand">+</Text>
-      {!compact && <Text className="font-sans-bold text-on-brand">기록 올리기</Text>}
+      {!compact && (
+        <Text className="font-sans-bold text-on-brand">기록 올리기</Text>
+      )}
     </Pressable>
   );
 }
 
-function NavItem({ tab, active, compact, onPress }: { tab: TabItem; active: boolean; compact: boolean; onPress: () => void }) {
+function NavItem({
+  tab,
+  active,
+  compact,
+  onPress,
+}: {
+  tab: TabItem;
+  active: boolean;
+  compact: boolean;
+  onPress: () => void;
+}) {
   const Icon = NAV_ICON[tab];
 
   return (
@@ -64,9 +88,16 @@ function NavItem({ tab, active, compact, onPress }: { tab: TabItem; active: bool
         active && 'bg-brand-subtle'
       )}
     >
-      <Icon width={22} height={22} color={active ? COLORS.brand : COLORS.tertiary} />
+      <Icon
+        width={22}
+        height={22}
+        color={active ? COLORS.brand : COLORS.tertiary}
+      />
       {!compact && (
-        <Text variant="body" className={active ? 'font-sans-bold text-primary' : 'text-secondary'}>
+        <Text
+          variant="body"
+          className={active ? 'font-sans-bold text-primary' : 'text-secondary'}
+        >
           {TAB_LABELS[tab]}
         </Text>
       )}
@@ -74,13 +105,24 @@ function NavItem({ tab, active, compact, onPress }: { tab: TabItem; active: bool
   );
 }
 
-function SideNav({ compact, showUpload }: { compact: boolean; showUpload: boolean }) {
+function SideNav({
+  compact,
+  showUpload,
+}: {
+  compact: boolean;
+  showUpload: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const activeTab = getActiveTab(pathname);
 
   return (
-    <View className={cn('border-r border-border bg-page', compact ? 'w-[80px] items-center px-md py-xl' : 'w-[246px] px-lg py-xl')}>
+    <View
+      className={cn(
+        'border-r border-border bg-page',
+        compact ? 'w-[80px] items-center px-md py-xl' : 'w-[246px] px-lg py-xl'
+      )}
+    >
       <Brand compact={compact} />
       {showUpload && (
         <View className="mt-xl">
@@ -89,7 +131,13 @@ function SideNav({ compact, showUpload }: { compact: boolean; showUpload: boolea
       )}
       <View className="mt-3xl gap-md">
         {TABLISTS.map((tab) => (
-          <NavItem key={tab} tab={tab} compact={compact} active={activeTab === tab} onPress={() => router.navigate(PATH[tab])} />
+          <NavItem
+            key={tab}
+            tab={tab}
+            compact={compact}
+            active={activeTab === tab}
+            onPress={() => router.navigate(PATH[tab])}
+          />
         ))}
       </View>
     </View>
@@ -107,8 +155,16 @@ function BottomNav() {
     const Icon = NAV_ICON[tab];
     const active = activeTab === tab;
     return (
-      <Pressable key={tab} className="flex-1 items-center justify-center gap-xs" onPress={() => router.navigate(PATH[tab])}>
-        <Icon width={20} height={20} color={active ? COLORS.brand : COLORS.textMuted} />
+      <Pressable
+        key={tab}
+        className="flex-1 items-center justify-center gap-xs"
+        onPress={() => router.navigate(PATH[tab])}
+      >
+        <Icon
+          width={20}
+          height={20}
+          color={active ? COLORS.brand : COLORS.textMuted}
+        />
         <Text variant="caption" className={active ? 'text-link' : 'text-muted'}>
           {TAB_LABELS[tab]}
         </Text>
@@ -119,7 +175,10 @@ function BottomNav() {
   return (
     <View className="h-[68px] flex-row border-t border-border bg-page">
       {leftTabs.map(renderItem)}
-      <Pressable className="w-[72px] items-center justify-center" onPress={() => router.navigate('/upload')}>
+      <Pressable
+        className="w-[72px] items-center justify-center"
+        onPress={() => router.navigate('/upload')}
+      >
         <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-neutral-500">
           <Text className="text-[30px] leading-[30px] text-on-brand">+</Text>
         </View>
@@ -156,7 +215,10 @@ export function AppShell({ children }: PropsWithChildren) {
   }
 
   return (
-    <View className="flex-1 bg-page" style={{ paddingTop: inset.top, paddingBottom: inset.bottom }}>
+    <View
+      className="flex-1 bg-page"
+      style={{ paddingTop: inset.top, paddingBottom: inset.bottom }}
+    >
       <View className="flex-1 overflow-hidden">{children}</View>
       <BottomNav />
     </View>

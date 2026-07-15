@@ -1,25 +1,49 @@
-﻿import { Link } from 'expo-router';
-import { Pressable, TextInput, View } from 'react-native';
-import { Text } from '@/shared/ui/Text';
-
-function Field({
-  placeholder,
-  secureTextEntry = false,
-}: {
-  placeholder: string;
-  secureTextEntry?: boolean;
-}) {
-  return (
-    <TextInput
-      className="h-[50px] rounded-md bg-surface px-lg text-primary outline-none"
-      placeholder={placeholder}
-      placeholderTextColor="#8A8F9C"
-      secureTextEntry={secureTextEntry}
-    />
-  );
-}
+﻿import { Link, useRouter } from 'expo-router';
+import { View, Pressable } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { Text } from '@/shared/ui/text';
+import { Field } from '../../ui/Field';
+import { signup } from '@/shared/api/authApi';
+import { useAuthStore } from '@/shared/model/useAuthStore';
+import { tokenStorage } from '@/shared/lib/tokenStorage';
+import { signUpSchema, type SignUpInput } from '@/shared/model/authSchema';
 
 export function SignUpPage() {
+  const router = useRouter();
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpInput>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      passwordConfirm: '',
+      nickname: '',
+    },
+  });
+
+  const {
+    mutate,
+    isPending,
+    error: submitError,
+  } = useMutation({
+    mutationFn: signup,
+    onSuccess: async (data) => {
+      // 가입 즉시 자동 로그인
+      await tokenStorage.set('refreshToken', data.refreshToken);
+      setAuthenticated(data.accessToken, data.user);
+      router.replace('/feed');
+    },
+  });
+
+  const onSubmit = (data: SignUpInput) => mutate(data);
+
   return (
     <View className="flex-1 items-center justify-center bg-page px-lg">
       <View className="w-full max-w-[420px]">
@@ -32,21 +56,85 @@ export function SignUpPage() {
           </Text>
           <Text className="text-muted">소중한 순간을 오래 기억해요</Text>
         </View>
+
         <View className="gap-md">
-          <Field placeholder="아이디를 입력하세요" />
-          <Field placeholder="닉네임을 입력하세요" />
-          <Field placeholder="비밀번호를 입력하세요" secureTextEntry />
-          <Field placeholder="비밀번호를 다시 입력하세요" secureTextEntry />
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="아이디를 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                error={errors.email?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="nickname"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="닉네임을 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                error={errors.nickname?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="비밀번호를 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                secureTextEntry
+                error={errors.password?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="passwordConfirm"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="비밀번호를 다시 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                secureTextEntry
+                error={errors.passwordConfirm?.message}
+              />
+            )}
+          />
         </View>
-        <Pressable className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press">
-          <Text className="font-sans-bold text-on-brand">회원가입</Text>
+
+        {submitError && (
+          <Text variant="caption" className="mt-md text-error">
+            {(submitError as Error).message}
+          </Text>
+        )}
+
+        <Pressable
+          onPress={handleSubmit(onSubmit)}
+          disabled={isPending}
+          className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press disabled:opacity-50"
+        >
+          <Text className="font-sans-bold text-on-brand">
+            {isPending ? '가입 중...' : '회원가입'}
+          </Text>
         </Pressable>
+
         <View className="mt-md flex-row justify-center gap-sm">
           <Text className="text-muted">이미 계정이 있나요?</Text>
           <Link href="/sign-in">
             <Text className="font-sans-bold text-link">로그인</Text>
           </Link>
         </View>
+
         <View className="mt-5xl flex-row items-center gap-md">
           <View className="h-px flex-1 bg-border" />
           <Text className="text-muted">또는 SNS로 가입</Text>
