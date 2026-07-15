@@ -1,7 +1,7 @@
 import { View, Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import type { FC } from 'react';
 import type { SvgProps } from 'react-native-svg';
-import { Text } from '@/shared/ui/text';
+import { Text } from '@/shared/ui/Text';
 import { TABLISTS, TAB_LABELS, type TabItem } from '@/shared/config/tabList';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
@@ -74,7 +74,7 @@ export const NavBar = ({
     >
       {leftTabs.map(renderTabItem)}
 
-      {/* 중앙 플로팅 버튼 영역 */}
+      {/* 중앙 ?�로??버튼 ?�역 */}
       <View className="w-[64px] items-center justify-center">
         {' '}
         <Pressable

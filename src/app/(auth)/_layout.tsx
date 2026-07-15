@@ -1,17 +1,17 @@
 import { Redirect, Slot } from 'expo-router';
-import { AppShell } from '@/widgets/appShell';
+import { View } from 'react-native';
 import { useAuthStore } from '@/features/auth';
 
-export default function MainLayout() {
+export default function AuthLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (!isAuthenticated) {
-    return <Redirect href="/sign-in" />;
+  if (isAuthenticated) {
+    return <Redirect href="/feed" />;
   }
 
   return (
-    <AppShell>
+    <View className="flex-1 bg-background">
       <Slot />
-    </AppShell>
+    </View>
   );
 }
