@@ -6,13 +6,10 @@ import { useMutation } from '@tanstack/react-query';
 import { Text } from '@/shared/ui/text';
 import { Field } from '../../ui/Field';
 import { signup } from '@/shared/api/authApi';
-import { useAuthStore } from '@/shared/model/useAuthStore';
-import { tokenStorage } from '@/shared/lib/tokenStorage';
 import { signUpSchema, type SignUpInput } from '@/shared/model/authSchema';
 
 export function SignUpPage() {
   const router = useRouter();
-  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
 
   const {
     control,
@@ -24,7 +21,8 @@ export function SignUpPage() {
       email: '',
       password: '',
       passwordConfirm: '',
-      nickname: '',
+      username: '',
+      displayName: '',
     },
   });
 
@@ -34,11 +32,11 @@ export function SignUpPage() {
     error: submitError,
   } = useMutation({
     mutationFn: signup,
-    onSuccess: async (data) => {
-      // 가입 즉시 자동 로그인
-      await tokenStorage.set('refreshToken', data.refreshToken);
-      setAuthenticated(data.accessToken, data.user);
-      router.replace('/feed');
+    onSuccess: () => {
+      // 1. 가입 즉시 자동 로그인
+      // router.replace('/feed');
+      // 2. 가입 즉시 로그인 페이지로 리다이렉팅
+      router.replace('/sign-in');
     },
   });
 
@@ -58,12 +56,13 @@ export function SignUpPage() {
         </View>
 
         <View className="gap-md">
+          {/* 이메일 입력 폼 */}
           <Controller
             control={control}
             name="email"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="아이디를 입력하세요"
+                placeholder="이메일을 입력하세요"
                 value={value}
                 onChangeText={onChange}
                 autoCapitalize="none"
@@ -72,18 +71,7 @@ export function SignUpPage() {
               />
             )}
           />
-          <Controller
-            control={control}
-            name="nickname"
-            render={({ field: { value, onChange } }) => (
-              <Field
-                placeholder="닉네임을 입력하세요"
-                value={value}
-                onChangeText={onChange}
-                error={errors.nickname?.message}
-              />
-            )}
-          />
+          {/* 비밀번호 입력 폼 */}
           <Controller
             control={control}
             name="password"
@@ -97,6 +85,7 @@ export function SignUpPage() {
               />
             )}
           />
+          {/* 비밀번호 입력 확인 폼 */}
           <Controller
             control={control}
             name="passwordConfirm"
@@ -107,6 +96,33 @@ export function SignUpPage() {
                 onChangeText={onChange}
                 secureTextEntry
                 error={errors.passwordConfirm?.message}
+              />
+            )}
+          />
+
+          {/* 사용자명 입력 폼 */}
+          <Controller
+            control={control}
+            name="username"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="사용자명을 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                error={errors.username?.message}
+              />
+            )}
+          />
+          {/* 표시이름 입력 폼 */}
+          <Controller
+            control={control}
+            name="displayName"
+            render={({ field: { value, onChange } }) => (
+              <Field
+                placeholder="표시 이름을 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                error={errors.displayName?.message}
               />
             )}
           />

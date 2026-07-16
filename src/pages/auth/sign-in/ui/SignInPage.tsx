@@ -6,7 +6,6 @@ import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { login } from '@/shared/api/authApi';
 import { useSetAuthenticated } from '@/shared/model/useAuthStore';
-import { tokenStorage } from '@/shared/lib/tokenStorage';
 import { signInSchema, type SignInInput } from '@/shared/model/authSchema';
 
 export function SignInPage() {
@@ -22,11 +21,11 @@ export function SignInPage() {
     defaultValues: { email: '', password: '' },
   });
 
+  // 뮤테이션 별도로 분리 필요
   const { mutate, isPending, error } = useMutation({
     mutationFn: login,
-    onSuccess: async (data) => {
-      await tokenStorage.set('refreshToken', data.refreshToken);
-      setAuthenticated(data.accessToken, data.user);
+    onSuccess: (data) => {
+      setAuthenticated(data.accessToken); // user는 없이 (store에서 옵셔널 처리)
       router.replace('/feed');
     },
   });
@@ -54,7 +53,7 @@ export function SignInPage() {
               <View>
                 <TextInput
                   className="h-[50px] rounded-md bg-surface px-lg text-primary"
-                  placeholder="아이디를 입력하세요"
+                  placeholder="이메일를 입력하세요"
                   value={value}
                   onChangeText={onChange}
                   autoCapitalize="none"

@@ -1,13 +1,11 @@
 import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store'; // 네이티브를 위한 시큐어 스토리지
 
 const isWeb = Platform.OS === 'web';
-
 /**
- * 리프레시 토큰 저장소 (플랫폼 분기)
- * - 네이티브: SecureStore (iOS Keychain / Android Keystore)
- * - 웹: localStorage — ⚠️ Plan B 임시안. 백엔드가 httpOnly 쿠키를
- *   지원하면 웹 분기를 no-op으로 교체한다 (프론트가 토큰을 만지지 않게 됨)
+ * 플랫폼(웹 vs 네이티브 앱)에 따라 refresh token을 저장하는 방식을 자동으로 분기 처리해 주는 추상화 모듈
+ * 웹: localStorage — 현재로서는 로컬스토리지를 사용하지만, 백엔드가 httpOnly 쿠키를 지원하면 웹에서는 아무동작도 하지 않도록 수정
+ * 네이티브: SecureStore (iOS Keychain / Android Keystore)
  */
 export const tokenStorage = {
   async get(key: string): Promise<string | null> {
