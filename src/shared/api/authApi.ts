@@ -22,6 +22,7 @@ export async function signup(input: SignUpInput): Promise<void> {
     password: input.password,
     username: input.username,
     displayName: input.displayName,
+    bio: '안녕하세요! 신규 가입자입니다.' /* api명세서랑 다름.. 백엔드 수정필요해보이는 항목 */,
   });
 }
 
