@@ -46,7 +46,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
     </View>
   );
 }
-
+// 업로드 버튼 (테블릿, 폰 환경에서만 노출)
 function UploadButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
 
@@ -192,6 +192,7 @@ export function AppShell({ children }: PropsWithChildren) {
   const { device } = useBreakpoints();
   const inset = useSafeAreaInsets();
 
+  // 데스크탑
   if (device === 'desktop') {
     return (
       <View className="h-full flex-1 items-center bg-surface">
@@ -202,7 +203,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </View>
     );
   }
-
+  // 테블릿
   if (device === 'tablet') {
     return (
       <View className="h-full flex-1 items-center bg-surface">
@@ -213,7 +214,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </View>
     );
   }
-
+  // 폰
   return (
     <View
       className="flex-1 bg-page"

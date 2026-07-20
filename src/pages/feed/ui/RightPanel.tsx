@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { dummyPeopleArray } from '@/shared/config/dummy';
 
 // 피드페이지 우측에 렌더링 되는 패널
+// 서버로부터 유저 정보를 가져와서 뿌려줘야 함
 export function RightPanel() {
   return (
     <View className="hidden w-[320px] border-l border-border p-lg desktop:flex">

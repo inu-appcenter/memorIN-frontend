@@ -5,25 +5,33 @@ import { client, type ApiResponse } from './client';
 export async function login(
   input: SignInInput
 ): Promise<{ accessToken: string }> {
-  const res = await client.post<ApiResponse<{ accessToken: string }>>(
+  const response = await client.post<ApiResponse<{ accessToken: string }>>(
     '/auth/login',
     {
       email: input.email,
       password: input.password,
     }
   );
-  return res.data.data;
+
+  const body = response.data;
+
+  if (!body.success || !body.data) {
+    throw new Error(body.error?.message ?? '로그인 실패');
+  }
+
+  return body.data;
 }
 
 // 회원가입 비동기 함수
 export async function signup(input: SignUpInput): Promise<void> {
-  await client.post('/auth/signup', {
+  const { data } = await client.post('/auth/signup', {
     email: input.email,
     password: input.password,
     username: input.username,
     displayName: input.displayName,
-    bio: '안녕하세요! 신규 가입자입니다.' /* api명세서랑 다름.. 백엔드 수정필요해보이는 항목 */,
+    bio: '안녕하세요! 신규 가입자입니다.' /* api명세서랑 다름.. 백엔드수정필요해보이는 항목 */,
   });
+  if (!data.success) throw new Error(data.error?.message ?? '회원가입 실패');
 }
 
 // 부트스트랩용: 저장된 세션으로 내 정보 조회 (실연동 시 GET /auth/me)

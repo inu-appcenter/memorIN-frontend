@@ -65,4 +65,8 @@ client.interceptors.response.use(
   }
 );
 
-// 401에러 → refresh → 재시도 인터셉터 추가 예정
+// 토큰 재발급 api 연동 (예정) - 401에러(Unauthorized) → refresh → 재시도 인터셉터
+// POST /auth/reissue
+
+// 로그아웃 api 연동 (예정)
+// POST /auth/logout
