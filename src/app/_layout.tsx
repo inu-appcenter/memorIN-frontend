@@ -4,8 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { AppProviders } from '@/shared/providers/AppProviders';
 import { PortalHost } from '@rn-primitives/portal';
-import { fetchMe } from '@/shared/api/authApi';
-import { useAuthStore } from '@/shared/model/useAuthStore';
+import { fetchMe } from '@/features/auth/api/authApi';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import '../../global.css';
 
 function RootNav() {

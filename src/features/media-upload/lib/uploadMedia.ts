@@ -1,5 +1,5 @@
 import { compressMedia } from './compressMedia';
-import { getPresignedUploadUrl } from '@/shared/api/mediaApi';
+import { getPresignedUploadUrl } from '@/features/media-upload/api/mediaApi';
 import { uploadToStorage } from './uploadToStorage';
 
 export async function uploadMedia(

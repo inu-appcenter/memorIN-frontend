@@ -2,7 +2,7 @@
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Text } from '@/shared/ui/text';
-import { uploadMedia } from '@/shared/lib/uploadMedia';
+import { uploadMedia } from '@/features/media-upload/lib/uploadMedia';
 
 export function UploadPage() {
   const [uploading, setUploading] = useState(false);

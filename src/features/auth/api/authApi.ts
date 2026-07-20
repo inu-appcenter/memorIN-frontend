@@ -1,5 +1,8 @@
-import type { SignInInput, SignUpInput } from '@/shared/model/authSchema';
-import { client, type ApiResponse } from './client';
+import type {
+  SignInInput,
+  SignUpInput,
+} from '@/features/auth/model/authSchema';
+import { client, type ApiResponse } from '../../../shared/api/client';
 
 // 로그인 비동기함수
 export async function login(

@@ -1,4 +1,4 @@
-import { client } from './client';
+import { client } from '../../../shared/api/client';
 
 // TODO: JWT 붙으면 제거하고 실제 로그인 사용자 id로 교체
 const TEST_USER_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'; // crypto.randomUUID() 결과값 하나 고정 (임시)

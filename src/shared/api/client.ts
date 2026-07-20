@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { useAuthStore } from '@/shared/model/useAuthStore';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
 // axois 인터셉터, 인스턴스 등을 정의
 
 // 백엔드 API 명세서의 공통 응답 포맷을 따른다

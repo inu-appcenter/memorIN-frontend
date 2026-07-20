@@ -4,9 +4,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
-import { login } from '@/shared/api/authApi';
-import { useSetAuthenticated } from '@/shared/model/useAuthStore';
-import { signInSchema, type SignInInput } from '@/shared/model/authSchema';
+import { login } from '@/features/auth/api/authApi';
+import { useSetAuthenticated } from '@/entities/session/model/useAuthStore';
+import {
+  signInSchema,
+  type SignInInput,
+} from '@/features/auth/model/authSchema';
 
 export function SignInPage() {
   const router = useRouter();

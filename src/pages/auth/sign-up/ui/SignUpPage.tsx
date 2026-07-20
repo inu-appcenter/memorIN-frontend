@@ -5,8 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Text } from '@/shared/ui/text';
 import { Field } from '../../ui/Field';
-import { signup } from '@/shared/api/authApi';
-import { signUpSchema, type SignUpInput } from '@/shared/model/authSchema';
+import { signup } from '@/features/auth/api/authApi';
+import {
+  signUpSchema,
+  type SignUpInput,
+} from '@/features/auth/model/authSchema';
 
 export function SignUpPage() {
   const router = useRouter();

@@ -1,9 +1,9 @@
 ﻿import { Pressable, View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Text } from '@/shared/ui/text';
-import { logout } from '@/shared/api/authApi';
-import { useAuthStore } from '@/shared/model/useAuthStore';
-import { tokenStorage } from '@/shared/lib/tokenStorage';
+import { logout } from '@/features/auth/api/authApi';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import { tokenStorage } from '@/entities/session/lib/tokenStorage';
 
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user);

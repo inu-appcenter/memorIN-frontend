@@ -1,6 +1,6 @@
 import { Redirect, Slot } from 'expo-router';
 import { View } from 'react-native';
-import { useAuthStore } from '@/shared/model/useAuthStore';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
 
 export default function AuthLayout() {
   const status = useAuthStore((state) => state.status);

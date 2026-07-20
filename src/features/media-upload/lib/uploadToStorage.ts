@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
-import type { PresignedUpload } from '@/shared/api/mediaApi';
+import type { PresignedUpload } from '@/features/media-upload/api/mediaApi';
 // MinIO 직접 PUT (플랫폼 분기 "MinIO 클라이언트")
 
 // axios client를 우회해야 한다 (plain fetch / FileSystem)

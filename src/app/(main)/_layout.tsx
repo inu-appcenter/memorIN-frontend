@@ -1,6 +1,6 @@
 import { Redirect, Slot } from 'expo-router';
 import { AppShell } from '@/widgets/appShell';
-import { useAuthStore } from '@/shared/model/useAuthStore';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
 
 export default function MainLayout() {
   const status = useAuthStore((state) => state.status);
