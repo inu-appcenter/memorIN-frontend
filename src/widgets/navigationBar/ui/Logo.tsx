@@ -8,10 +8,10 @@ export function Logo() {
     <View className="flex-row items-center gap-xs">
       <MemorinIcon width={21} height={21} color={COLORS.brand} />
       <View className="flex-row">
-        <Text variant="h3" className="text-text font-bold">
+        <Text variant="heading" className="text-text font-bold">
           Memor
         </Text>
-        <Text variant="h3" className="font-bold text-accent">
+        <Text variant="heading" className="font-bold text-accent">
           IN
         </Text>
       </View>

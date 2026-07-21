@@ -74,7 +74,7 @@ export const NavBar = ({
     >
       {leftTabs.map(renderTabItem)}
 
-      {/* 중앙 플로팅 버튼 영역 */}
+      {/* 중앙 업로드 버튼 */}
       <View className="w-[64px] items-center justify-center">
         {' '}
         <Pressable

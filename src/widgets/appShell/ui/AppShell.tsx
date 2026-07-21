@@ -1,4 +1,4 @@
-import type { FC, PropsWithChildren } from 'react';
+﻿import type { FC, PropsWithChildren } from 'react';
 import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,8 +14,8 @@ import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import HomeIcon from '@/shared/assets/icons/home.svg';
-import LogIcon from '@/shared/assets/icons/log.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
+import LogIcon from '@/shared/assets/icons/log.svg';
 import ChatIcon from '@/shared/assets/icons/chat.svg';
 
 const NAV_ICON: Record<TabItem, FC<SvgProps>> = {
@@ -44,6 +44,25 @@ function Brand({ compact = false }: { compact?: boolean }) {
         <Text className="font-sans-bold text-[24px] text-primary">MemorIN</Text>
       )}
     </View>
+  );
+}
+// 업로드 버튼 (테블릿, 폰 환경에서만 노출)
+function UploadButton({ compact = false }: { compact?: boolean }) {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      onPress={() => router.navigate('/upload')}
+      className={cn(
+        'items-center justify-center rounded-md bg-brand',
+        compact ? 'h-[52px] w-[48px]' : 'h-[46px] w-full flex-row gap-sm'
+      )}
+    >
+      <Text className="text-[28px] leading-[28px] text-on-brand">+</Text>
+      {!compact && (
+        <Text className="font-sans-bold text-on-brand">기록 올리기</Text>
+      )}
+    </Pressable>
   );
 }
 
@@ -81,25 +100,6 @@ function NavItem({
         >
           {TAB_LABELS[tab]}
         </Text>
-      )}
-    </Pressable>
-  );
-}
-
-function UploadButton({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
-
-  return (
-    <Pressable
-      onPress={() => router.navigate('/upload')}
-      className={cn(
-        'items-center justify-center rounded-md bg-brand',
-        compact ? 'h-[52px] w-[48px]' : 'h-[46px] w-full flex-row gap-sm'
-      )}
-    >
-      <Text className="text-[28px] leading-[28px] text-on-brand">+</Text>
-      {!compact && (
-        <Text className="font-sans-bold text-on-brand">기록 올리기</Text>
       )}
     </Pressable>
   );
@@ -154,7 +154,6 @@ function BottomNav() {
   const renderItem = (tab: TabItem) => {
     const Icon = NAV_ICON[tab];
     const active = activeTab === tab;
-
     return (
       <Pressable
         key={tab}
@@ -193,6 +192,7 @@ export function AppShell({ children }: PropsWithChildren) {
   const { device } = useBreakpoints();
   const inset = useSafeAreaInsets();
 
+  // 데스크탑
   if (device === 'desktop') {
     return (
       <View className="h-full flex-1 items-center bg-surface">
@@ -203,7 +203,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </View>
     );
   }
-
+  // 테블릿
   if (device === 'tablet') {
     return (
       <View className="h-full flex-1 items-center bg-surface">
@@ -214,7 +214,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </View>
     );
   }
-
+  // 폰
   return (
     <View
       className="flex-1 bg-page"
