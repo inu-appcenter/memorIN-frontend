@@ -1,18 +1,37 @@
 import { compressMedia } from './compressMedia';
-import { getPresignedUploadUrl } from '@/features/media-upload/api/mediaApi';
+import { getPresignedUploadUrl } from '../api/mediaApi';
 import { uploadToStorage } from './uploadToStorage';
 
+export interface UploadedAttachment {
+  fileKey: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  width?: number | null;
+  height?: number | null;
+}
+
 export async function uploadMedia(
-  asset: { uri: string; type: 'image' | 'video'; mimeType?: string },
+  asset: {
+    uri: string;
+    type: 'image' | 'video';
+    mimeType?: string;
+    durationMs?: number | null;
+  },
   fileName: string
-): Promise<string> {
-  const { uri, contentType, contentLength } = await compressMedia(asset);
-  console.log('[업로드 테스트] 압축 후:', { contentType, contentLength }); // 추가
+): Promise<UploadedAttachment> {
+  const { uri, contentType, contentLength, width, height } =
+    await compressMedia(asset);
   const presigned = await getPresignedUploadUrl({
     fileName,
     contentType,
     contentLength,
   });
   await uploadToStorage(presigned, uri);
-  return presigned.objectKey;
+  return {
+    fileKey: presigned.objectKey,
+    mimeType: contentType,
+    fileSizeBytes: contentLength,
+    width,
+    height,
+  };
 }

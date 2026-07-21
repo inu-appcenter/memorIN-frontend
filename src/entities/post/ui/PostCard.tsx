@@ -2,14 +2,22 @@ import { Text } from '@/shared/ui/text';
 import { Image, View } from 'react-native';
 import type { PostSummary } from '../api/postsApi';
 import { extractPreviewText, formatRecordedLabel } from '../model/postContent';
+import { resolveMediaUrl } from '../lib/resolveMediaUrl';
+import { PostVideoCover } from './PostVideoCover';
 
 interface PostCardProps {
   post: PostSummary;
+  isVisible?: boolean; // 기본값은 true(항상 재생)
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, isVisible = true }: PostCardProps) {
   const previewText = extractPreviewText(post.content);
-  const coverImageUrl = post.attachments[0]?.url?.[0];
+  const coverAttachment = post.attachments[0];
+  const coverUrl = coverAttachment
+    ? resolveMediaUrl(coverAttachment)
+    : undefined;
+  const isVideoCover =
+    coverAttachment?.contentType.startsWith('video/') ?? false;
 
   return (
     <View className="mb-lg overflow-hidden rounded-lg border border-border bg-page">
@@ -28,9 +36,11 @@ export function PostCard({ post }: PostCardProps) {
           <Text className="text-tertiary">•••</Text>
         </View>
       </View>
-      {coverImageUrl ? (
+      {coverUrl && isVideoCover ? (
+        <PostVideoCover uri={coverUrl} isVisible={isVisible} />
+      ) : coverUrl ? (
         <Image
-          source={{ uri: coverImageUrl }}
+          source={{ uri: coverUrl }}
           className="h-[360px] w-full bg-surface"
           resizeMode="cover"
         />

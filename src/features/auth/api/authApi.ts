@@ -32,7 +32,7 @@ export async function signup(input: SignUpInput): Promise<void> {
     password: input.password,
     username: input.username,
     displayName: input.displayName,
-    bio: '안녕하세요! 신규 가입자입니다.' /* api명세서랑 다름.. 백엔드수정필요해보이는 항목 */,
+    bio: '안녕하세요! 신규 가입자입니다.' /* 백엔드에서 선택 필드로 바꾸는 방향으로 결정. bio(자기소개)는 추후 프로필 설정에서 설정 가능 - 백엔드 코드 반영 이후 해당 코드 삭제 예정*/,
   });
   if (!data.success) throw new Error(data.error?.message ?? '회원가입 실패');
 }

@@ -7,7 +7,7 @@ export type TimeslotType = 'AM' | 'PM';
 
 export interface PostMedia {
   objectKey: string;
-  url: string[];
+  url: string | null; // presigned 다운로드 URL. 발급 실패 시 null
   contentType: string;
   order: number;
   width: number | null;
@@ -50,6 +50,53 @@ export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
       data.error?.message ?? '피드를 불러오지 못했습니다'
+    );
+  }
+
+  return data.data;
+}
+
+// 게시물 생성
+export interface CreatePostAttachment {
+  fileKey: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  width?: number | null;
+  height?: number | null;
+}
+
+export interface CreatePostParams {
+  content: string;
+  visibilityType: VisibilityType;
+  timeslotType: TimeslotType;
+  recordedDate?: string; // yyyy-MM-dd, 생략하면 백엔드가 오늘 날짜로 채움
+  attachments?: CreatePostAttachment[]; // 최대 10개 (백엔드 제약)
+}
+
+export interface CreatePostResponse {
+  postId: string;
+  authorId: string;
+  content: string;
+  visibility: VisibilityType;
+  timeslot: TimeslotType;
+  recordedDate: string;
+  attachments: PostMedia[];
+  createdAt: string;
+}
+
+// POST /api/posts — 인증 필요
+export async function createPost(
+  params: CreatePostParams
+): Promise<CreatePostResponse> {
+  const { data } = await client.post<ApiResponse<CreatePostResponse>>(
+    '/api/posts',
+    params
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? '게시물을 작성하지 못했습니다'
     );
   }
 
