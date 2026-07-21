@@ -1,13 +1,16 @@
 import { Text } from '@/shared/ui/text';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
+import type { PostSummary } from '../api/postsApi';
+import { extractPreviewText, formatRecordedLabel } from '../model/postContent';
 
 interface PostCardProps {
-  name: string;
-  time: string;
+  post: PostSummary;
 }
 
-// 게시물 하나를 표현하는 카드 (피드/프로필 등에서 재사용)
-export function PostCard({ name, time }: PostCardProps) {
+export function PostCard({ post }: PostCardProps) {
+  const previewText = extractPreviewText(post.content);
+  const coverImageUrl = post.attachments[0]?.url?.[0];
+
   return (
     <View className="mb-lg overflow-hidden rounded-lg border border-border bg-page">
       <View className="gap-sm p-lg">
@@ -15,26 +18,37 @@ export function PostCard({ name, time }: PostCardProps) {
           <View className="flex-row items-center gap-md">
             <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
             <View>
-              <Text className="font-bold">{name}</Text>
-              <Text className="text-muted">{time}</Text>
+              {/* 작성자 표시 이름 조회 API(/api/users/{id})가 아직 없어 authorId만 표시 */}
+              <Text className="font-bold">{post.authorId.slice(0, 8)}</Text>
+              <Text className="text-muted">
+                {formatRecordedLabel(post.recordedDate, post.timeslot)}
+              </Text>
             </View>
           </View>
           <Text className="text-tertiary">•••</Text>
         </View>
-        <View className="self-start rounded-full bg-accent-subtle px-sm py-xs">
-          <Text className="text-accent-text">오전</Text>
+      </View>
+      {coverImageUrl ? (
+        <Image
+          source={{ uri: coverImageUrl }}
+          className="h-[360px] w-full bg-surface"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="h-[360px] items-center justify-center border-y border-dashed border-border bg-surface">
+          <Text className="text-tertiary">IMG</Text>
         </View>
-      </View>
-      <View className="h-[360px] items-center justify-center border-y border-dashed border-border bg-surface">
-        <Text className="text-tertiary">IMG</Text>
-      </View>
+      )}
       <View className="gap-md p-lg">
-        <Text className="text-secondary">
-          오늘 아침의 상쾌한 공기와 함께 산책을 다녀왔어요.
-        </Text>
+        {previewText ? (
+          <Text className="text-secondary">{previewText}</Text>
+        ) : (
+          <Text className="text-tertiary">내용 없음</Text>
+        )}
         <View className="flex-row gap-xl">
-          <Text className="text-tertiary">♡ 12</Text>
-          <Text className="text-tertiary">○ 3</Text>
+          {/* 좋아요/댓글 수 API 미제공 — 실제 카운트로 착각하지 않도록 숫자 없이 아이콘만 표시 */}
+          <Text className="text-tertiary">♡</Text>
+          <Text className="text-tertiary">○</Text>
           <Text className="text-tertiary">⇧</Text>
         </View>
       </View>
