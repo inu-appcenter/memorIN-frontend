@@ -1,19 +1,16 @@
-﻿import { Link, useRouter } from 'expo-router';
+﻿import { Link } from 'expo-router';
 import { View, Pressable } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { Text } from '@/shared/ui/text';
 import { Field } from '../../ui/Field';
-import { signup } from '@/features/auth/api/authApi';
+import { useSignUp } from '@/features/auth/model/useSignUp';
 import {
   signUpSchema,
   type SignUpInput,
 } from '@/features/auth/model/authSchema';
 
 export function SignUpPage() {
-  const router = useRouter();
-
   const {
     control,
     handleSubmit,
@@ -29,19 +26,7 @@ export function SignUpPage() {
     },
   });
 
-  const {
-    mutate,
-    isPending,
-    error: submitError,
-  } = useMutation({
-    mutationFn: signup,
-    onSuccess: () => {
-      // 1. 가입 즉시 자동 로그인
-      // router.replace('/feed');
-      // 2. 가입 즉시 로그인 페이지로 리다이렉팅
-      router.replace('/sign-in');
-    },
-  });
+  const { mutate, isPending, error: submitError } = useSignUp();
 
   const onSubmit = (data: SignUpInput) => mutate(data);
 

@@ -1,9 +1,9 @@
 ﻿import { ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
-import { StoryRail } from './StoryRail';
-import { FeedCard } from './FeedCard';
-import { RightPanel } from './RightPanel';
+import { StoryRail } from '@/widgets/storyRail';
+import { PostCard } from '@/entities/post';
+import { RightPanel } from '@/widgets/feedRightPanel';
 
 export function FeedPage() {
   const { device } = useBreakpoints();
@@ -33,8 +33,8 @@ export function FeedPage() {
         <ScrollView className="flex-1">
           <StoryRail />
           <View className="mx-auto w-full p-lg">
-            <FeedCard name="홍길동" time="오늘 아침 08:24" />
-            <FeedCard name="이서준" time="오늘 점심 12:40" />
+            <PostCard name="홍길동" time="오늘 아침 08:24" />
+            <PostCard name="이서준" time="오늘 점심 12:40" />
           </View>
         </ScrollView>
       </View>

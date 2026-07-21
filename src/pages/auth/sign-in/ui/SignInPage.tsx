@@ -1,20 +1,15 @@
-﻿import { useMutation } from '@tanstack/react-query';
-import { Link, useRouter } from 'expo-router';
+﻿import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
-import { login } from '@/features/auth/api/authApi';
-import { useSetAuthenticated } from '@/entities/session/model/useAuthStore';
+import { useSignIn } from '@/features/auth/model/useSignIn';
 import {
   signInSchema,
   type SignInInput,
 } from '@/features/auth/model/authSchema';
 
 export function SignInPage() {
-  const router = useRouter();
-  const setAuthenticated = useSetAuthenticated();
-
   const {
     control,
     handleSubmit,
@@ -24,14 +19,7 @@ export function SignInPage() {
     defaultValues: { email: '', password: '' },
   });
 
-  // 뮤테이션 별도로 분리 필요
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      setAuthenticated(data.accessToken); // user는 없이 (store에서 옵셔널 처리)
-      router.replace('/feed');
-    },
-  });
+  const { mutate, isPending, error } = useSignIn();
 
   const onSubmit = (input: SignInInput) => mutate(input);
 

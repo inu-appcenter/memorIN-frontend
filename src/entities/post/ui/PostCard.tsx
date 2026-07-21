@@ -1,7 +1,13 @@
 import { Text } from '@/shared/ui/text';
 import { View } from 'react-native';
 
-export function FeedCard({ name, time }: { name: string; time: string }) {
+interface PostCardProps {
+  name: string;
+  time: string;
+}
+
+// 게시물 하나를 표현하는 카드 (피드/프로필 등에서 재사용)
+export function PostCard({ name, time }: PostCardProps) {
   return (
     <View className="mb-lg overflow-hidden rounded-lg border border-border bg-page">
       <View className="gap-sm p-lg">
