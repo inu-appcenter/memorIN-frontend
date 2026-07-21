@@ -59,6 +59,7 @@ export function FeedPage() {
           className="flex-1"
           data={posts}
           keyExtractor={(post: PostSummary) => post.postId}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View className="mx-auto w-full px-lg">
               <PostCard
