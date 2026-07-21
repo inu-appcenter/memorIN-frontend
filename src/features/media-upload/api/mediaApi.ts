@@ -1,8 +1,5 @@
 import { client } from '../../../shared/api/client';
 
-// TODO: JWT 붙으면 제거하고 실제 로그인 사용자 id로 교체
-const TEST_USER_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'; // crypto.randomUUID() 결과값 하나 고정 (임시)
-
 export interface PresignedUpload {
   uploadUrl: string;
   objectKey: string;
@@ -39,7 +36,7 @@ export async function getPresignedUploadUrl(body: {
 }): Promise<PresignedUpload> {
   const res = await client.post<PresignedUpload>(
     '/api/media/presigned-upload-url',
-    { ...body, userId: TEST_USER_ID }
+    body
   );
   return res.data;
 }
