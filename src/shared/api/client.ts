@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { Platform } from 'react-native';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 // axois 인터셉터, 인스턴스 등을 정의
 
@@ -34,8 +35,18 @@ export class ApiError extends Error {
   }
 }
 
+function resolveApiBaseUrl(): string | undefined {
+  const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (Platform.OS === 'android' && baseUrl) {
+    return baseUrl
+      .replace('localhost', '10.0.2.2')
+      .replace('127.0.0.1', '10.0.2.2');
+  }
+  return baseUrl;
+}
+
 export const client = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
+  baseURL: resolveApiBaseUrl(),
   timeout: 10000, // 10초
   headers: { 'Content-Type': 'application/json' },
 });
