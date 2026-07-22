@@ -30,7 +30,7 @@ export function VisibilitySelect({
               key={option.value}
               onPress={() => onChange(option.value)}
               disabled={disabled}
-              className={`rounded-full border px-lg py-sm ${selected ? 'border-brand-subtle bg-brand-subtle' : 'border-border bg-page'}`}
+              className={`rounded-full border px-lg py-sm transition-opacity hover:opacity-80 ${selected ? 'border-brand-subtle bg-brand-subtle' : 'border-border bg-page'}`}
             >
               <Text className={selected ? 'text-link' : 'text-secondary'}>
                 {option.label}
