@@ -32,6 +32,12 @@ export function FeedPage() {
   // 카드가 뷰포트에 80% 이상 보일 때만 동영상을 자동 재생
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 80 }).current;
 
+  const handleEndReached = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
   return (
     <View className="flex-1 flex-row bg-page">
       <View className="flex-1">
@@ -60,6 +66,9 @@ export function FeedPage() {
           data={posts}
           keyExtractor={(post: PostSummary) => post.postId}
           showsVerticalScrollIndicator={false}
+          // 리스트의 끝에 도달했을 때 실행할 콜백 함수를 지정
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
           renderItem={({ item }) => (
             <View className="mx-auto w-full px-lg">
               <PostCard
@@ -100,17 +109,9 @@ export function FeedPage() {
             </>
           }
           ListFooterComponent={
-            hasNextPage ? (
-              <View className="mx-auto w-full px-lg pb-lg">
-                <Pressable
-                  onPress={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  className="items-center py-lg"
-                >
-                  <Text className="font-bold text-link">
-                    {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
-                  </Text>
-                </Pressable>
+            isFetchingNextPage ? (
+              <View className="items-center py-lg">
+                <Text className="text-muted">불러오는 중...</Text>
               </View>
             ) : (
               <View className="pb-lg" />
