@@ -1,0 +1,43 @@
+name: CI
+
+# main으로 가는 PR을 검증한다.
+# 목적은 "타입 오류가 있는 코드가 main에 머지되는 것"을 막는 것이다.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# 같은 브랜치에 새 커밋이 올라오면 이전 실행은 취소한다.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: 타입 체크
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v7
+
+      - name: Node 20 설정 (의존성 캐시 포함)
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 타입 체크
+        run: npm run typecheck
+
+      # ESLint 설정 파일이 추가되면 이 스텝이 자동으로 같이 돌아간다.    
+      - name: Lint (ESLint 설정 시)
+        if:
+          hashFiles('eslint.config.js', 'eslint.config.mjs', '.eslintrc.js',
+          '.eslintrc.json', '.eslintrc.cjs') != ''
+        run: npm run lint
