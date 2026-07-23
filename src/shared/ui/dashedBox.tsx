@@ -6,6 +6,7 @@ import { COLORS } from '@/shared/lib/theme';
 interface DashedBoxProps extends ViewProps {
   borderRadius?: number;
   borderColor?: string;
+  strokeWidth?: number; // [추가]
 }
 
 // RN 기본 borderStyle="dashed"는 플랫폼마다 대시 길이/간격이 다르게 렌더링돼서
@@ -16,6 +17,7 @@ export function DashedBox({
   style,
   borderRadius = 20,
   borderColor = COLORS.border,
+  strokeWidth = 1.5,
   ...rest
 }: PropsWithChildren<DashedBoxProps>) {
   return (
@@ -39,7 +41,7 @@ export function DashedBox({
           ry={borderRadius}
           fill="none"
           stroke={borderColor}
-          strokeWidth={1.5}
+          strokeWidth={strokeWidth}
           strokeDasharray="6 4"
         />
       </Svg>

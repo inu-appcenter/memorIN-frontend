@@ -1,8 +1,13 @@
 import { memo } from 'react';
 import { Text } from '@/shared/ui/text';
-import { Image, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, View } from 'react-native'; 
 import type { PostSummary } from '../api/postsApi';
-import { extractPreviewText, formatRecordedLabel } from '../model/postContent';
+import {
+  extractPreviewText,
+  formatRecordedLabel,
+  getTimeslotLabel,
+} from '../model/postContent';
+import { useDeletePost } from '../model/useDeletePost';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
 import { PostVideoCover } from './PostVideoCover';
 
@@ -19,6 +24,39 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
     : undefined;
   const isVideoCover =
     coverAttachment?.contentType.startsWith('video/') ?? false;
+  const timeslotLabel = getTimeslotLabel(post.timeslot);
+
+  const deletePost = useDeletePost();
+
+  // 삭제 mutate (확인 후 공통으로 호출)
+  const runDelete = () => {
+    deletePost.mutate(post.postId, {
+      onError: (error) => {
+        const message = (error as Error).message;
+        // react-native-web은 Alert.alert가 온전히 동작하지 않아 웹은 window.alert 사용
+        if (Platform.OS === 'web') {
+          window.alert(`삭제 실패: ${message}`);
+        } else {
+          Alert.alert('삭제 실패', message);
+        }
+      },
+    });
+  };
+
+  // 웹은 Alert.alert(버튼 여러 개)가 안 뜨는 경우가 있어 window.confirm으로 분기
+  const handlePressMenu = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('이 게시물을 삭제할까요?')) {
+        runDelete();
+      }
+      return;
+    }
+
+    Alert.alert('게시물 삭제', '이 게시물을 삭제할까요?', [
+      { text: '취소', style: 'cancel' },
+      { text: '삭제', style: 'destructive', onPress: runDelete },
+    ]);
+  };
 
   return (
     <View className="mb-lg overflow-hidden rounded-lg border border-border bg-page">
@@ -34,8 +72,19 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
               </Text>
             </View>
           </View>
-          <Text className="text-tertiary">•••</Text>
+          <Pressable
+            onPress={handlePressMenu}
+            disabled={deletePost.isPending}
+            hitSlop={8}
+          >
+            <Text className="text-tertiary">•••</Text>
+          </Pressable>
         </View>
+        {timeslotLabel && (
+          <View className="self-start rounded-full bg-accent-subtle px-sm py-xs">
+            <Text className="text-accent-text">{timeslotLabel}</Text>
+          </View>
+        )}
       </View>
       {coverUrl && isVideoCover ? (
         <PostVideoCover uri={coverUrl} isVisible={isVisible} />
@@ -67,5 +116,5 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
   );
 }
 
-// [변경] props(post, isVisible)가 안 바뀐 카드는 리렌더 건너뛰도록 memo 적용
+// props(post, isVisible)가 안 바뀐 카드는 리렌더 건너뛰도록 memo 적용
 export const PostCard = memo(PostCardComponent);
