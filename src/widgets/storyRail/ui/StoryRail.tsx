@@ -5,7 +5,6 @@ import { stories } from '@/shared/config/dummy';
 export function StoryRail() {
   return (
     <View className="border-b border-border px-lg py-md">
-      <Text className="mb-md text-secondary">친구들의 오늘</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View className="flex-row gap-lg">
           {stories.map((name, index) => (

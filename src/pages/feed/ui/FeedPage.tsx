@@ -1,7 +1,12 @@
-﻿import { useCallback, useRef, useState } from 'react';
-import { Pressable, View, type ViewToken } from 'react-native';
-import { ActivityIndicator } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  View,
+  type ViewToken,
+} from 'react-native';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
@@ -32,7 +37,6 @@ export function FeedPage() {
       );
     }
   ).current;
-  // 카드가 뷰포트에 80% 이상 보일 때만 동영상을 자동 재생
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 80 }).current;
 
   const handleEndReached = useCallback(() => {
@@ -51,6 +55,24 @@ export function FeedPage() {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
+
+  // 화면 전체 휠 스크롤을 피드 리스트로 전달
+  const listRef = useRef<FlashListRef<PostSummary>>(null);
+  const scrollOffsetRef = useRef(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    // 사이드바/오른쪽 패널 등 피드 리스트 바깥에 커서가 있어도 휠 스크롤이 피드에 적용되도록, 브라우저 기본 스크롤을 막고 수동으로 오프셋을 계산해 스크롤한다.
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const nextOffset = Math.max(scrollOffsetRef.current + event.deltaY, 0);
+      listRef.current?.scrollToOffset({ offset: nextOffset, animated: false });
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <View className="flex-1 flex-row bg-page">
@@ -71,13 +93,18 @@ export function FeedPage() {
           <View className="flex-1 items-center justify-center">
             <Text className="border-b-2 border-brand font-bold">팔로잉</Text>
           </View>
-        </View>
+        </View>{' '}
         {/* 뷰를 재활용해서 이미지/동영상이 많은 피드에서 메모리 사용량과 스크롤 프레임 드랍을 줄임 */}
         <View className="flex-1">
           <FlashList
+            ref={listRef}
             data={posts}
             keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}
+            onScroll={(e) => {
+              scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
             renderItem={renderItem}
