@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Text } from '@/shared/ui/text';
 import { Image, View } from 'react-native';
 import type { PostSummary } from '../api/postsApi';
@@ -7,10 +8,10 @@ import { PostVideoCover } from './PostVideoCover';
 
 interface PostCardProps {
   post: PostSummary;
-  isVisible?: boolean; // 기본값은 true(항상 재생)
+  isVisible?: boolean;
 }
 
-export function PostCard({ post, isVisible = true }: PostCardProps) {
+function PostCardComponent({ post, isVisible = true }: PostCardProps) {
   const previewText = extractPreviewText(post.content);
   const coverAttachment = post.attachments[0];
   const coverUrl = coverAttachment
@@ -56,7 +57,7 @@ export function PostCard({ post, isVisible = true }: PostCardProps) {
           <Text className="text-tertiary">내용 없음</Text>
         )}
         <View className="flex-row gap-xl">
-          {/* 좋아요/댓글 수 API 미제공 — 실제 카운트로 착각하지 않도록 숫자 없이 아이콘만 표시 */}
+          {/* 좋아요/댓글 수 API 미제공 상태라 아이콘만 표시 */}
           <Text className="text-tertiary">♡</Text>
           <Text className="text-tertiary">○</Text>
           <Text className="text-tertiary">⇧</Text>
@@ -65,3 +66,6 @@ export function PostCard({ post, isVisible = true }: PostCardProps) {
     </View>
   );
 }
+
+// [변경] props(post, isVisible)가 안 바뀐 카드는 리렌더 건너뛰도록 memo 적용
+export const PostCard = memo(PostCardComponent);
