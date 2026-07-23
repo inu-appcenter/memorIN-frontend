@@ -108,7 +108,6 @@ export function UploadPage() {
             multiline
             editable={!isPending}
             textAlignVertical="top"
-            // [추가] 안드로이드가 줄마다 기본으로 더 얹는 여백을 제거해 좁은 높이에서도 안 잘리게 함
             style={{ includeFontPadding: false }}
             className="flex-1 text-primary"
           />
@@ -148,7 +147,6 @@ export function UploadPage() {
             · 업로드 시 이미지・영상이 자동으로 압축돼요
           </Text>
         </View>
-        {/* [변경] 제출 버튼 hover 추가 */}
         <Pressable
           onPress={handleSubmit}
           disabled={isPending}

@@ -102,3 +102,17 @@ export async function createPost(
 
   return data.data;
 }
+
+// DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null.
+export async function deletePost(postId: string): Promise<void> {
+  const { data } = await client.delete<ApiResponse<null>>(
+    `/api/posts/${postId}`
+  );
+
+  if (!data.success) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? '게시물을 삭제하지 못했습니다'
+    );
+  }
+}

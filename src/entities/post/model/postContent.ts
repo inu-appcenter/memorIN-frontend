@@ -20,6 +20,13 @@ export function extractPreviewText(rawContent: string): string {
   }
 }
 
+// 뱃지 등 라벨만 단독으로 필요한 곳에서 재사용하기 위해 분리
+export function getTimeslotLabel(timeslot: TimeslotType | null): string | null {
+  if (timeslot === 'AM') return '오전';
+  if (timeslot === 'PM') return '오후';
+  return null;
+}
+
 export function formatRecordedLabel(
   recordedDate: string,
   timeslot: TimeslotType | null
