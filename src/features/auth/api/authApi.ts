@@ -7,14 +7,13 @@ import { client, type ApiResponse } from '../../../shared/api/client';
 // 로그인 비동기함수
 export async function login(
   input: SignInInput
-): Promise<{ accessToken: string }> {
-  const response = await client.post<ApiResponse<{ accessToken: string }>>(
-    '/auth/login',
-    {
-      email: input.email,
-      password: input.password,
-    }
-  );
+): Promise<{ accessToken: string; refreshToken: string }> {
+  const response = await client.post<
+    ApiResponse<{ accessToken: string; refreshToken: string }>
+  >('/auth/login', {
+    email: input.email,
+    password: input.password,
+  });
 
   const body = response.data;
 
@@ -53,11 +52,6 @@ export async function signup(input: SignUpInput): Promise<void> {
     bio: '안녕하세요! 신규 가입자입니다.' /* 백엔드에서 선택 필드로 바꾸는 방향으로 결정. bio(자기소개)는 추후 프로필 설정에서 설정 가능 - 백엔드 코드 반영 이후 해당 코드 삭제 예정*/,
   });
   if (!data.success) throw new Error(data.error?.message ?? '회원가입 실패');
-}
-
-// 부트스트랩용: 저장된 세션으로 내 정보 조회 (실연동 시 GET /auth/me)
-export async function fetchMe() {
-  return null; // /me 엔드포인트 없음 → 부트스트랩은 항상 미인증으로 판정
 }
 
 // 실연동 시 POST /auth/logout (서버가 쿠키 만료 + 토큰 무효화)

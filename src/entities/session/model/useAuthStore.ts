@@ -18,7 +18,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  status: 'loading', // 앱 시작 시 부트스트랩(fetchMe) 판정 전까지 loading
+  status: 'loading', // 앱 시작 시 부트스트랩(저장된 accessToken 복원) 판정 전까지 loading
   user: null,
   accessToken: null,
   setAuthenticated: (accessToken: string, user?: AuthUser | null) =>
