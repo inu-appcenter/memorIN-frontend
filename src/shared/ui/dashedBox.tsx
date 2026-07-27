@@ -6,7 +6,7 @@ import { COLORS } from '@/shared/lib/theme';
 interface DashedBoxProps extends ViewProps {
   borderRadius?: number;
   borderColor?: string;
-  strokeWidth?: number; // [추가]
+  strokeWidth?: number;
 }
 
 // RN 기본 borderStyle="dashed"는 플랫폼마다 대시 길이/간격이 다르게 렌더링돼서

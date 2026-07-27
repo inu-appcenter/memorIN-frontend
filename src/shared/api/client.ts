@@ -76,8 +76,11 @@ client.interceptors.response.use(
   }
 );
 
-// 토큰 재발급 api 연동 (예정) - 401에러(Unauthorized) → refresh → 재시도 인터셉터
-// POST /auth/reissue
+// 토큰 재발급 함수는 features/auth/api/authApi.ts의 refreshAccessToken으로 구현돼 있다.
+// 401 발생 시 자동으로 재발급을 시도하고 원래 요청을 재시도하는 인터셉터는 아직 연결하지
+// 않았다 - 백엔드의 POST /auth/refresh가 만료되지 않은 access token을 요구하고 있어서,
+// 정작 access token이 만료된 상황(401이 나는 그 상황)에 재발급 자체가 401로 실패하는
+// 문제가 있다(백엔드 확인 필요). 이 문제가 해결된 뒤 여기에 인터셉터를 추가한다.
 
 // 로그아웃 api 연동 (예정)
 // POST /auth/logout
