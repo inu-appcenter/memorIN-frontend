@@ -2,6 +2,10 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store'; // 네이티브를 위한 시큐어 스토리지
 
 const isWeb = Platform.OS === 'web';
+
+export const ACCESS_TOKEN_KEY = 'accessToken';
+export const REFRESH_TOKEN_KEY = 'refreshToken';
+
 /**
  * 플랫폼(웹 vs 네이티브 앱)에 따라 refresh token을 저장하는 방식을 자동으로 분기 처리해 주는 추상화 모듈
  * 웹: localStorage — 현재로서는 로컬스토리지를 사용하지만, 백엔드가 httpOnly 쿠키를 지원하면 웹에서는 아무동작도 하지 않도록 수정
