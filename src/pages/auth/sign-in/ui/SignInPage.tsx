@@ -1,8 +1,9 @@
 ﻿import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Pressable, TextInput, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
+import { Field } from '@/pages/auth/ui/Field';
 import { useSignIn } from '@/features/auth/model/useSignIn';
 import {
   signInSchema,
@@ -41,21 +42,16 @@ export function SignInPage() {
             control={control}
             name="email"
             render={({ field: { value, onChange } }) => (
-              <View>
-                <TextInput
-                  className="h-[50px] rounded-md bg-surface px-lg text-primary"
-                  placeholder="이메일를 입력하세요"
-                  value={value}
-                  onChangeText={onChange}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-                {errors.email && (
-                  <Text variant="caption" className="mt-xs text-error">
-                    {errors.email.message}
-                  </Text>
-                )}
-              </View>
+              <Field
+                placeholder="이메일를 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
+                error={errors.email?.message}
+              />
             )}
           />
 
@@ -63,20 +59,15 @@ export function SignInPage() {
             control={control}
             name="password"
             render={({ field: { value, onChange } }) => (
-              <View>
-                <TextInput
-                  className="h-[50px] rounded-md bg-surface px-lg text-primary"
-                  placeholder="비밀번호를 입력하세요"
-                  value={value}
-                  onChangeText={onChange}
-                  secureTextEntry
-                />
-                {errors.password && (
-                  <Text variant="caption" className="mt-xs text-error">
-                    {errors.password.message}
-                  </Text>
-                )}
-              </View>
+              <Field
+                placeholder="비밀번호를 입력하세요"
+                value={value}
+                onChangeText={onChange}
+                isPassword
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit(onSubmit)}
+                error={errors.password?.message}
+              />
             )}
           />
         </View>

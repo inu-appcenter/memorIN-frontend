@@ -53,6 +53,8 @@ export function SignUpPage() {
                 placeholder="이메일을 입력하세요"
                 value={value}
                 onChangeText={onChange}
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 error={errors.email?.message}
@@ -68,7 +70,9 @@ export function SignUpPage() {
                 placeholder="비밀번호를 입력하세요"
                 value={value}
                 onChangeText={onChange}
-                secureTextEntry
+                isPassword
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
                 error={errors.password?.message}
               />
             )}
@@ -82,7 +86,9 @@ export function SignUpPage() {
                 placeholder="비밀번호를 다시 입력하세요"
                 value={value}
                 onChangeText={onChange}
-                secureTextEntry
+                isPassword
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
                 error={errors.passwordConfirm?.message}
               />
             )}
@@ -97,6 +103,8 @@ export function SignUpPage() {
                 placeholder="사용자명을 입력하세요"
                 value={value}
                 onChangeText={onChange}
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
                 error={errors.username?.message}
               />
             )}
@@ -110,6 +118,8 @@ export function SignUpPage() {
                 placeholder="표시 이름을 입력하세요"
                 value={value}
                 onChangeText={onChange}
+                returnKeyType="next"
+                onSubmitEditing={handleSubmit(onSubmit)}
                 error={errors.displayName?.message}
               />
             )}

@@ -5,6 +5,7 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    types: [opened, edited, reopened, synchronize]
 
 permissions:
   contents: read
@@ -40,3 +41,20 @@ jobs:
           hashFiles('eslint.config.js', 'eslint.config.mjs', '.eslintrc.js',
           '.eslintrc.json', '.eslintrc.cjs') != ''
         run: npm run lint
+
+  pr-title:
+    name: PR 제목 컨벤션 검사
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: '형식 확인 (type: 설명)'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$TITLE" =~ ^(feat|fix|chore|refactor|docs|test|style|perf)(\([a-z0-9-]+\))?:\ .+ ]]; then
+            echo "::error::PR 제목이 컨벤션을 따르지 않습니다: \"$TITLE\""
+            echo "형식: <type>: <설명>  (예: feat: 로그인 기능 추가)"
+            echo "허용 타입: feat, fix, chore, refactor, docs, test, style, perf"
+            exit 1
+          fi
+          echo "OK: $TITLE"
