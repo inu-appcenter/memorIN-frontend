@@ -35,8 +35,7 @@ jobs:
       - name: 타입 체크
         run: npm run typecheck
 
-      # ESLint 설정 파일이 추가되면 이 스텝이 자동으로 같이 돌아간다.    
-      - name: Lint (ESLint 설정 시)
+      - name: Lint 체크
         if:
           hashFiles('eslint.config.js', 'eslint.config.mjs', '.eslintrc.js',
           '.eslintrc.json', '.eslintrc.cjs') != ''
