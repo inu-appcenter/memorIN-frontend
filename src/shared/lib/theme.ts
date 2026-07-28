@@ -16,6 +16,7 @@ export const COLORS = {
   white: '#FFFFFF',
   iconDefault: '#C9F8FB',
   tertiary: '#5F6470',
+  neutral600: '#22252B', // primitive/neutral/600
 } as const;
 
 export type ColorToken = keyof typeof COLORS;
