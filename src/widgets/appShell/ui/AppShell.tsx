@@ -179,7 +179,7 @@ function BottomNav() {
         className="w-[72px] items-center justify-center"
         onPress={() => router.navigate('/upload')}
       >
-        <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-neutral-500">
+        <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-brand">
           <Text className="text-[30px] leading-[30px] text-on-brand">+</Text>
         </View>
       </Pressable>
