@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import SubmitArrowIcon from '@/shared/assets/icons/submitArrow.svg';
+import { cn } from '@/shared/lib/utils';
 
 interface ReplyBarProps {
   onSubmit: (text: string) => void;
   variant?: 'dark' | 'light';
   placeholder?: string;
+  padded?: boolean; // 기본 내부 여백(px-md py-sm) 적용 여부. 바깥에서 이미 여백을 주는 경우 false로 끔
 }
 
 // 댓글/메시지 하단 입력줄 — 입력창 + 제출(화살표) 버튼만 있다.
@@ -14,6 +16,7 @@ export function ReplyBar({
   onSubmit,
   variant = 'dark',
   placeholder = '댓글 달기...',
+  padded = true,
 }: ReplyBarProps) {
   const [text, setText] = useState('');
   const isDark = variant === 'dark';
@@ -40,7 +43,9 @@ export function ReplyBar({
       };
 
   return (
-    <View className="flex-row items-center gap-sm px-md py-sm">
+    <View
+      className={cn('flex-row items-center gap-sm', padded && 'px-md py-sm')}
+    >
       <TextInput
         value={text}
         onChangeText={setText}

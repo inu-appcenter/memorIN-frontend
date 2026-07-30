@@ -6,7 +6,8 @@ interface InfiniteFeedData {
   pageParams: unknown[];
 }
 
-// 삭제 성공 시 재조회 없이 캐시에서 해당 게시물만 바로 제거 (스크롤 위치 유지)
+// 삭제 성공 시 피드 캐시는 재조회 없이 바로 제거(스크롤 위치 유지),
+// 캘린더 캐시는 페이지 구조가 달라(무한 스크롤 아님) 그냥 invalidate로 재조회한다.
 export function useDeletePost() {
   const queryClient = useQueryClient();
 
@@ -26,6 +27,7 @@ export function useDeletePost() {
           };
         }
       );
+      queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
   });
 }

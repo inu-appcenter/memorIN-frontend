@@ -1,59 +1,72 @@
-import { useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
-import { formatKoreanDateHeading, toDateKey } from '@/shared/lib/calendarDate';
+import { formatKoreanDateHeading } from '@/shared/lib/calendarDate';
 import { extractPreviewText } from '@/entities/post/model/postContent';
 import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
 import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
-import { ReplyBar } from '@/shared/ui/replyBar';
-import { useMonthPosts } from '@/widgets/calendarGrid/model/useMonthPosts';
-import {
-  INITIAL_MOCK_COMMENTS,
-  type StoryComment,
-} from '@/shared/config/mockComments';
+import { useCommentThread } from '@/entities/post/model/useComments';
+import { PostActionsMenu } from '@/features/post-edit';
+import { cn } from '@/shared/lib/utils';
+import { useDaySlots, SLOT_LABEL } from '../model/useDaySlots';
 import type { PostSummary, TimeslotType } from '@/entities/post/api/postsApi';
 
 interface DayDetailContentProps {
   date: Date;
   onOpenStory: (posts: PostSummary[], startIndex: number) => void;
-  showEngagement?: boolean; // 데스크탑 패널에서만 좋아요/댓글 미리보기 표시
+  showComments?: boolean; // 데스크탑 패널에서만 슬롯별 댓글 미리보기 + 선택 강조 표시
+  activeSlot?: TimeslotType | null;
+  onSelectSlot?: (slot: TimeslotType) => void;
 }
 
-const SLOT_LABEL: Record<TimeslotType, string> = { AM: '오전', PM: '오후' };
-const SLOTS: TimeslotType[] = ['AM', 'PM'];
-const MOCK_LIKE_COUNT = 12; // 백엔드 좋아요 API 부재로 임시 고정값
+// 게시물 하나의 좋아요(장식용)/댓글 미리보기(개수 + 최근 2개). 입력은 DayDetailPanel 하단 공용 ReplyBar가 담당한다.
+function SlotCommentsPreview({ postId }: { postId: string }) {
+  const { data: comments, isLoading } = useCommentThread(postId);
+  // 최근 댓글이 잘 보이도록 뒤에서 2개 — 백엔드가 오래된 순으로 내려주므로 새 댓글은 배열 끝에 붙는다
+  const recentComments = comments?.slice(-2);
+
+  return (
+    <View style={{ marginTop: 8, gap: 8 }}>
+      <View className="flex-row items-center gap-md">
+        {/* 좋아요 API(컨트롤러)가 아직 없어서 장식용으로만 표시 — PostCard와 동일한 컨벤션 */}
+        <Text variant="body-small" className="text-tertiary">
+          ♡
+        </Text>
+        <Text variant="body-small" className="text-secondary">
+          댓글 {comments?.length ?? 0}
+        </Text>
+      </View>
+      {!isLoading &&
+        recentComments?.map((comment) => (
+          <View key={comment.commentId} className="flex-row gap-sm">
+            <View
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                backgroundColor: '#EDEEF2',
+                borderWidth: 1,
+                borderColor: '#DADCE3',
+              }}
+            />
+            <View className="flex-1">
+              <Text variant="body-small" className="text-secondary">
+                {comment.deleted ? '삭제된 댓글' : comment.body}
+              </Text>
+            </View>
+          </View>
+        ))}
+    </View>
+  );
+}
 
 export function DayDetailContent({
   date,
   onOpenStory,
-  showEngagement = false,
+  showComments = false,
+  activeSlot = null,
+  onSelectSlot,
 }: DayDetailContentProps) {
-  const { data: monthPosts, isLoading } = useMonthPosts(
-    date.getFullYear(),
-    date.getMonth()
-  );
-  // 하루(오전+오후 통틀어) 단위로 댓글 하나만 존재 — 게시물별이 아니라 날짜별 mock 상태
-  const [comments, setComments] = useState<StoryComment[]>(
-    INITIAL_MOCK_COMMENTS
-  );
-
-  const dateKey = toDateKey(date);
-  const postBySlot = SLOTS.map((slot) => ({
-    slot,
-    post: (monthPosts ?? []).find(
-      (post) => post.recordedDate === dateKey && post.timeslot === slot
-    ),
-  }));
-  const orderedPosts = postBySlot
-    .map((entry) => entry.post)
-    .filter((post): post is PostSummary => Boolean(post));
-
-  const handleAddComment = (text: string) => {
-    setComments((prev) => [
-      ...prev,
-      { id: String(Date.now()), author: '나', timeAgo: '방금', text, likes: 0 },
-    ]);
-  };
+  const { postBySlot, orderedPosts, isLoading } = useDaySlots(date);
 
   return (
     <View>
@@ -76,10 +89,22 @@ export function DayDetailContent({
           const isVideo =
             attachment?.contentType?.startsWith('video/') ?? false;
           const mediaUrl = attachment ? resolveMediaUrl(attachment) : undefined;
+          const isActive = showComments && slot === activeSlot;
 
           return (
-            <View key={slot} className="pb-lg">
-              <View className="mb-sm h-[110px] w-[332px] items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-surface">
+            <Pressable
+              key={slot}
+              onPress={() => post && onSelectSlot?.(slot)}
+              disabled={!post || !onSelectSlot}
+              className={cn(
+                'mb-lg rounded-md p-md',
+                isActive && 'bg-brand-subtle'
+              )}
+            >
+              <View
+                className="mb-sm h-[110px] w-full items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-surface"
+                style={{ position: 'relative' }}
+              >
                 {mediaUrl && isVideo ? (
                   <>
                     <PostVideoCover
@@ -103,8 +128,25 @@ export function DayDetailContent({
                     {post ? 'IMG' : '기록 없음'}
                   </Text>
                 )}
+
+                {/* 수정/삭제 메뉴  */}
+                {post && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      width: 28,
+                      height: 28,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <PostActionsMenu post={post} variant="dark" />
+                  </View>
+                )}
               </View>
-              <View className="flex-row items-center justify-between">
+              <View className="w-full flex-row items-center justify-between">
                 <Text variant="label">{SLOT_LABEL[slot]} 기록</Text>
                 {post && (
                   <Pressable
@@ -121,52 +163,13 @@ export function DayDetailContent({
               <Text variant="body-small" className="text-secondary">
                 {post ? extractPreviewText(post.content) : '아직 기록이 없어요'}
               </Text>
-            </View>
+
+              {showComments && post && (
+                <SlotCommentsPreview postId={post.postId} />
+              )}
+            </Pressable>
           );
         })}
-
-      {/* 하루(오전+오후) 전체에 대한 좋아요/댓글 — 게시물별이 아니라 날짜 단위로 하나 */}
-      {showEngagement && orderedPosts.length > 0 && (
-        <View
-          style={{
-            marginTop: 8,
-            paddingTop: 16,
-            borderTopWidth: 1,
-            borderTopColor: '#DADCE3',
-            gap: 12,
-          }}
-        >
-          <View className="flex-row items-center gap-lg">
-            <Text variant="body-small" className="text-secondary">
-              ♡ 좋아요 {MOCK_LIKE_COUNT}
-            </Text>
-            <Text variant="body-small" className="text-secondary">
-              댓글 {comments.length}
-            </Text>
-          </View>
-          {comments.map((comment) => (
-            <View key={comment.id} className="flex-row gap-sm">
-              <View
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
-                  backgroundColor: '#EDEEF2',
-                  borderWidth: 1,
-                  borderColor: '#DADCE3',
-                }}
-              />
-              <View className="flex-1">
-                <Text variant="label">{comment.author}</Text>
-                <Text variant="body-small" className="text-secondary">
-                  {comment.text}
-                </Text>
-              </View>
-            </View>
-          ))}
-          <ReplyBar variant="light" onSubmit={handleAddComment} />
-        </View>
-      )}
     </View>
   );
 }
