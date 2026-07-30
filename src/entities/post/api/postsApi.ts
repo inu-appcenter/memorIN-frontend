@@ -103,6 +103,51 @@ export async function createPost(
   return data.data;
 }
 
+// PATCH /api/posts/{postId} 응답 — memorIN-backend PostResponse 미러링.
+// CreatePostResponse와 달리 viewCount/updatedAt이 추가로 내려온다.
+export interface PostDetail {
+  postId: string;
+  authorId: string;
+  content: string;
+  visibility: VisibilityType;
+  timeslot: TimeslotType;
+  recordedDate: string;
+  viewCount: number;
+  attachments: PostMedia[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// PATCH 요청이라 모든 필드는 optional — 보내지 않은 필드는 "변경하지 않음"으로 처리된다
+// (attachments를 생략하면 기존 미디어 유지, 배열로 보내면 통째로 교체).
+export interface UpdatePostParams {
+  content?: string;
+  visibilityType?: VisibilityType;
+  timeslotType?: TimeslotType;
+  recordedDate?: string;
+  attachments?: CreatePostAttachment[];
+}
+
+// PATCH /api/posts/{postId} — 인증 필요, 작성자만 가능
+export async function updatePost(
+  postId: string,
+  params: UpdatePostParams
+): Promise<PostDetail> {
+  const { data } = await client.patch<ApiResponse<PostDetail>>(
+    `/api/posts/${postId}`,
+    params
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? '게시물을 수정하지 못했습니다'
+    );
+  }
+
+  return data.data;
+}
+
 // DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null.
 export async function deletePost(postId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(

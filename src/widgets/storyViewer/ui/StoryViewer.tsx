@@ -9,13 +9,11 @@ import {
 import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
 import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
 import type { PostSummary } from '@/entities/post/api/postsApi';
+import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { Sheet } from '@/shared/ui/sheet';
+import { PostActionsMenu } from '@/features/post-edit';
 import { StoryComments } from './StoryComments';
 import { StoryProgressBar } from './StoryProgressBar';
-import {
-  INITIAL_MOCK_COMMENTS,
-  type StoryComment,
-} from '@/shared/config/mockComments';
 
 interface StoryViewerProps {
   posts: PostSummary[];
@@ -32,9 +30,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [videoDurationMs, setVideoDurationMs] = useState<number | null>(null);
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
-  const [comments, setComments] = useState<StoryComment[]>(
-    INITIAL_MOCK_COMMENTS
-  );
+  const { data: profile } = useMyProfile();
 
   const post = posts[activeIndex];
   if (!post) return null;
@@ -57,13 +53,6 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
     }
     setVideoDurationMs(null);
     setActiveIndex((i) => i + 1);
-  };
-
-  const handleAddComment = (text: string) => {
-    setComments((prev) => [
-      ...prev,
-      { id: String(Date.now()), author: '나', timeAgo: '방금', text, likes: 0 },
-    ]);
   };
 
   const showCommentsPanel = device === 'desktop';
@@ -186,18 +175,25 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                 />
                 <View>
                   <Text variant="label" className="text-white">
-                    나의 기록
+                    {profile?.displayName ?? '나의 기록'}
                   </Text>
                   <Text variant="caption" className="text-white/60">
                     {getTimeslotLabel(post.timeslot)} 기록
                   </Text>
                 </View>
               </View>
-              <Pressable onPress={onClose} hitSlop={8}>
-                <Text variant="heading" className="text-white">
-                  ×
-                </Text>
-              </Pressable>
+              <View className="flex-row items-center gap-lg">
+                <PostActionsMenu
+                  post={post}
+                  variant="dark"
+                  onDeleted={onClose}
+                />
+                <Pressable onPress={onClose} hitSlop={8}>
+                  <Text variant="heading" className="text-white">
+                    ×
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </View>
 
@@ -235,10 +231,8 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                   variant="body-small"
                   style={{ flex: 1, color: 'rgba(255,255,255,0.6)' }}
                 >
-                  메시지 보내기
+                  댓글 보기
                 </Text>
-                <Text style={{ color: '#FFFFFF' }}>♡</Text>
-                <Text style={{ color: '#FFFFFF' }}>➤</Text>
               </Pressable>
             )}
           </View>
@@ -252,11 +246,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
               borderLeftColor: 'rgba(255,255,255,0.15)',
             }}
           >
-            <StoryComments
-              comments={comments}
-              onSubmit={handleAddComment}
-              variant="dark"
-            />
+            <StoryComments postId={post.postId} variant="dark" />
           </View>
         )}
       </View>
@@ -265,8 +255,9 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
         <Sheet
           visible={commentsSheetVisible}
           onClose={() => setCommentsSheetVisible(false)}
+          className="h-[70%]"
         >
-          <StoryComments comments={comments} onSubmit={handleAddComment} />
+          <StoryComments postId={post.postId} />
         </Sheet>
       )}
     </Modal>

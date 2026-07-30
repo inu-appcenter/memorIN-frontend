@@ -2,18 +2,20 @@ import { Text } from '@/shared/ui/text';
 import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { dummyPeopleArray } from '@/shared/config/dummy';
+import { useMyProfile } from '@/entities/session/model/useMyProfile';
 
 // 피드페이지 우측에 렌더링 되는 패널
-// 서버로부터 유저 정보를 가져와서 뿌려줘야 함
 export function RightPanel() {
+  const { data: profile } = useMyProfile();
+
   return (
     <View className="hidden w-[320px] border-l border-border p-lg desktop:flex">
       <View className="mb-xl flex-row items-center justify-between">
         <View className="flex-row items-center gap-md">
           <View className="h-[48px] w-[48px] rounded-full border border-border bg-subtle" />
           <View>
-            <Text className="font-bold">yujeong737</Text>
-            <Text className="text-muted">박지호</Text>
+            <Text className="font-bold">{profile?.username ?? '내 계정'}</Text>
+            <Text className="text-muted">{profile?.displayName ?? ''}</Text>
           </View>
         </View>
         {/* 프로필 페이지로 리다이렉팅 */}

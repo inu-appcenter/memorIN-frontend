@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Text } from '@/shared/ui/text';
-import { Alert, Image, Platform, Pressable, View } from 'react-native'; 
+import { Alert, Image, Platform, Pressable, View } from 'react-native';
 import type { PostSummary } from '../api/postsApi';
 import {
   extractPreviewText,
@@ -9,6 +9,7 @@ import {
 } from '../model/postContent';
 import { useDeletePost } from '../model/useDeletePost';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
+import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { PostVideoCover } from './PostVideoCover';
 
 interface PostCardProps {
@@ -25,6 +26,11 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
   const isVideoCover =
     coverAttachment?.contentType.startsWith('video/') ?? false;
   const timeslotLabel = getTimeslotLabel(post.timeslot);
+
+  // GET /api/posts(파라미터 없음)는 항상 "내 기록"만 내려주기 때문에 여기 보이는
+  // 게시물의 작성자는 항상 나 자신이다 — 그래서 /me 프로필로 이름을 표시해도 안전하다.
+  const { data: profile } = useMyProfile();
+  const authorLabel = profile?.displayName ?? post.authorId.slice(0, 8);
 
   const deletePost = useDeletePost();
 
@@ -65,8 +71,7 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
           <View className="flex-row items-center gap-md">
             <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
             <View>
-              {/* 작성자 표시 이름 조회 API(/api/users/{id})가 아직 없어 authorId만 표시 */}
-              <Text className="font-bold">{post.authorId.slice(0, 8)}</Text>
+              <Text className="font-bold">{authorLabel}</Text>
               <Text className="text-muted">
                 {formatRecordedLabel(post.recordedDate, post.timeslot)}
               </Text>
