@@ -1,18 +1,14 @@
 import { ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
-import {
-  useCommentThread,
-  useCreateComment,
-} from '@/entities/post/model/useComments';
+import { useCommentThread, useCreateComment } from '../model/useComments';
 import { COLORS } from '@/shared/lib/theme';
 import { ReplyBar } from '@/shared/ui/replyBar';
 
-interface StoryCommentsProps {
+interface CommentThreadProps {
   postId: string;
-  variant?: 'dark' | 'light'; // 데스크탑 패널은 dark, 테블릿/폰 바텀시트는 light
+  variant?: 'dark' | 'light';
 }
 
-// 방금 / N분 / N시간 / N일 형태의 상대 시간 표시
 function formatTimeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const diffMin = Math.floor(diffMs / 60000);
@@ -24,10 +20,10 @@ function formatTimeAgo(iso: string): string {
   return `${diffDay}일`;
 }
 
-export function StoryComments({
+export function CommentThread({
   postId,
   variant = 'light',
-}: StoryCommentsProps) {
+}: CommentThreadProps) {
   const isDark = variant === 'dark';
   const bg = isDark ? COLORS.neutral600 : '#FFFFFF';
   const borderColor = isDark ? 'rgba(255,255,255,0.15)' : '#DADCE3';
