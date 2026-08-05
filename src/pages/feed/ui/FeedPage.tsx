@@ -14,7 +14,7 @@ import { cn } from '@/shared/lib/utils';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { StoryRail } from '@/widgets/storyRail';
 import { PostCard, useFeedQuery, type PostSummary } from '@/entities/post';
-import { RightPanel } from '@/widgets/feedRightPanel';
+import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import BellIcon from '@/shared/assets/icons/example_bell.svg';
 
@@ -58,7 +58,6 @@ export function FeedPage() {
     data,
     isLoading,
     isError,
-    error,
     refetch,
     fetchNextPage,
     hasNextPage,
@@ -68,6 +67,12 @@ export function FeedPage() {
   const posts = data?.pages.flatMap((page) => page.items) ?? [];
 
   const [visiblePostIds, setVisiblePostIds] = useState<Set<string>>(new Set());
+  // 데스크탑 전용: null이면 우측 패널이 친구 추천을 보여주고,
+  // 값이 있으면 그 게시물의 댓글 패널로 전환된다.
+  const [activeCommentsPostId, setActiveCommentsPostId] = useState<
+    string | null
+  >(null);
+
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       setVisiblePostIds(
@@ -76,6 +81,10 @@ export function FeedPage() {
     }
   ).current;
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 80 }).current;
+
+  const handleOpenComments = useCallback((postId: string) => {
+    setActiveCommentsPostId(postId);
+  }, []);
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -86,10 +95,14 @@ export function FeedPage() {
   const renderItem = useCallback(
     ({ item }: { item: PostSummary }) => (
       <View className="mx-auto w-full px-lg">
-        <PostCard post={item} isVisible={visiblePostIds.has(item.postId)} />
+        <PostCard
+          post={item}
+          isVisible={visiblePostIds.has(item.postId)}
+          onOpenComments={handleOpenComments}
+        />
       </View>
     ),
-    [visiblePostIds]
+    [visiblePostIds, handleOpenComments]
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
@@ -173,9 +186,7 @@ export function FeedPage() {
                 )}
                 {isError && (
                   <View className="items-center gap-sm py-xl">
-                    <Text className="text-error">
-                      {(error as Error).message}
-                    </Text>
+                    <Text className="text-error">피드를 불러오지 못했어요</Text>
                     <Pressable onPress={() => refetch()}>
                       <Text className="font-bold text-link">다시 시도</Text>
                     </Pressable>
@@ -200,7 +211,14 @@ export function FeedPage() {
           />
         </View>
       </View>
-      <RightPanel />
+      {activeCommentsPostId ? (
+        <FeedCommentPanel
+          postId={activeCommentsPostId}
+          onClose={() => setActiveCommentsPostId(null)}
+        />
+      ) : (
+        <RightPanel />
+      )}
     </View>
   );
 }
