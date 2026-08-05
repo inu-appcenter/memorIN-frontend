@@ -10,6 +10,7 @@ import {
 import { useDeletePost } from '../model/useDeletePost';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { PostVideoCover } from './PostVideoCover';
 import { Sheet } from '@/shared/ui/sheet';
 import { CommentThread } from './CommentThread';
@@ -21,9 +22,17 @@ import UploadIcon from '@/shared/assets/icons/upload.svg';
 interface PostCardProps {
   post: PostSummary;
   isVisible?: boolean;
+  // 데스크탑에서 댓글 아이콘 클릭 시 호출 — 바텀시트 대신 우측 패널을 이 postId로 전환시킨다.
+  // 안 넘어오면(스토리 뷰어 등 다른 컨텍스트) 기존처럼 항상 바텀시트를 연다.
+  onOpenComments?: (postId: string) => void;
 }
 
-function PostCardComponent({ post, isVisible = true }: PostCardProps) {
+function PostCardComponent({
+  post,
+  isVisible = true,
+  onOpenComments,
+}: PostCardProps) {
+  const { device } = useBreakpoints();
   const previewText = extractPreviewText(post.content);
   const coverAttachment = post.attachments[0];
   const coverUrl = coverAttachment
@@ -64,6 +73,14 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
       { text: '취소', style: 'cancel' },
       { text: '삭제', style: 'destructive', onPress: runDelete },
     ]);
+  };
+
+  const handlePressComments = () => {
+    if (device === 'desktop' && onOpenComments) {
+      onOpenComments(post.postId);
+      return;
+    }
+    setCommentsSheetVisible(true);
   };
 
   return (
@@ -116,16 +133,14 @@ function PostCardComponent({ post, isVisible = true }: PostCardProps) {
           <View className="flex-row gap-xl">
             {/* 좋아요 수 API 미제공 상태라 아이콘만 표시 */}
             <HeartIcon width={20} height={20} color={COLORS.tertiary} />
-            <Pressable
-              onPress={() => setCommentsSheetVisible(true)}
-              hitSlop={8}
-            >
+            <Pressable onPress={handlePressComments} hitSlop={8}>
               <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
             </Pressable>
             <UploadIcon width={20} height={20} color={COLORS.tertiary} />
           </View>
         </View>
       </View>
+      {/* 데스크탑에서 onOpenComments가 넘어온 경우엔 이 시트를 안 쓰므로 mount는 되지만 항상 닫힌 채로 남는다 */}
       <Sheet
         visible={commentsSheetVisible}
         onClose={() => setCommentsSheetVisible(false)}

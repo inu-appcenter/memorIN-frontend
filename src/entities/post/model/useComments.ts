@@ -1,11 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createComment, getCommentThread } from '../api/commentsApi';
 
-export function useCommentThread(postId: string | undefined) {
+export function useCommentThread(
+  postId: string | undefined,
+  options?: { refetchInterval?: number }
+) {
   return useQuery({
     queryKey: ['comments', postId],
     queryFn: () => getCommentThread(postId as string),
     enabled: Boolean(postId),
+    refetchInterval: options?.refetchInterval,
   });
 }
 

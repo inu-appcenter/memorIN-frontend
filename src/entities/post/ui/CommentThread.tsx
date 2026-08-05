@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { useCommentThread, useCreateComment } from '../model/useComments';
 import { COLORS } from '@/shared/lib/theme';
@@ -7,7 +7,11 @@ import { ReplyBar } from '@/shared/ui/replyBar';
 interface CommentThreadProps {
   postId: string;
   variant?: 'dark' | 'light';
+  polling?: boolean;
+  onClose?: () => void;
 }
+
+const POLLING_INTERVAL_MS = 5000;
 
 function formatTimeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -23,16 +27,20 @@ function formatTimeAgo(iso: string): string {
 export function CommentThread({
   postId,
   variant = 'light',
+  polling = false,
+  onClose,
 }: CommentThreadProps) {
   const isDark = variant === 'dark';
   const bg = isDark ? COLORS.neutral600 : '#FFFFFF';
-  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : '#DADCE3';
+  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : COLORS.border;
   const textPrimary = isDark ? '#FFFFFF' : '#131519';
   const textMuted = isDark ? 'rgba(255,255,255,0.5)' : '#8A8F9C';
   const textSecondary = isDark ? 'rgba(255,255,255,0.7)' : '#333740';
   const avatarBg = isDark ? 'rgba(255,255,255,0.15)' : '#EDEEF2';
 
-  const { data: comments, isLoading } = useCommentThread(postId);
+  const { data: comments, isLoading } = useCommentThread(postId, {
+    refetchInterval: polling ? POLLING_INTERVAL_MS : undefined,
+  });
   const createComment = useCreateComment(postId);
 
   const handleSubmit = (text: string) => {
@@ -42,12 +50,17 @@ export function CommentThread({
   return (
     <View className="flex-1" style={{ backgroundColor: bg }}>
       <View
-        className="p-lg"
+        className="h-[48px] flex-row items-center justify-between px-lg"
         style={{ borderBottomWidth: 1, borderBottomColor: borderColor }}
       >
         <Text variant="label" style={{ color: textPrimary }}>
           댓글 {comments?.length ?? 0}
         </Text>
+        {onClose && (
+          <Pressable onPress={onClose} hitSlop={8}>
+            <Text style={{ color: textMuted }}>✕</Text>
+          </Pressable>
+        )}
       </View>
       <ScrollView className="flex-1 px-lg">
         {isLoading && (
