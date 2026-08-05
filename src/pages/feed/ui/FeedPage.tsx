@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -6,6 +6,7 @@ import {
   View,
   type ViewToken,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
@@ -48,6 +49,7 @@ function FeedTab({
 
 export function FeedPage() {
   const { device } = useBreakpoints();
+  const router = useRouter();
   // 탭 UI 상태. 백엔드에 추천 피드 API가 없어서 지금은 시각적 전환만 함
   const [activeTab, setActiveTab] = useState<'recommended' | 'following'>(
     'following'
@@ -123,7 +125,12 @@ export function FeedPage() {
               <Pressable hitSlop={8}>
                 <BellIcon width={20} height={22} color={COLORS.brand} />
               </Pressable>
-              <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
+              <Pressable
+                onPress={() => router.navigate('/profile')}
+                hitSlop={8}
+              >
+                <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
+              </Pressable>
             </View>
           </View>
         )}

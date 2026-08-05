@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { CalendarGrid } from '@/widgets/calendarGrid';

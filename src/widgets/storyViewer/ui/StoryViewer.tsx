@@ -12,8 +12,8 @@ import type { PostSummary } from '@/entities/post/api/postsApi';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { Sheet } from '@/shared/ui/sheet';
 import { PostActionsMenu } from '@/features/post-edit';
-import { StoryComments } from './StoryComments';
 import { StoryProgressBar } from './StoryProgressBar';
+import { CommentThread } from '@/entities/post';
 
 interface StoryViewerProps {
   posts: PostSummary[];
@@ -246,7 +246,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
               borderLeftColor: 'rgba(255,255,255,0.15)',
             }}
           >
-            <StoryComments postId={post.postId} variant="dark" />
+            <CommentThread postId={post.postId} variant="dark" />
           </View>
         )}
       </View>
@@ -257,7 +257,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
           onClose={() => setCommentsSheetVisible(false)}
           className="h-[70%]"
         >
-          <StoryComments postId={post.postId} />
+          <CommentThread postId={post.postId} />
         </Sheet>
       )}
     </Modal>

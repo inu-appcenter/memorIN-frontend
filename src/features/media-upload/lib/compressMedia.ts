@@ -34,9 +34,6 @@ export async function compressMedia(
       ? await prepareVideo(asset, originalSize)
       : await compressImage(asset.uri, originalSize, asset.mimeType);
 
-  // 압축 전/후 파일 크기를 콘솔에서 바로 비교
-  logCompressionResult(asset.type, originalSize, result.contentLength);
-
   if (result.contentLength > MAX_UPLOAD_SIZE_BYTES) {
     const sizeMb = (result.contentLength / (1024 * 1024)).toFixed(1);
     throw new Error(
@@ -44,21 +41,6 @@ export async function compressMedia(
     );
   }
   return result;
-}
-
-function logCompressionResult(
-  type: MediaAsset['type'],
-  originalBytes: number,
-  compressedBytes: number
-) {
-  const toMb = (bytes: number) => (bytes / (1024 * 1024)).toFixed(2);
-  const reducedPercent =
-    originalBytes > 0
-      ? (((originalBytes - compressedBytes) / originalBytes) * 100).toFixed(1)
-      : '0';
-  console.log(
-    `[compressMedia] type=${type} original=${toMb(originalBytes)}MB → compressed=${toMb(compressedBytes)}MB (${reducedPercent}% 감소)`
-  );
 }
 
 async function compressImage(
@@ -123,27 +105,12 @@ async function prepareVideo(
     };
   }
 
-  const compressedUri = await Video.compress(
-    asset.uri,
-    { compressionMethod: 'auto' },
-    (progress) => {
-      console.log(
-        `[compressMedia] video compress progress: ${(progress * 100).toFixed(0)}%`
-      );
-    }
-  );
+  const compressedUri = await Video.compress(asset.uri, {
+    compressionMethod: 'manual',
+    stripAudio: true,
+    maxSize: 1080,
+  });
   const contentLength = await getFileSize(compressedUri);
-
-  // 드물게 압축 결과가 원본보다 큰 경우 원본을 그대로 사용
-  if (contentLength >= originalSize) {
-    return {
-      uri: asset.uri,
-      contentType: asset.mimeType ?? 'video/mp4',
-      contentLength: originalSize,
-      width: null,
-      height: null,
-    };
-  }
   return {
     uri: compressedUri,
     contentType: 'video/mp4',

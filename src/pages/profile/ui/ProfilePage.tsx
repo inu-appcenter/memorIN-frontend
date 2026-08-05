@@ -1,4 +1,4 @@
-﻿import { Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';

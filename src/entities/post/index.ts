@@ -3,6 +3,7 @@ export { PostCardSkeleton } from './ui/PostCardSkeleton';
 export { useFeedQuery } from './model/useFeedQuery';
 export { createPost } from './api/postsApi';
 export { resolveMediaUrl } from './lib/resolveMediaUrl';
+export { CommentThread } from './ui/CommentThread';
 export type {
   PostSummary,
   FeedPage,

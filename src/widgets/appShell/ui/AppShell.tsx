@@ -1,4 +1,4 @@
-﻿import type { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,8 +30,11 @@ function getActiveTab(pathname: string): TabItem | undefined {
 }
 
 function Brand({ compact = false }: { compact?: boolean }) {
+  const router = useRouter();
+
   return (
-    <View
+    <Pressable
+      onPress={() => router.navigate(PATH.feed)}
       className={cn(
         'flex-row items-center gap-sm',
         compact && 'justify-center'
@@ -43,7 +46,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <Text className="font-sans-bold text-[24px] text-primary">MemorIN</Text>
       )}
-    </View>
+    </Pressable>
   );
 }
 // 업로드 버튼 (테블릿, 폰 환경에서만 노출)
@@ -191,6 +194,8 @@ function BottomNav() {
 export function AppShell({ children }: PropsWithChildren) {
   const { device } = useBreakpoints();
   const inset = useSafeAreaInsets();
+  const pathname = usePathname();
+  const isUploadRoute = pathname.startsWith('/upload');
 
   // 데스크탑
   if (device === 'desktop') {
@@ -221,7 +226,7 @@ export function AppShell({ children }: PropsWithChildren) {
       style={{ paddingTop: inset.top, paddingBottom: inset.bottom }}
     >
       <View className="flex-1 overflow-hidden">{children}</View>
-      <BottomNav />
+      {!isUploadRoute && <BottomNav />}
     </View>
   );
 }
