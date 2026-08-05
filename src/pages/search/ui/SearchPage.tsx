@@ -1,4 +1,4 @@
-﻿import { ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 
 const items = Array.from({ length: 24 }, (_, index) => index);
