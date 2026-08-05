@@ -3,7 +3,7 @@ import { Text } from '@/shared/ui/text';
 import { formatKoreanDateHeading } from '@/shared/lib/calendarDate';
 import { extractPreviewText } from '@/entities/post/model/postContent';
 import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
-import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
+import { PostVideoThumbnail } from '@/entities/post/ui/PostVideoThumbnail';
 import { useCommentThread } from '@/entities/post/model/useComments';
 import { PostActionsMenu } from '@/features/post-edit';
 import { cn } from '@/shared/lib/utils';
@@ -70,7 +70,7 @@ export function DayDetailContent({
 
   return (
     <View>
-      <View className="mb-lg">
+      <View className="mb-lg px-xl">
         <Text variant="heading">{formatKoreanDateHeading(date)}</Text>
         <Text variant="body-small" className="text-muted">
           오전 · 오후 {orderedPosts.length}/2 기록 완료
@@ -107,10 +107,8 @@ export function DayDetailContent({
               >
                 {mediaUrl && isVideo ? (
                   <>
-                    <PostVideoCover
+                    <PostVideoThumbnail
                       uri={mediaUrl}
-                      isVisible={false}
-                      nativeControls={false}
                       style={{ height: '100%', width: '100%' }}
                     />
                     <View className="absolute h-[28px] w-[28px] items-center justify-center rounded-full bg-black/50">
