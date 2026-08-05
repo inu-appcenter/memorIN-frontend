@@ -12,7 +12,6 @@ interface PostActionsMenuProps {
   onDeleted?: () => void; // 스토리 뷰어처럼 삭제 후 화면 자체를 닫아야 하는 경우
 }
 
-// "•••" 트리거 + 수정/삭제 액션 시트. DayDetailContent, StoryViewer에서 공용으로 쓴다.
 export function PostActionsMenu({
   post,
   variant = 'light',
@@ -62,8 +61,8 @@ export function PostActionsMenu({
       </Pressable>
 
       <Sheet visible={menuVisible} onClose={() => setMenuVisible(false)}>
-        <View className="gap-xs">
-          <Pressable onPress={handlePressEdit} className="py-md">
+        <View style={{ paddingHorizontal: 24, paddingVertical: 8, gap: 4 }}>
+          <Pressable onPress={handlePressEdit} style={{ paddingVertical: 12 }}>
             <Text variant="body" className="text-primary">
               수정하기
             </Text>
@@ -71,7 +70,7 @@ export function PostActionsMenu({
           <Pressable
             onPress={handlePressDelete}
             disabled={deletePost.isPending}
-            className="py-md"
+            style={{ paddingVertical: 12 }}
           >
             <Text variant="body" className="text-error">
               {deletePost.isPending ? '삭제 중...' : '삭제하기'}
