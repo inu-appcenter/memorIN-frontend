@@ -43,7 +43,7 @@ export function SignInPage() {
             name="email"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="이메일를 입력하세요"
+                placeholder="이메일을 입력하세요"
                 value={value}
                 onChangeText={onChange}
                 autoCapitalize="none"
