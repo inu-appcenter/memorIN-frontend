@@ -14,6 +14,7 @@ interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   setAuthenticated: (accessToken: string, user?: AuthUser | null) => void;
+  setAccessToken: (accessToken: string) => void;
   setUnauthenticated: () => void;
 }
 
@@ -23,6 +24,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   setAuthenticated: (accessToken: string, user?: AuthUser | null) =>
     set({ status: 'authenticated', accessToken, user }),
+  // 401 재발급 인터셉터 전용 — user는 그대로 두고 accessToken만 교체한다.
+  // setAuthenticated(accessToken)처럼 user 인자를 생략하고 부르면 user가
+  // undefined로 덮어써지므로 반드시 이 액션을 써야 한다.
+  setAccessToken: (accessToken: string) => set({ accessToken }),
   setUnauthenticated: () =>
     set({ status: 'unauthenticated', accessToken: null, user: null }),
 }));

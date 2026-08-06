@@ -12,6 +12,7 @@ import {
 } from '@/entities/session/lib/tokenStorage';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import '../../global.css';
+import { Platform } from 'react-native';
 
 function RootNav() {
   return (
@@ -39,11 +40,9 @@ export default function RootLayout() {
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const setUnauthenticated = useAuthStore((s) => s.setUnauthenticated);
 
+  // 재발급 인터셉터 테스트를 위한 코드 삽입 위치
+
   // 부트스트랩: 저장된 accessToken으로 로그인 상태 복원 (앱 시작 시 1회)
-  // /auth/refresh는 백엔드가 아직 permitAll에 등록하지 않아 여기서 호출할 수 없다
-  // (SecurityConfig 확인, client.ts 주석 참고) — 그래서 refreshToken으로 재발급받는
-  // 대신, 저장된 accessToken을 만료 전까지만 그대로 복원한다. 만료 후에는 API가.
-  // 401을 반환하며 자연히 로그아웃된 것처럼 동작한다 (자동 재발급은 후속 작업)
   useEffect(() => {
     tokenStorage.get(ACCESS_TOKEN_KEY).then((accessToken) => {
       if (!accessToken) {
