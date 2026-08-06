@@ -8,6 +8,8 @@ import {
   getTimeslotLabel,
 } from '../model/postContent';
 import { useDeletePost } from '../model/useDeletePost';
+import { useCommentThread } from '../model/useComments';
+import { usePostLikes } from '../model/usePostLikes';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
@@ -16,13 +18,14 @@ import { Sheet } from '@/shared/ui/sheet';
 import { CommentThread } from './CommentThread';
 import { COLORS } from '@/shared/lib/theme';
 import HeartIcon from '@/shared/assets/icons/heart.svg';
+import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
 import UploadIcon from '@/shared/assets/icons/upload.svg';
 
 interface PostCardProps {
   post: PostSummary;
   isVisible?: boolean;
-  // 데스크탑에서 댓글 아이콘 클릭 시 호출 — 바텀시트 대신 우측 패널을 이 postId로 전환시킨다.
+  // 데스크탑에서 댓글 아이콘 클릭 시 호출 — 우측 패널을 이 postId로 전환시킨다.
   // 안 넘어오면(스토리 뷰어 등 다른 컨텍스트) 기존처럼 항상 바텀시트를 연다.
   onOpenComments?: (postId: string) => void;
 }
@@ -47,6 +50,16 @@ function PostCardComponent({
 
   const deletePost = useDeletePost();
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
+
+  const {
+    liked,
+    count: likeCount,
+    toggle: toggleLike,
+  } = usePostLikes(post.postId);
+  // TODO: PostSummary에 commentCount 필드가 생기면 이 호출(전체 댓글 로딩) 대신
+  // 그 필드를 바로 쓰도록 교체 — 지금은 카운트 하나 보여주려고 댓글 전체를 불러옴
+  const { data: comments } = useCommentThread(post.postId);
+  const commentCount = comments?.length ?? 0;
 
   const runDelete = () => {
     deletePost.mutate(post.postId, {
@@ -130,11 +143,26 @@ function PostCardComponent({
           ) : (
             <Text className="text-tertiary">내용 없음</Text>
           )}
-          <View className="flex-row gap-xl">
-            {/* 좋아요 수 API 미제공 상태라 아이콘만 표시 */}
-            <HeartIcon width={20} height={20} color={COLORS.tertiary} />
-            <Pressable onPress={handlePressComments} hitSlop={8}>
+          <View className="flex-row items-center gap-xl">
+            <Pressable
+              onPress={toggleLike}
+              hitSlop={8}
+              className="flex-row items-center gap-xs"
+            >
+              {liked ? (
+                <HeartFilled2Icon width={20} height={20} color={COLORS.error} />
+              ) : (
+                <HeartIcon width={20} height={20} color={COLORS.tertiary} />
+              )}
+              <Text className="text-tertiary">{likeCount}</Text>
+            </Pressable>
+            <Pressable
+              onPress={handlePressComments}
+              hitSlop={8}
+              className="flex-row items-center gap-xs"
+            >
               <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
+              <Text className="text-tertiary">{commentCount}</Text>
             </Pressable>
             <UploadIcon width={20} height={20} color={COLORS.tertiary} />
           </View>
