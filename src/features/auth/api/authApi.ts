@@ -23,24 +23,7 @@ export async function login(
 
   return body.data;
 }
-
-// 토큰 재발급 비동기함수
-// 이 엔드포인트(POST /auth/refresh)는 다른 auth API와 달리 ApiResponse 봉투를 안 쓰고
-// { accessToken, refreshToken }을 그대로 반환한다. login()처럼 response.data.data로
-// 꺼내려 하면 항상 undefined가 된다.
-// 주의: 백엔드가 이 엔드포인트를 인증이 필요한 경로로 취급하고 있어(SecurityConfig에
-// permitAll로 등록돼 있지 않음), access token이 만료된 뒤에 호출하면 만료된 토큰이
-// 그대로 요청에 실려 401로 거부된다. 401 발생 시 자동으로 이 함수를 호출해
-// 재시도하는 인터셉터는 이 문제가 백엔드에서 해결되기 전까지는 연결하지 않는다.
-export async function refreshAccessToken(
-  refreshToken: string
-): Promise<{ accessToken: string; refreshToken: string }> {
-  const response = await client.post<{
-    accessToken: string;
-    refreshToken: string;
-  }>('/auth/refresh', { refreshToken });
-  return response.data;
-}
+export { refreshAccessToken } from '@/shared/api/client';
 
 // 회원가입 비동기 함수
 export async function signup(input: SignUpInput): Promise<void> {
