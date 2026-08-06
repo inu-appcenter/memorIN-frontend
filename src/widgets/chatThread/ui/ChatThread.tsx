@@ -23,6 +23,7 @@ export function ChatThread({ roomName }: ChatThreadProps) {
         {dummyMessages.map((message) => (
           <MessageBubble
             key={message.id}
+            id={message.id}
             content={message.content}
             isMine={message.isMine}
           />

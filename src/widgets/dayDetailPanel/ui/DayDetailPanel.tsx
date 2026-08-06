@@ -11,14 +11,13 @@ interface DayDetailPanelProps {
   onOpenStory: (posts: PostSummary[], startIndex: number) => void;
 }
 
-// 데스크탑 전용 — 선택된 날짜의 상세를 우측에 상시 표시.
-// 댓글 입력줄은 스크롤 콘텐츠 밖(패널 하단)에 고정해서 항상 같은 위치에 보이게 한다.
+// 데스크탑 전용 — 선택된 날짜의 상세를 우측에 상시 표시
 export function DayDetailPanel({ date, onOpenStory }: DayDetailPanelProps) {
   const [activeSlot, setActiveSlot] = useState<TimeslotType | null>(null);
   const { postBySlot } = useDaySlots(date);
 
   // 클릭으로 고른 슬롯이 없거나(또는 그 슬롯 게시물이 사라졌으면) 존재하는 슬롯 중
-  // 가장 나중 시간대(오후 우선)를 기본 활성 대상으로 삼는다.
+  // 가장 나중 시간대를 기본 활성 대상으로 삼는다.
   const availableSlots = postBySlot
     .filter((entry) => entry.post)
     .map((entry) => entry.slot);

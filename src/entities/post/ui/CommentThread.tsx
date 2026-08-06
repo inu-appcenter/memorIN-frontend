@@ -1,8 +1,9 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { useCommentThread, useCreateComment } from '../model/useComments';
-import { COLORS } from '@/shared/lib/theme';
+import { getSurfaceColors } from '@/shared/lib/theme';
 import { ReplyBar } from '@/shared/ui/replyBar';
+import { ReactionBar } from '@/entities/reaction';
 
 interface CommentThreadProps {
   postId: string;
@@ -30,13 +31,14 @@ export function CommentThread({
   polling = false,
   onClose,
 }: CommentThreadProps) {
-  const isDark = variant === 'dark';
-  const bg = isDark ? COLORS.neutral600 : '#FFFFFF';
-  const borderColor = isDark ? 'rgba(255,255,255,0.15)' : COLORS.border;
-  const textPrimary = isDark ? '#FFFFFF' : '#131519';
-  const textMuted = isDark ? 'rgba(255,255,255,0.5)' : '#8A8F9C';
-  const textSecondary = isDark ? 'rgba(255,255,255,0.7)' : '#333740';
-  const avatarBg = isDark ? 'rgba(255,255,255,0.15)' : '#EDEEF2';
+  const {
+    background: bg,
+    border: borderColor,
+    textPrimary,
+    textSecondary,
+    textMuted,
+    avatarBackground: avatarBg,
+  } = getSurfaceColors(variant);
 
   const { data: comments, isLoading } = useCommentThread(postId, {
     refetchInterval: polling ? POLLING_INTERVAL_MS : undefined,
@@ -80,33 +82,39 @@ export function CommentThread({
           </Text>
         )}
         {comments?.map((comment) => (
-          <View key={comment.commentId} className="flex-row gap-md py-md">
-            <View
-              className="h-[36px] w-[36px] rounded-full"
-              style={{ backgroundColor: avatarBg }}
-            />
-            <View className="flex-1">
-              <View className="flex-row items-baseline gap-sm">
-                <Text variant="label" style={{ color: textPrimary }}>
-                  {comment.deleted
-                    ? '삭제된 댓글'
-                    : comment.authorId
-                      ? `사용자 ${comment.authorId.slice(0, 8)}`
-                      : '알 수 없음'}
-                </Text>
-                <Text variant="caption" style={{ color: textMuted }}>
-                  {formatTimeAgo(comment.createdAt)}
+          <ReactionBar
+            key={comment.commentId}
+            targetType="comment"
+            targetId={comment.commentId}
+          >
+            <View className="flex-row gap-md py-md">
+              <View
+                className="h-[36px] w-[36px] rounded-full"
+                style={{ backgroundColor: avatarBg }}
+              />
+              <View className="flex-1">
+                <View className="flex-row items-baseline gap-sm">
+                  <Text variant="label" style={{ color: textPrimary }}>
+                    {comment.deleted
+                      ? '삭제된 댓글'
+                      : comment.authorId
+                        ? `사용자 ${comment.authorId.slice(0, 8)}`
+                        : '알 수 없음'}
+                  </Text>
+                  <Text variant="caption" style={{ color: textMuted }}>
+                    {formatTimeAgo(comment.createdAt)}
+                  </Text>
+                </View>
+                <Text
+                  variant="body-small"
+                  className="mt-xs"
+                  style={{ color: textSecondary }}
+                >
+                  {comment.body}
                 </Text>
               </View>
-              <Text
-                variant="body-small"
-                className="mt-xs"
-                style={{ color: textSecondary }}
-              >
-                {comment.body}
-              </Text>
             </View>
-          </View>
+          </ReactionBar>
         ))}
       </ScrollView>
       <View style={{ borderTopWidth: 1, borderTopColor: borderColor }}>
