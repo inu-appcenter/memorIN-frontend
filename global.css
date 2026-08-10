@@ -23,7 +23,8 @@ body {
 
 /* 브라우저가 password input에 기본 내장하는 아이콘들을 숨긴다 — 앱에서
    자체 토글 버튼(Field.tsx)을 이미 그려서 붙이고 있어서, 그대로 두면
-   버튼이 겹쳐 보인다. 네이티브(iOS/Android)는 브라우저가 없어서 무관.
+   버튼이 겹쳐 보인다.
+   
    - ::-ms-reveal, ::-ms-clear: Edge(Chromium 포함) 내장 눈 모양 표시 버튼
    - ::-webkit-credentials-auto-fill-button: 크롬/사파리 비밀번호 관리자
      자동완성 제안(열쇠 모양) 아이콘

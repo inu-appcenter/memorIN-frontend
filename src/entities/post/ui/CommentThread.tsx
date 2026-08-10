@@ -64,7 +64,7 @@ export function CommentThread({
           </Pressable>
         )}
       </View>
-      <ScrollView className="flex-1 px-lg">
+      <ScrollView className="flex-1 px-lg" showsVerticalScrollIndicator={false}>
         {isLoading && (
           <Text
             variant="body-small"
