@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   View,
   type ViewToken,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { FlashList, type FlashListRef } from '@shopify/flash-list';
+import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { cn } from '@/shared/lib/utils';
@@ -107,24 +106,6 @@ export function FeedPage() {
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
 
-  // 화면 전체 휠 스크롤을 피드 리스트로 전달
-  const listRef = useRef<FlashListRef<PostSummary>>(null);
-  const scrollOffsetRef = useRef(0);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-
-    // 사이드바/오른쪽 패널 등 피드 리스트 바깥에 커서가 있어도 휠 스크롤이 피드에 적용되도록, 브라우저 기본 스크롤을 막고 수동으로 오프셋을 계산해 스크롤한다.
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      const nextOffset = Math.max(scrollOffsetRef.current + event.deltaY, 0);
-      listRef.current?.scrollToOffset({ offset: nextOffset, animated: false });
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
-
   return (
     <View className="flex-1 flex-row bg-page">
       <View className="flex-1">
@@ -164,14 +145,9 @@ export function FeedPage() {
         <StoryRail />
         <View className="flex-1">
           <FlashList
-            ref={listRef}
             data={posts}
             keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}
-            onScroll={(e) => {
-              scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
-            }}
-            scrollEventThrottle={16}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
             renderItem={renderItem}
