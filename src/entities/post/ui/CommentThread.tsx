@@ -84,8 +84,9 @@ export function CommentThread({
         {comments?.map((comment) => (
           <ReactionBar
             key={comment.commentId}
-            targetType="comment"
-            targetId={comment.commentId}
+            postId={postId}
+            commentId={comment.commentId}
+            emojis={comment.emojis}
           >
             <View className="flex-row gap-md py-md">
               <View
@@ -97,9 +98,9 @@ export function CommentThread({
                   <Text variant="label" style={{ color: textPrimary }}>
                     {comment.deleted
                       ? '삭제된 댓글'
-                      : comment.authorId
-                        ? `사용자 ${comment.authorId.slice(0, 8)}`
-                        : '알 수 없음'}
+                      : (comment.authorDisplayName ??
+                        comment.authorUsername ??
+                        '알 수 없음')}
                   </Text>
                   <Text variant="caption" style={{ color: textMuted }}>
                     {formatTimeAgo(comment.createdAt)}

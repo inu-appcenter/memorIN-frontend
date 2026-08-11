@@ -4,18 +4,19 @@ import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { ReactionSummary } from './ReactionSummary';
 import { ReactionPicker } from './ReactionPicker';
-import { useTargetReactions } from '../model/useReactionsStore';
-import type { ReactionTargetType } from '../model/types';
+import { useCommentReactionState } from '../model/useCommentReactions';
+import type { EmojiSummary } from '../api/reactionApi';
 
 interface ReactionBarProps {
-  targetType: ReactionTargetType;
-  targetId: string;
+  postId: string;
+  commentId: string;
+  emojis: EmojiSummary[];
   children: ReactNode;
 }
 
 const BADGE_SIZE_PX = 26;
 
-// 댓글처럼 폭이 넓은 행 전체를 감싸는 반응 UI 래퍼
+// 댓글 행 전체를 감싸는 반응 UI 래퍼
 // 데스크톱: 행에 마우스를 올리면 우측 상단에 배지가 나타남
 // 모바일/태블릿: 롱프레스 시 피커가 열림
 
@@ -23,15 +24,21 @@ const BADGE_SIZE_PX = 26;
 // 이걸 조상 Pressable이 받으면 "다른 요소가 hover를 가져갔다"고 판단해 onHoverOut을 발동시키기 때문에, 배지에 마우스를 올리는 순간 부모의 호버가 풀렸다 붙었다 하며 무한히 깜빡인다.
 // TouchableOpacity는 useHover를 쓰지 않아서 해당 문제가 없음
 export function ReactionBar({
-  targetType,
-  targetId,
+  postId,
+  commentId,
+  emojis,
   children,
 }: ReactionBarProps) {
   const { device } = useBreakpoints();
   const isDesktop = device === 'desktop';
   const [hovering, setHovering] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
-  const { toggle } = useTargetReactions(targetType, targetId);
+
+  const { counts, myReactions, toggle } = useCommentReactionState(
+    postId,
+    commentId,
+    emojis
+  );
 
   const triggerActive = hovering || pickerVisible;
 
@@ -43,7 +50,11 @@ export function ReactionBar({
       style={{ position: 'relative' }}
     >
       {children}
-      <ReactionSummary targetType={targetType} targetId={targetId} />
+      <ReactionSummary
+        counts={counts}
+        myReactions={myReactions}
+        onToggle={toggle}
+      />
 
       {isDesktop && (
         <View
