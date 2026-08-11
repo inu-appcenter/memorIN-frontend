@@ -14,6 +14,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { cn } from '@/shared/lib/utils';
+import { COLORS } from '@/shared/lib/theme';
 
 interface SheetProps extends Omit<ModalProps, 'visible'> {
   visible: boolean;
@@ -99,8 +100,15 @@ export function Sheet({
           <Pressable className="flex-1 bg-black/40" onPress={onClose} />
         </Animated.View>
         <Animated.View
-          style={[contentStyle, { maxHeight, overflow: 'hidden' }]}
-          className={cn('rounded-t-lg bg-page p-lg', className)}
+          style={[
+            contentStyle,
+            {
+              maxHeight,
+              overflow: 'hidden',
+              backgroundColor: COLORS.background,
+            },
+          ]}
+          className={cn('rounded-t-lg p-lg', className)}
         >
           <View className="mb-md h-[4px] w-[40px] self-center rounded-full bg-border" />
           {children}
