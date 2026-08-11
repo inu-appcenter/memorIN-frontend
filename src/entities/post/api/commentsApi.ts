@@ -1,13 +1,18 @@
 import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import type { EmojiSummary } from '@/entities/reaction';
 
 // memorIN-backend PostCommentResponse / PostCommentCreateRequest 그대로 미러링
 export interface PostComment {
   commentId: string;
   authorId: string | null; // 삭제된 댓글이면 null
+  authorUsername: string | null; // 삭제된 댓글이면 null
+  authorDisplayName: string | null; // 삭제된 댓글이면 null
+  authorProfileImageKey: string | null; // MinIO 키 원본
   body: string; // 삭제된 댓글이면 "삭제된 댓글입니다." placeholder
   deleted: boolean;
   parentId: string | null; // 답글이면 부모 댓글 id, 최상위면 null
   createdAt: string;
+  emojis: EmojiSummary[]; // 이 댓글에 달린 이모지 집계. 없으면 빈 배열
 }
 
 export interface CreateCommentParams {
