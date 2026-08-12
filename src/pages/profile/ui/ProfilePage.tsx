@@ -28,9 +28,11 @@ import BellIcon from '@/shared/assets/icons/example_bell.svg';
 
 type Device = 'desktop' | 'tablet' | 'mobile';
 
-// 그리드 컬럼 수 — 피그마 기준(데스크탑 5 / 테블릿·폰 3)
+// 그리드 컬럼 수 — 피그마 기준(데스크탑 5 / 테블릿 4 / 폰 3)
 function columnsFor(device: Device) {
-  return device === 'desktop' ? 5 : 3;
+  if (device === 'desktop') return 5;
+  if (device === 'tablet') return 4;
+  return 3;
 }
 
 function showNotReady() {

@@ -44,6 +44,7 @@ export function LogPage() {
 
   const handleOpenStory = (posts: PostSummary[], startIndex: number) => {
     setStoryState({ posts, startIndex });
+    setSheetVisible(false);
   };
 
   return (
