@@ -11,7 +11,8 @@ import { useDeletePost } from '../model/useDeletePost';
 import { useCommentThread } from '../model/useComments';
 import { usePostLikes } from '../model/usePostLikes';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
-import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import { useUserProfileQuery } from '@/entities/user';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { PostVideoCover } from './PostVideoCover';
 import { Sheet } from '@/shared/ui/sheet';
@@ -45,8 +46,14 @@ function PostCardComponent({
     coverAttachment?.contentType.startsWith('video/') ?? false;
   const timeslotLabel = getTimeslotLabel(post.timeslot);
 
-  const { data: profile } = useMyProfile();
-  const authorLabel = profile?.displayName ?? post.authorId.slice(0, 8);
+  // 친구 피드에는 다른 사람이 쓴 게시물도 섞여 나오므로, 로그인한 내 프로필이
+  // 아니라 게시물 실제 작성자(post.authorId) 기준으로 프로필을 조회한다.
+  const { data: authorProfile } = useUserProfileQuery(post.authorId);
+  const authorLabel = authorProfile?.displayName ?? post.authorId.slice(0, 8);
+
+  // 수정/삭제 메뉴는 작성자 본인 게시물에서만 노출한다.
+  const myId = useAuthStore((s) => s.user?.id);
+  const isOwnPost = post.authorId === myId;
 
   const deletePost = useDeletePost();
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
@@ -110,13 +117,15 @@ function PostCardComponent({
                 </Text>
               </View>
             </View>
-            <Pressable
-              onPress={handlePressMenu}
-              disabled={deletePost.isPending}
-              hitSlop={8}
-            >
-              <Text className="text-tertiary">•••</Text>
-            </Pressable>
+            {isOwnPost && (
+              <Pressable
+                onPress={handlePressMenu}
+                disabled={deletePost.isPending}
+                hitSlop={8}
+              >
+                <Text className="text-tertiary">•••</Text>
+              </Pressable>
+            )}
           </View>
           {timeslotLabel && (
             <View className="self-start rounded-full bg-accent-subtle px-sm py-xs">

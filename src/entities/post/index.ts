@@ -1,6 +1,7 @@
 export { PostCard } from './ui/PostCard';
 export { PostCardSkeleton } from './ui/PostCardSkeleton';
 export { useFeedQuery } from './model/useFeedQuery';
+export { useFriendFeedQuery } from './model/useFriendFeedQuery';
 export { createPost } from './api/postsApi';
 export { resolveMediaUrl } from './lib/resolveMediaUrl';
 export { CommentThread } from './ui/CommentThread';

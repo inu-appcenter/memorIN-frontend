@@ -9,7 +9,8 @@ import {
 import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
 import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
 import type { PostSummary } from '@/entities/post/api/postsApi';
-import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import { useUserProfileQuery } from '@/entities/user';
 import { Sheet } from '@/shared/ui/sheet';
 import { PostActionsMenu } from '@/features/post-edit';
 import { StoryProgressBar } from './StoryProgressBar';
@@ -30,9 +31,13 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [videoDurationMs, setVideoDurationMs] = useState<number | null>(null);
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
-  const { data: profile } = useMyProfile();
 
   const post = posts[activeIndex];
+  // 게시물 실제 작성자(post.authorId) 기준으로 조회 — 로그인한 내 프로필로
+  // 고정하지 않는다 (친구 피드 게시물도 이 뷰어로 열릴 수 있음).
+  const { data: authorProfile } = useUserProfileQuery(post?.authorId);
+  const myId = useAuthStore((s) => s.user?.id);
+
   if (!post) return null;
 
   const attachment = post.attachments[0];
@@ -41,6 +46,9 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const segmentDurationMs = isVideo
     ? videoDurationMs
     : IMAGE_SEGMENT_DURATION_MS;
+  const authorLabel = authorProfile?.displayName ?? post.authorId.slice(0, 8);
+  // 수정/삭제 메뉴는 작성자 본인 게시물에서만 노출한다.
+  const isOwnPost = post.authorId === myId;
 
   const goPrev = () => {
     setVideoDurationMs(null);
@@ -175,7 +183,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                 />
                 <View>
                   <Text variant="label" className="text-white">
-                    {profile?.displayName ?? '나의 기록'}
+                    {authorLabel}
                   </Text>
                   <Text variant="caption" className="text-white/60">
                     {getTimeslotLabel(post.timeslot)} 기록
@@ -183,11 +191,13 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                 </View>
               </View>
               <View className="flex-row items-center gap-lg">
-                <PostActionsMenu
-                  post={post}
-                  variant="dark"
-                  onDeleted={onClose}
-                />
+                {isOwnPost && (
+                  <PostActionsMenu
+                    post={post}
+                    variant="dark"
+                    onDeleted={onClose}
+                  />
+                )}
                 <Pressable onPress={onClose} hitSlop={8}>
                   <Text variant="heading" className="text-white">
                     ×

@@ -56,6 +56,31 @@ export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
   return data.data;
 }
 
+// GET /api/posts/friends — 내가 팔로우한(ACCEPTED) 사용자들의 게시물만 반환.
+// 응답 형태는 /api/posts와 동일한 FeedPage. 인증 필요.
+export async function getFriendFeed(
+  params: GetFeedParams = {}
+): Promise<FeedPage> {
+  const { data } = await client.get<ApiResponse<FeedPage>>(
+    '/api/posts/friends',
+    {
+      params: {
+        cursor: params.cursor,
+        size: params.size,
+      },
+    }
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? '친구 피드를 불러오지 못했습니다'
+    );
+  }
+
+  return data.data;
+}
+
 // 게시물 생성
 export interface CreatePostAttachment {
   fileKey: string;

@@ -16,13 +16,7 @@ import {
 } from '@/entities/user';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 
-function FriendRow({
-  friend,
-  canRemove,
-}: {
-  friend: UserFollowSummary;
-  canRemove: boolean;
-}) {
+function FriendRow({ friend }: { friend: UserFollowSummary }) {
   const unfollowUser = useUnfollowUser();
 
   return (
@@ -36,20 +30,18 @@ function FriendRow({
           </View>
         </Pressable>
       </Link>
-      {canRemove && (
-        <Pressable
-          onPress={() => unfollowUser.mutate(friend.id)}
-          disabled={unfollowUser.isPending}
-          className={cn(
-            'h-[30px] items-center justify-center rounded-full border border-border bg-page px-md',
-            unfollowUser.isPending && 'opacity-50'
-          )}
-        >
-          <Text variant="label" className="text-secondary">
-            삭제
-          </Text>
-        </Pressable>
-      )}
+      <Pressable
+        onPress={() => unfollowUser.mutate(friend.id)}
+        disabled={unfollowUser.isPending}
+        className={cn(
+          'h-[30px] items-center justify-center rounded-full border border-border bg-page px-md',
+          unfollowUser.isPending && 'opacity-50'
+        )}
+      >
+        <Text variant="label" className="text-secondary">
+          삭제
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -89,8 +81,7 @@ export function SocialPage() {
   const myId = useAuthStore((s) => s.user?.id);
   const [keyword, setKeyword] = useState('');
 
-  // "친구" = 내가 요청 보내 수락된 사람(팔로잉) ∪ 나에게 요청 보내 내가 수락한
-  // 사람(팔로워). useFriendsQuery가 두 목록을 합치고 맞팔 중복을 제거해서 준다.
+  // "친구" = 맞팔로우(교집합). useFriendsQuery 참고.
   const friendsQuery = useFriendsQuery(myId);
   const allFriends = friendsQuery.friends;
 
@@ -115,13 +106,8 @@ export function SocialPage() {
   }, [friendsQuery]);
 
   const renderItem = useCallback(
-    ({ item }: { item: UserFollowSummary }) => (
-      <FriendRow
-        friend={item}
-        canRemove={friendsQuery.removableIds.has(item.id)}
-      />
-    ),
-    [friendsQuery.removableIds]
+    ({ item }: { item: UserFollowSummary }) => <FriendRow friend={item} />,
+    []
   );
 
   const keyExtractor = useCallback(
@@ -140,7 +126,14 @@ export function SocialPage() {
         ListHeaderComponent={
           <>
             <View className="flex-row items-center gap-md border-b border-border px-xl py-lg">
-              <Pressable onPress={() => router.back()} hitSlop={8}>
+              <Pressable
+                onPress={() =>
+                  router.canGoBack()
+                    ? router.back()
+                    : router.replace('/profile')
+                }
+                hitSlop={8}
+              >
                 <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
               </Pressable>
               <Text variant="heading">친구 관리</Text>
