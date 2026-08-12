@@ -257,7 +257,7 @@ export function FeedPage() {
           )}
         </View>
       </View>
-      {activeCommentsPostId ? (
+      {activeCommentsPostId  && device === 'desktop' ? (
         <FeedCommentPanel
           postId={activeCommentsPostId}
           onClose={() => setActiveCommentsPostId(null)}
