@@ -157,11 +157,13 @@ export function FeedPage() {
         <PostCard
           post={item}
           isVisible={visiblePostIds.has(item.postId)}
+          isCommentsActive={activeCommentsPostId === item.postId}
           onOpenComments={handleOpenComments}
+          onCloseComments={() => setActiveCommentsPostId(null)}
         />
       </View>
     ),
-    [visiblePostIds, handleOpenComments]
+    [visiblePostIds, handleOpenComments, activeCommentsPostId]
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
@@ -255,7 +257,7 @@ export function FeedPage() {
           )}
         </View>
       </View>
-      {activeCommentsPostId ? (
+      {activeCommentsPostId  && device === 'desktop' ? (
         <FeedCommentPanel
           postId={activeCommentsPostId}
           onClose={() => setActiveCommentsPostId(null)}

@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        desktop: '768px', // 768px ~ 1440px(최대 폭) = 데스크탑
-        tablet: '390px', // 390px ~ 768px = 테블릿
+        desktop: '1200px', // 1200px ~ 1440px(최대 폭) = 데스크탑
+        tablet: '768px', // 768px ~ 1200px = 테블릿 (375px = 폰 최소 지원 폭 기준)
       },
       maxWidth: {
         limit: '1440px', // 데스크탑 콘텐츠 최대 폭

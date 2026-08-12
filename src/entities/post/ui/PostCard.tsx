@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Text } from '@/shared/ui/text';
 import { Alert, Image, Platform, Pressable, View } from 'react-native';
 import type { PostSummary } from '../api/postsApi';
@@ -26,15 +26,21 @@ import UploadIcon from '@/shared/assets/icons/upload.svg';
 interface PostCardProps {
   post: PostSummary;
   isVisible?: boolean;
-  // 데스크탑에서 댓글 아이콘 클릭 시 호출 — 우측 패널을 이 postId로 전환시킨다.
-  // 안 넘어오면(스토리 뷰어 등 다른 컨텍스트) 기존처럼 항상 바텀시트를 연다.
+  // 이 게시물의 댓글이 현재 열려 있는지 — FeedPage가 device와 무관하게 하나의
+  // activeCommentsPostId로 관리한다. 이 값과 현재 device를 조합해서 매 렌더마다
+  // 시트를 띄울지 다시 계산하기 때문에, 열어둔 채로 폭이 바뀌어도(데스크탑 분할
+  // 패널 ↔ 모바일 바텀시트) 자동으로 맞는 쪽으로 전환된다.
+  isCommentsActive?: boolean;
   onOpenComments?: (postId: string) => void;
+  onCloseComments?: () => void;
 }
 
 function PostCardComponent({
   post,
   isVisible = true,
+  isCommentsActive = false,
   onOpenComments,
+  onCloseComments,
 }: PostCardProps) {
   const { device } = useBreakpoints();
   const previewText = extractPreviewText(post.content);
@@ -56,7 +62,6 @@ function PostCardComponent({
   const isOwnPost = post.authorId === myId;
 
   const deletePost = useDeletePost();
-  const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
 
   const {
     liked,
@@ -67,6 +72,9 @@ function PostCardComponent({
   // 그 필드를 바로 쓰도록 교체 — 지금은 카운트 하나 보여주려고 댓글 전체를 불러옴
   const { data: comments } = useCommentThread(post.postId);
   const commentCount = comments?.length ?? 0;
+
+  // desktop이 아닐 때만 바텀시트로 보여준다 — device가 바뀌면 자동으로 재계산된다.
+  const showCommentsSheet = isCommentsActive && device !== 'desktop';
 
   const runDelete = () => {
     deletePost.mutate(post.postId, {
@@ -96,11 +104,7 @@ function PostCardComponent({
   };
 
   const handlePressComments = () => {
-    if (device === 'desktop' && onOpenComments) {
-      onOpenComments(post.postId);
-      return;
-    }
-    setCommentsSheetVisible(true);
+    onOpenComments?.(post.postId);
   };
 
   return (
@@ -177,10 +181,9 @@ function PostCardComponent({
           </View>
         </View>
       </View>
-      {/* 데스크탑에서 onOpenComments가 넘어온 경우엔 이 시트를 안 쓰므로 mount는 되지만 항상 닫힌 채로 남는다 */}
       <Sheet
-        visible={commentsSheetVisible}
-        onClose={() => setCommentsSheetVisible(false)}
+        visible={showCommentsSheet}
+        onClose={() => onCloseComments?.()}
         className="h-[70%]"
       >
         <CommentThread postId={post.postId} />
