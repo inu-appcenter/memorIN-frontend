@@ -53,7 +53,7 @@ export function CommentThread({
     <View className="flex-1" style={{ backgroundColor: bg }}>
       <View
         className="h-[48px] flex-row items-center justify-between px-lg"
-        style={{ borderBottomWidth: 1, borderBottomColor: borderColor }}
+        // style={{ borderBottomWidth: 1, borderBottomColor: borderColor }}
       >
         <Text variant="label" style={{ color: textPrimary }}>
           댓글 {comments?.length ?? 0}

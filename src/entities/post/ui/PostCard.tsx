@@ -29,7 +29,7 @@ interface PostCardProps {
   // 이 게시물의 댓글이 현재 열려 있는지 — FeedPage가 device와 무관하게 하나의
   // activeCommentsPostId로 관리한다. 이 값과 현재 device를 조합해서 매 렌더마다
   // 시트를 띄울지 다시 계산하기 때문에, 열어둔 채로 폭이 바뀌어도(데스크탑 분할
-  // 패널 ↔ 모바일 바텀시트) 자동으로 맞는 쪽으로 전환된다.
+  // 패널 ↔ 폰/태블릿 바텀시트) 자동으로 맞는 쪽으로 전환된다.
   isCommentsActive?: boolean;
   onOpenComments?: (postId: string) => void;
   onCloseComments?: () => void;
@@ -52,12 +52,9 @@ function PostCardComponent({
     coverAttachment?.contentType.startsWith('video/') ?? false;
   const timeslotLabel = getTimeslotLabel(post.timeslot);
 
-  // 친구 피드에는 다른 사람이 쓴 게시물도 섞여 나오므로, 로그인한 내 프로필이
-  // 아니라 게시물 실제 작성자(post.authorId) 기준으로 프로필을 조회한다.
   const { data: authorProfile } = useUserProfileQuery(post.authorId);
   const authorLabel = authorProfile?.displayName ?? post.authorId.slice(0, 8);
 
-  // 수정/삭제 메뉴는 작성자 본인 게시물에서만 노출한다.
   const myId = useAuthStore((s) => s.user?.id);
   const isOwnPost = post.authorId === myId;
 
@@ -68,12 +65,9 @@ function PostCardComponent({
     count: likeCount,
     toggle: toggleLike,
   } = usePostLikes(post.postId);
-  // TODO: PostSummary에 commentCount 필드가 생기면 이 호출(전체 댓글 로딩) 대신
-  // 그 필드를 바로 쓰도록 교체 — 지금은 카운트 하나 보여주려고 댓글 전체를 불러옴
   const { data: comments } = useCommentThread(post.postId);
   const commentCount = comments?.length ?? 0;
 
-  // desktop이 아닐 때만 바텀시트로 보여준다 — device가 바뀌면 자동으로 재계산된다.
   const showCommentsSheet = isCommentsActive && device !== 'desktop';
 
   const runDelete = () => {

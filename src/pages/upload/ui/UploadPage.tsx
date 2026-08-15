@@ -15,17 +15,16 @@ import {
   useCreatePost,
 } from '@/features/post-create';
 
-// 입력창 자체의 높이 범위(바깥 박스는 여기에 상하 패딩만 더한 크기가 된다)
 const CAPTION_MIN_HEIGHT = 30;
 const CAPTION_MAX_HEIGHT = 124;
 const CAPTION_VERTICAL_PADDING = 8;
 const CAPTION_PLACEHOLDER = '이 순간을 기록해보세요...';
-const CAPTION_PLACEHOLDER_MOBILE = '무슨 순간이었나요?';
+const CAPTION_PLACEHOLDER_PHONE = '무슨 순간이었나요?';
 
 export function UploadPage() {
   const router = useRouter();
   const { device } = useBreakpoints();
-  const isMobile = device === 'mobile';
+  const isPhone = device === 'phone';
   const { assets, pickAssets, removeAsset, maxAttachments, canAddMore } =
     useMediaPicker();
   const {
@@ -38,10 +37,8 @@ export function UploadPage() {
   } = usePostForm();
   const { mutate: submitPost, isPending } = useCreatePost();
 
-  // 입력 내용에 맞춰 높이를 늘린다. 별도 Text로 높이를 재면 네이티브 입력창(EditText)이
-  // 실제로 필요로 하는 높이와 어긋나 글자가 잘리므로, TextInput이 직접 보고하는 값을 쓴다.
   const [contentHeight, setContentHeight] = useState(CAPTION_MIN_HEIGHT);
-  const captionMinHeight = isMobile ? 96 : CAPTION_MIN_HEIGHT;
+  const captionMinHeight = isPhone ? 96 : CAPTION_MIN_HEIGHT;
   const captionInputHeight = Math.min(
     Math.max(contentHeight, captionMinHeight),
     CAPTION_MAX_HEIGHT
@@ -74,12 +71,12 @@ export function UploadPage() {
     <View className="flex-1 bg-page">
       <View
         className={
-          isMobile
+          isPhone
             ? 'h-[56px] flex-row items-center gap-sm border-b border-border px-lg'
             : 'h-[62px] flex-row items-center justify-between border-b border-border px-lg'
         }
       >
-        {isMobile ? (
+        {isPhone ? (
           <>
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
@@ -88,7 +85,6 @@ export function UploadPage() {
           </>
         ) : (
           <>
-            {/* 웹에서만 적용되는 hover 효과 추가 (네이티브에선 무시) */}
             <Pressable
               onPress={() => router.back()}
               className="flex-row items-center gap-sm rounded-md px-xs py-xs transition-opacity hover:opacity-70"
@@ -109,7 +105,7 @@ export function UploadPage() {
         )}
       </View>
 
-      {isMobile ? (
+      {isPhone ? (
         <>
           <ScrollView className="flex-1" contentContainerClassName="p-lg">
             <View className="mb-2xl">
@@ -137,7 +133,7 @@ export function UploadPage() {
                 <TextInput
                   value={caption}
                   onChangeText={setCaption}
-                  placeholder={CAPTION_PLACEHOLDER_MOBILE}
+                  placeholder={CAPTION_PLACEHOLDER_PHONE}
                   multiline
                   editable={!isPending}
                   textAlignVertical="top"

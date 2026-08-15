@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useFollowListQuery } from './useFollowListQuery';
-import type { UserFollowSummary } from '../api/userApi';
 
 // "친구" = 맞팔로우(팔로잉·팔로워 양쪽 다 ACCEPTED)인 경우만 인정한다(교집합).
 // 예전엔 합집합(팔로잉 또는 팔로워 하나만 있어도 친구)이었는데, 그러면 친구

@@ -49,7 +49,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
     </Pressable>
   );
 }
-// 업로드 버튼 (테블릿, 폰 환경에서만 노출)
+
 function UploadButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
 
@@ -196,14 +196,13 @@ export function AppShell({ children }: PropsWithChildren) {
   const inset = useSafeAreaInsets();
   const pathname = usePathname();
   const isUploadRoute = pathname.startsWith('/upload');
-  const isPhone = device === 'mobile';
+  const isPhone = device === 'phone';
 
-  // desktop/tablet/mobile 사이를 오갈 때 {children}이 unmount되지 않도록,
+  // desktop/tablet/phone 사이를 오갈 때 {children}이 unmount되지 않도록,
   // 어느 device든 {children}을 감싸는 View가 같은 부모·같은 자리에 있게 만들고
   // key로 고정한다. SideNav/BottomNav는 그 안팎에서 조건부로 여닫히는 형제일 뿐이라,
   // key가 없으면 걔들이 나타나거나 사라질 때 React가 위치 기반으로 비교하다가
-  // {children} 자리까지 통째로 다른 엘리먼트로 오인해서 unmount/remount해버린다
-  // (LogPage에서 스토리뷰어가 화면 폭 경계 근처에서 저절로 닫히던 원인).
+  // {children} 자리까지 통째로 다른 엘리먼트로 오인해서 unmount/remount해버린다.
   return (
     <View
       className="h-full flex-1 items-center bg-surface"

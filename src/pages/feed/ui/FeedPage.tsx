@@ -22,7 +22,6 @@ import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import BellIcon from '@/shared/assets/icons/example_bell.svg';
 
-// 탭 1개를 그리는 작은 프레젠테이셔널 컴포넌트 (피드 페이지 전용이라 별도 파일로 안 뺌)
 function FeedTab({
   label,
   active,
@@ -32,7 +31,7 @@ function FeedTab({
   label: string;
   active: boolean;
   onPress: () => void;
-  device: 'desktop' | 'tablet' | 'mobile';
+  device: 'desktop' | 'tablet' | 'phone';
 }) {
   const isDividerUnderline = device !== 'tablet';
 
@@ -52,11 +51,8 @@ function FeedTab({
 }
 
 // 백엔드는 내 피드/친구 피드를 모두 `ORDER BY recorded_date DESC, id DESC`로 정렬해
-// 내려준다(PostRepository.findUserFeed / findFriendFeed). postId는 UUIDv7이라 앞
-// 48비트가 생성 시각(ms)이고 문자열 비교가 그대로 생성순 비교가 된다 — 즉 같은
-// 날짜 안에서는 "나중에 쓴 글이 위"가 된다. timeslot(AM/PM)은 정렬에 쓰지 않는다.
-// 두 목록을 합칠 때 이 규칙을 그대로 재현해야 백엔드가 하나의 엔드포인트로
-// 내려줬을 순서와 정확히 같아진다.
+// 내려준다. postId는 UUIDv7이라 앞 48비트가 생성 시각(ms)이고 문자열 비교가 그대로
+// 생성순 비교가 된다. timeslot(AM/PM)은 정렬에 쓰지 않는다.
 function compareFeedOrder(a: PostSummary, b: PostSummary): number {
   if (a.recordedDate !== b.recordedDate) {
     return a.recordedDate < b.recordedDate ? 1 : -1;
@@ -88,15 +84,11 @@ export function FeedPage() {
   const myHasNextPage = myFeed.hasNextPage;
   const friendHasNextPage = friendFeed.hasNextPage;
 
-  // "팔로잉" 탭 = 내 글 + 팔로우 중인 사람들 글을 합쳐서 백엔드와 같은 순서로 표시.
   const posts = useMemo(() => {
     if (!isFollowingTab) return [];
 
     const merged = [...myPosts, ...friendPosts].sort(compareFeedOrder);
 
-    // 두 목록을 각각 별도 커서로 불러오기 때문에, 아직 페이지가 남은 목록이 있으면
-    // 그 목록의 마지막 항목보다 아래쪽 구간은 나중에 글이 끼어들 수 있다. 스크롤
-    // 중에 이미 본 글 사이로 새 글이 삽입되지 않도록, 확정된 구간까지만 보여준다.
     const openTails: PostSummary[] = [];
     if (myHasNextPage && myPosts.length > 0) {
       openTails.push(myPosts[myPosts.length - 1]);
@@ -106,7 +98,6 @@ export function FeedPage() {
     }
     if (openTails.length === 0) return merged;
 
-    // 남은 목록들의 마지막 항목 중 가장 최신인 것이 안전 경계가 된다.
     const boundary = openTails.sort(compareFeedOrder)[0];
     return merged.filter((post) => compareFeedOrder(post, boundary) <= 0);
   }, [isFollowingTab, myPosts, friendPosts, myHasNextPage, friendHasNextPage]);
@@ -122,8 +113,6 @@ export function FeedPage() {
   }, [friendFeed, myFeed]);
 
   const [visiblePostIds, setVisiblePostIds] = useState<Set<string>>(new Set());
-  // 데스크탑 전용: null이면 우측 패널이 친구 추천을 보여주고,
-  // 값이 있으면 그 게시물의 댓글 패널로 전환된다.
   const [activeCommentsPostId, setActiveCommentsPostId] = useState<
     string | null
   >(null);
@@ -257,7 +246,7 @@ export function FeedPage() {
           )}
         </View>
       </View>
-      {activeCommentsPostId  && device === 'desktop' ? (
+      {activeCommentsPostId && device === 'desktop' ? (
         <FeedCommentPanel
           postId={activeCommentsPostId}
           onClose={() => setActiveCommentsPostId(null)}
