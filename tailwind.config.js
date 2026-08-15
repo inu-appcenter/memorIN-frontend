@@ -15,7 +15,6 @@ module.exports = {
       maxWidth: {
         limit: '1440px', // 데스크탑 콘텐츠 최대 폭
       },
-      // Spacing
       spacing: {
         xs: '4px',
         sm: '8px',
@@ -32,7 +31,6 @@ module.exports = {
         'sans-bold': ['Pretendard-Bold'],
       },
       colors: {
-        //  Primitive
         blue: {
           50: '#F0F2FA',
           100: '#D1D9F1',
@@ -70,8 +68,6 @@ module.exports = {
           900: '#131519',
         },
         white: '#FFFFFF',
-
-        //  Semantic
         brand: {
           DEFAULT: 'var(--brand-primary)',
           hover: 'var(--brand-primary-hover)',
@@ -86,8 +82,6 @@ module.exports = {
         success: 'var(--status-success)',
         warning: 'var(--status-warning)',
         error: 'var(--status-error)',
-
-        // shadcn/reusables 호환 별칭 (컴포넌트 내부용 — 화면 코드에선 사용 금지)
         background: 'var(--bg-page)',
         foreground: 'var(--text-primary)',
         primary: {
@@ -115,8 +109,6 @@ module.exports = {
           foreground: 'var(--text-primary)',
         },
       },
-
-      //  text
       textColor: {
         primary: {
           DEFAULT: 'var(--text-primary)',
@@ -139,29 +131,22 @@ module.exports = {
         warning: 'var(--text-warning)',
         error: 'var(--text-error)',
       },
-
-      //  backgroundColor
       backgroundColor: {
         page: 'var(--bg-page)',
         surface: 'var(--bg-surface)',
         subtle: 'var(--bg-subtle)',
       },
-
-      // borderColor
       borderColor: {
         DEFAULT: 'var(--border-default)',
         strong: 'var(--border-strong)',
         focus: 'var(--border-focus)',
       },
-
-      // borderRadius
       borderRadius: {
         sm: '4px',
         md: '8px',
         lg: '12px',
         full: '999px',
       },
-      // boxShadow
       boxShadow: {
         card: '0px 1px 2px 0px rgba(19, 21, 25, 0.06)',
         dropdown: '0px 2px 8px 0px rgba(19, 21, 25, 0.08)',

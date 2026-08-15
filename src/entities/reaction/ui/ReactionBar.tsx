@@ -17,15 +17,11 @@ interface ReactionBarProps {
 
 const BADGE_SIZE_PX = 26;
 
-// 댓글 행 전체를 감싸는 반응 UI 래퍼
 // 데스크톱: 행에 마우스를 올리면 우측 상단에 배지가 나타남
-// 모바일/태블릿: 롱프레스 시 피커가 열림
-// 롱프레스는 device와 무관하게 항상 켜둔다 — desktop 폭이어도 실제로는 네이티브(가로모드 대형 태블릿 등)일 수 있음
-// 폭만으로 막으면 그런 기기에서 반응 피커를 열 방법이 아예 없어진다(#49 작업 중 발견)
-
-// 배지는 Pressable이 아니라 TouchableOpacity로 만든다. react-native-web의 Pressable은 useHover에 contain:true를 넘겨서, 마우스가 들어올 때 버블링되는 lock 이벤트를 쏜다.
-// 이걸 조상 Pressable이 받으면 "다른 요소가 hover를 가져갔다"고 판단해 onHoverOut을 발동시키기 때문에, 배지에 마우스를 올리는 순간 부모의 호버가 풀렸다 붙었다 하며 무한히 깜빡인다.
-// TouchableOpacity는 useHover를 쓰지 않아서 해당 문제가 없음
+// 폰/태블릿: 롱프레스 시 피커가 열림
+// 롱프레스는 device와 무관하게 항상 켜둔다 — desktop 폭이어도 실제로는 마우스 없는
+// 터치 전용 태블릿(가로모드 대형 태블릿 등)일 수 있어서, 폭만으로 막으면 그런
+// 기기에서 반응 피커를 열 방법이 아예 없어진다.
 export function ReactionBar({
   postId,
   commentId,

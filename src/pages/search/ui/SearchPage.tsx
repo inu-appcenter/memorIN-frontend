@@ -1,14 +1,35 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
 import { Link } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
-import { useUserSearchQuery, type UserSearchResult } from '@/entities/user';
+import { useBreakpoints } from '@/shared/lib/useBreakpoints';
+import { columnsFor } from '@/shared/lib/gridColumns';
+import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import {
+  useUserSearchQuery,
+  useFollowListQuery,
+  type UserSearchResult,
+} from '@/entities/user';
+import {
+  useExploreFeedQuery,
+  PostThumbnail,
+  type PostSummary,
+} from '@/entities/post';
 import { FollowButton } from '@/features/follow-button';
+import { PostDetailModal } from '@/widgets/postDetailModal';
 
-function UserRow({ user }: { user: UserSearchResult }) {
+function UserRow({
+  user,
+  isFollowing,
+  followStateKnown,
+}: {
+  user: UserSearchResult;
+  isFollowing: boolean;
+  followStateKnown: boolean;
+}) {
   return (
     <View className="flex-row items-center justify-between px-lg py-md">
       <Link href={`/user/${user.id}`} asChild>
@@ -23,12 +44,20 @@ function UserRow({ user }: { user: UserSearchResult }) {
           </View>
         </Pressable>
       </Link>
-      <FollowButton targetUserId={user.id} size="small" />
+      {followStateKnown && (
+        <FollowButton
+          targetUserId={user.id}
+          size="small"
+          initialState={isFollowing ? 'following' : 'none'}
+        />
+      )}
     </View>
   );
 }
 
 export function SearchPage() {
+  const { device } = useBreakpoints();
+  const columns = columnsFor(device);
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebouncedValue(keyword, 300);
   const {
@@ -44,16 +73,73 @@ export function SearchPage() {
   const hasQuery = debouncedKeyword.trim().length > 0;
   const results = data?.pages.flatMap((page) => page.items) ?? [];
 
+  // 검색 결과(UserSearchResponse)엔 팔로우 상태가 안 내려오기 때문에, 내
+  // 팔로잉 목록을 따로 불러와 교차 확인해서 "팔로우"/"팔로잉"을 정확히 표시한다.
+  // (ACCEPTED 상태만 잡을 수 있고, 내가 보낸 PENDING 요청은 여전히 구분 못 함 —
+  // FollowButton 주석의 기존 한계와 동일)
+  const myId = useAuthStore((s) => s.user?.id);
+  const myFollowingsQuery = useFollowListQuery(myId, 'followings');
+  const followingIds = useMemo(
+    () =>
+      new Set(
+        myFollowingsQuery.data?.pages.flatMap((page) =>
+          page.items.map((u) => u.id)
+        ) ?? []
+      ),
+    [myFollowingsQuery.data]
+  );
+  const followStateKnown = !myFollowingsQuery.isLoading;
+
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderItem = useCallback(
-    ({ item }: { item: UserSearchResult }) => <UserRow user={item} />,
-    []
+    ({ item }: { item: UserSearchResult }) => (
+      <UserRow
+        user={item}
+        isFollowing={followingIds.has(item.id)}
+        followStateKnown={followStateKnown}
+      />
+    ),
+    [followingIds, followStateKnown]
   );
 
   const keyExtractor = useCallback((user: UserSearchResult) => user.id, []);
+
+  // 검색어가 없을 때 채우는 탐색 그리드
+  const {
+    data: exploreData,
+    isLoading: exploreLoading,
+    isError: exploreIsError,
+    error: exploreError,
+    hasNextPage: exploreHasNextPage,
+    isFetchingNextPage: exploreIsFetchingNextPage,
+    fetchNextPage: exploreFetchNextPage,
+  } = useExploreFeedQuery();
+
+  const explorePosts = exploreData?.pages.flatMap((page) => page.items) ?? [];
+  const hasNoExplorePosts = explorePosts.length === 0;
+
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const handleExploreEndReached = useCallback(() => {
+    if (exploreHasNextPage && !exploreIsFetchingNextPage) {
+      exploreFetchNextPage();
+    }
+  }, [exploreHasNextPage, exploreIsFetchingNextPage, exploreFetchNextPage]);
+
+  const renderExploreItem = useCallback(
+    ({ item, index }: { item: PostSummary; index: number }) => (
+      <PostThumbnail post={item} onPress={() => setActiveIndex(index)} />
+    ),
+    []
+  );
+
+  const keyExtractorExplore = useCallback(
+    (post: PostSummary) => post.postId,
+    []
+  );
 
   return (
     <View className="flex-1 bg-page">
@@ -79,11 +165,47 @@ export function SearchPage() {
       </View>
 
       {!hasQuery && (
-        <View className="flex-1 items-center justify-center px-xl">
-          <Text className="text-center text-muted">
-            친구의 아이디나 이름을 검색해보세요
-          </Text>
-        </View>
+        <FlashList
+          data={explorePosts}
+          keyExtractor={keyExtractorExplore}
+          numColumns={columns}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
+          onEndReached={handleExploreEndReached}
+          onEndReachedThreshold={0.5}
+          renderItem={renderExploreItem}
+          ListEmptyComponent={
+            !exploreLoading && !exploreIsError ? (
+              <View className="items-center py-3xl">
+                <Text className="text-center text-muted">
+                  아직 표시할 기록이 없어요{'\n'}친구를 팔로우해보세요
+                </Text>
+              </View>
+            ) : null
+          }
+          ListHeaderComponent={
+            <>
+              {exploreLoading && hasNoExplorePosts && (
+                <View className="items-center py-xl">
+                  <ActivityIndicator color={COLORS.brand} />
+                </View>
+              )}
+              {exploreIsError && hasNoExplorePosts && (
+                <View className="items-center py-xl">
+                  <Text className="text-error">
+                    {(exploreError as Error).message}
+                  </Text>
+                </View>
+              )}
+            </>
+          }
+          ListFooterComponent={
+            exploreIsFetchingNextPage ? (
+              <View className="items-center py-lg">
+                <ActivityIndicator color={COLORS.brand} />
+              </View>
+            ) : null
+          }
+        />
       )}
 
       {hasQuery && isLoading && (
@@ -119,6 +241,14 @@ export function SearchPage() {
               </View>
             ) : null
           }
+        />
+      )}
+
+      {activeIndex !== null && (
+        <PostDetailModal
+          posts={explorePosts}
+          startIndex={activeIndex}
+          onClose={() => setActiveIndex(null)}
         />
       )}
     </View>

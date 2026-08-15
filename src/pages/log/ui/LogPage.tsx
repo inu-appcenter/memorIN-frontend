@@ -17,7 +17,6 @@ export function LogPage() {
   );
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [sheetVisible, setSheetVisible] = useState(false);
-  // 3단계(스토리 뷰어)에서 이 상태로 모달을 띄운다.
   const [storyState, setStoryState] = useState<{
     posts: PostSummary[];
     startIndex: number;
@@ -42,6 +41,9 @@ export function LogPage() {
     );
   };
 
+  // 스토리를 열면 아래 깔려있던 날짜 상세 시트는 논리적으로 닫아야 한다 — 안
+  // 그러면 sheetVisible=true 상태가 그대로 남아있다가, desktop↔tablet을 오가며
+  // DayDetailSheet가 다시 마운트되는 순간 스토리뷰어 위로 시트가 불쑥 뜬다.
   const handleOpenStory = (posts: PostSummary[], startIndex: number) => {
     setStoryState({ posts, startIndex });
     setSheetVisible(false);

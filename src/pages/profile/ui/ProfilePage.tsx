@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Platform,
   Pressable,
   View,
@@ -12,28 +11,15 @@ import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
-import { useBreakpoints } from '@/shared/lib/useBreakpoints';
+import { useBreakpoints, type Device } from '@/shared/lib/useBreakpoints';
+import { columnsFor } from '@/shared/lib/gridColumns';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { useLogout } from '@/features/auth/model/useLogout';
-import {
-  useFeedQuery,
-  resolveMediaUrl,
-  type PostSummary,
-} from '@/entities/post';
-import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
+import { useFeedQuery, PostThumbnail, type PostSummary } from '@/entities/post';
 import { useFriendsQuery } from '@/entities/user';
-import { StoryViewer } from '@/widgets/storyViewer';
+import { PostDetailModal } from '@/widgets/postDetailModal';
 import BellIcon from '@/shared/assets/icons/example_bell.svg';
-
-type Device = 'desktop' | 'tablet' | 'mobile';
-
-// 그리드 컬럼 수 — 피그마 기준(데스크탑 5 / 테블릿 4 / 폰 3)
-function columnsFor(device: Device) {
-  if (device === 'desktop') return 5;
-  if (device === 'tablet') return 4;
-  return 3;
-}
 
 function showNotReady() {
   const message = '아직 준비 중인 기능이에요';
@@ -42,49 +28,6 @@ function showNotReady() {
   } else {
     Alert.alert('안내', message);
   }
-}
-
-function PostThumbnail({
-  post,
-  onPress,
-}: {
-  post: PostSummary;
-  onPress: () => void;
-}) {
-  const cover = post.attachments[0];
-  const coverUrl = cover ? resolveMediaUrl(cover) : undefined;
-  const isVideo = cover?.contentType.startsWith('video/') ?? false;
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={{ margin: 4 }}
-      className="aspect-square flex-1 items-center justify-center overflow-hidden rounded-sm bg-subtle"
-    >
-      {coverUrl && isVideo ? (
-        <>
-          {/* isVisible=false → 재생 안 하고 첫 프레임만 정지 이미지로 사용 (DayDetailContent와 동일 패턴) */}
-          <PostVideoCover
-            uri={coverUrl}
-            isVisible={false}
-            nativeControls={false}
-            style={{ height: '100%', width: '100%' }}
-          />
-          <View className="absolute h-[28px] w-[28px] items-center justify-center rounded-full bg-black/50">
-            <Text className="text-white">▶</Text>
-          </View>
-        </>
-      ) : coverUrl ? (
-        <Image
-          source={{ uri: coverUrl }}
-          style={{ width: '100%', height: '100%' }}
-          resizeMode="cover"
-        />
-      ) : (
-        <Text className="text-tertiary">IMG</Text>
-      )}
-    </Pressable>
-  );
 }
 
 function StatBlock({ label, value }: { label: string; value: string }) {
@@ -119,7 +62,7 @@ function ProfileHeader({
   const friendCountLabel =
     friendCount !== undefined ? String(friendCount) : '—';
 
-  const stacked = device === 'tablet' || device === 'mobile';
+  const stacked = device === 'tablet' || device === 'phone';
 
   const EditButton = (
     <Pressable
@@ -234,7 +177,7 @@ function ProfileHeader({
     );
   }
 
-  // mobile
+  // phone
   return (
     <View className="gap-lg px-lg py-xl">
       <View className="flex-row items-center gap-lg">
@@ -281,7 +224,7 @@ export function ProfilePage() {
   // (배경 리패치 중 feedLoading/isError가 잠깐 true여도 빈 padding 박스가 남는 문제 방지)
   const hasNoPosts = posts.length === 0;
 
-  const [storyIndex, setStoryIndex] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -289,7 +232,7 @@ export function ProfilePage() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: PostSummary; index: number }) => (
-      <PostThumbnail post={item} onPress={() => setStoryIndex(index)} />
+      <PostThumbnail post={item} onPress={() => setActiveIndex(index)} />
     ),
     []
   );
@@ -301,7 +244,7 @@ export function ProfilePage() {
       <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
         <Text variant="heading">프로필</Text>
         <Pressable onPress={showNotReady} hitSlop={8}>
-          {device === 'mobile' ? (
+          {device === 'phone' ? (
             <BellIcon width={20} height={22} color={COLORS.brand} />
           ) : (
             <Text className="text-secondary">⚙</Text>
@@ -382,11 +325,11 @@ export function ProfilePage() {
         </View>
       )}
 
-      {storyIndex !== null && (
-        <StoryViewer
+      {activeIndex !== null && (
+        <PostDetailModal
           posts={posts}
-          startIndex={storyIndex}
-          onClose={() => setStoryIndex(null)}
+          startIndex={activeIndex}
+          onClose={() => setActiveIndex(null)}
         />
       )}
     </View>

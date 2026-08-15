@@ -12,7 +12,6 @@ import {
 } from '@/entities/session/lib/tokenStorage';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import '../../global.css';
-import { Platform } from 'react-native';
 
 function RootNav() {
   return (

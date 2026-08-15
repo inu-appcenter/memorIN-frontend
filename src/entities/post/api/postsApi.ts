@@ -1,13 +1,11 @@
 import { client, ApiError, type ApiResponse } from '@/shared/api/client';
 
-// 백엔드 domain/posts DTO를 그대로 미러링한 타입.
-// (memorIN-backend PostSummaryResponse / PostListResponse / PostMediaResponse 참고)
 export type VisibilityType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 export type TimeslotType = 'AM' | 'PM';
 
 export interface PostMedia {
   objectKey: string;
-  url: string | null; // presigned 다운로드 URL. 발급 실패 시 null
+  url: string | null;
   contentType: string;
   order: number;
   width: number | null;
@@ -17,10 +15,10 @@ export interface PostMedia {
 export interface PostSummary {
   postId: string;
   authorId: string;
-  content: string; // JSONB 원문 문자열 (블록 배열). 파싱은 화면단 책임.
+  content: string;
   visibility: VisibilityType;
   timeslot: TimeslotType | null;
-  recordedDate: string; // yyyy-MM-dd
+  recordedDate: string;
   viewCount: number;
   attachments: PostMedia[];
 }
@@ -40,10 +38,7 @@ export interface GetFeedParams {
 // "내 기록" 피드를 반환한다 (PostService.list 참고). 인증 필요.
 export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
   const { data } = await client.get<ApiResponse<FeedPage>>('/api/posts', {
-    params: {
-      cursor: params.cursor,
-      size: params.size,
-    },
+    params: { cursor: params.cursor, size: params.size },
   });
 
   if (!data.success || !data.data) {
@@ -57,18 +52,12 @@ export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
 }
 
 // GET /api/posts/friends — 내가 팔로우한(ACCEPTED) 사용자들의 게시물만 반환.
-// 응답 형태는 /api/posts와 동일한 FeedPage. 인증 필요.
 export async function getFriendFeed(
   params: GetFeedParams = {}
 ): Promise<FeedPage> {
   const { data } = await client.get<ApiResponse<FeedPage>>(
     '/api/posts/friends',
-    {
-      params: {
-        cursor: params.cursor,
-        size: params.size,
-      },
-    }
+    { params: { cursor: params.cursor, size: params.size } }
   );
 
   if (!data.success || !data.data) {
@@ -81,7 +70,26 @@ export async function getFriendFeed(
   return data.data;
 }
 
-// 게시물 생성
+// GET /api/posts?userId= — 특정 사용자의 게시물 목록 (다른 사람 프로필 화면용).
+// 백엔드가 공개범위(PUBLIC/FRIENDS)를 요청자 기준으로 이미 필터링해서 내려준다.
+export async function getUserFeed(
+  userId: string,
+  params: GetFeedParams = {}
+): Promise<FeedPage> {
+  const { data } = await client.get<ApiResponse<FeedPage>>('/api/posts', {
+    params: { userId, cursor: params.cursor, size: params.size },
+  });
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? '게시물을 불러오지 못했습니다'
+    );
+  }
+
+  return data.data;
+}
+
 export interface CreatePostAttachment {
   fileKey: string;
   mimeType: string;
@@ -94,8 +102,8 @@ export interface CreatePostParams {
   content: string;
   visibilityType: VisibilityType;
   timeslotType: TimeslotType;
-  recordedDate?: string; // yyyy-MM-dd, 생략하면 백엔드가 오늘 날짜로 채움
-  attachments?: CreatePostAttachment[]; // 최대 10개 (백엔드 제약)
+  recordedDate?: string;
+  attachments?: CreatePostAttachment[];
 }
 
 export interface CreatePostResponse {
@@ -128,8 +136,6 @@ export async function createPost(
   return data.data;
 }
 
-// PATCH /api/posts/{postId} 응답 — memorIN-backend PostResponse 미러링.
-// CreatePostResponse와 달리 viewCount/updatedAt이 추가로 내려온다.
 export interface PostDetail {
   postId: string;
   authorId: string;
@@ -143,8 +149,6 @@ export interface PostDetail {
   updatedAt: string;
 }
 
-// PATCH 요청이라 모든 필드는 optional — 보내지 않은 필드는 "변경하지 않음"으로 처리된다
-// (attachments를 생략하면 기존 미디어 유지, 배열로 보내면 통째로 교체).
 export interface UpdatePostParams {
   content?: string;
   visibilityType?: VisibilityType;
