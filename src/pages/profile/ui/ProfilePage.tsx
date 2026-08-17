@@ -1,11 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  Pressable,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
@@ -13,23 +7,15 @@ import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints, type Device } from '@/shared/lib/useBreakpoints';
 import { columnsFor } from '@/shared/lib/gridColumns';
+import { showNotReady } from '@/shared/lib/showNotReady';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { useLogout } from '@/features/auth/model/useLogout';
 import { useFeedQuery, PostThumbnail, type PostSummary } from '@/entities/post';
 import { useFriendsQuery } from '@/entities/user';
 import { PostDetailModal } from '@/widgets/postDetailModal';
-import BellIcon from '@/shared/assets/icons/example_bell.svg';
+import BellIcon from '@/shared/assets/icons/bell.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
-
-function showNotReady() {
-  const message = '아직 준비 중인 기능이에요';
-  if (Platform.OS === 'web') {
-    window.alert(message);
-  } else {
-    Alert.alert('안내', message);
-  }
-}
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
@@ -242,16 +228,16 @@ export function ProfilePage() {
       <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
         <Text variant="heading">프로필</Text>
         <View className="flex-row items-center gap-lg">
-          {/* 알림 — 아직 준비 중 */}
-          <Pressable onPress={showNotReady} hitSlop={8}>
-            <BellIcon width={20} height={22} color={COLORS.brand} />
-          </Pressable>
-          {/* 설정 — 폰에서의 진입점 */}
+          {/* 알림 */}
           {device === 'phone' && (
-            <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
-              <OptionIcon width={22} height={22} color={COLORS.tertiary} />
+            <Pressable onPress={showNotReady} hitSlop={8}>
+              <BellIcon width={20} height={22} color={COLORS.brand} />
             </Pressable>
           )}
+          {/* 설정 — 폰에서의 진입점 */}
+          <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
+            <OptionIcon width={22} height={22} color={COLORS.tertiary} />
+          </Pressable>
         </View>
       </View>
 

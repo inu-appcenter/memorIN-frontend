@@ -8,6 +8,7 @@ import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { columnsFor } from '@/shared/lib/gridColumns';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import SearchIcon from '@/shared/assets/icons/search.svg';
 import {
   useUserSearchQuery,
   useFollowListQuery,
@@ -144,7 +145,8 @@ export function SearchPage() {
   return (
     <View className="flex-1 bg-page">
       <View className="flex-row items-center gap-md border-b border-border px-lg py-lg">
-        <View className="h-[44px] flex-1 flex-row items-center rounded-md bg-surface px-lg">
+        <View className="h-[44px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-lg">
+          <SearchIcon width={22} height={22} color={COLORS.textMuted} />
           <TextInput
             value={keyword}
             onChangeText={setKeyword}

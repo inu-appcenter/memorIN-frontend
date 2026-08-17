@@ -50,19 +50,22 @@ export function LogPage() {
   };
 
   return (
-    <View className="flex-1 bg-page desktop:flex-row">
-      <ScrollView className="flex-1">
-        <CalendarGrid
-          visibleMonth={visibleMonth}
-          selectedDate={selectedDate}
-          onSelectDate={handleSelectDate}
-          onChangeMonth={handleChangeMonth}
-        />
-      </ScrollView>
+    <View className="flex-1 bg-page">
+      {/* 데스크탑은 달력과 날짜 상세 패널이 좌우로 놓인다 */}
+      <View className="flex-1 desktop:flex-row">
+        <ScrollView className="flex-1">
+          <CalendarGrid
+            visibleMonth={visibleMonth}
+            selectedDate={selectedDate}
+            onSelectDate={handleSelectDate}
+            onChangeMonth={handleChangeMonth}
+          />
+        </ScrollView>
 
-      {device === 'desktop' && (
-        <DayDetailPanel date={selectedDate} onOpenStory={handleOpenStory} />
-      )}
+        {device === 'desktop' && (
+          <DayDetailPanel date={selectedDate} onOpenStory={handleOpenStory} />
+        )}
+      </View>
 
       {device !== 'desktop' && (
         <DayDetailSheet

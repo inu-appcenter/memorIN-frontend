@@ -12,12 +12,10 @@ interface ChatThreadProps {
 export function ChatThread({ roomName }: ChatThreadProps) {
   return (
     <View className="hidden flex-1 bg-surface tablet:flex">
-      <View className="h-[66px] flex-row items-center justify-between border-b border-border bg-page px-xl">
+      <View className="h-[63px] flex-row items-center justify-between border-b border-border bg-page px-xl">
         <View className="flex-row items-center gap-md">
-          <View className="h-[38px] w-[38px] rounded-full bg-subtle" />
           <Text className="font-bold">{roomName}</Text>
         </View>
-        <Text className="text-[22px]">•••</Text>
       </View>
       <View className="flex-1 gap-lg p-xl">
         {dummyMessages.map((message) => (

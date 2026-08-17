@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import { TABLISTS, TAB_LABELS, type TabItem } from '@/shared/config/tabList';
 import { Logo } from './Logo';
-import BellIcon from '@/shared/assets/icons/example_bell.svg';
+import BellIcon from '@/shared/assets/icons/bell.svg';
 
 type TopNavBarProps = {
   onPressWrite?: () => void;
