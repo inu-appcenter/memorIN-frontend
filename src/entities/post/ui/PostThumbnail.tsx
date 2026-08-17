@@ -1,16 +1,15 @@
 import { Image, Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { resolveMediaUrl } from '../lib/resolveMediaUrl';
-import { PostVideoCover } from './PostVideoCover';
+import { PostVideoThumbnail } from './PostVideoThumbnail';
 import type { PostSummary } from '../api/postsApi';
 
-export function PostThumbnail({
-  post,
-  onPress,
-}: {
+interface PostThumbnailProps {
   post: PostSummary;
   onPress: () => void;
-}) {
+}
+
+export function PostThumbnail({ post, onPress }: PostThumbnailProps) {
   const cover = post.attachments[0];
   const coverUrl = cover ? resolveMediaUrl(cover) : undefined;
   const isVideo = cover?.contentType.startsWith('video/') ?? false;
@@ -23,10 +22,8 @@ export function PostThumbnail({
     >
       {coverUrl && isVideo ? (
         <>
-          <PostVideoCover
+          <PostVideoThumbnail
             uri={coverUrl}
-            isVisible={false}
-            nativeControls={false}
             style={{ height: '100%', width: '100%' }}
           />
           <View className="absolute h-[28px] w-[28px] items-center justify-center rounded-full bg-black/50">

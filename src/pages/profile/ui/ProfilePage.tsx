@@ -20,6 +20,7 @@ import { useFeedQuery, PostThumbnail, type PostSummary } from '@/entities/post';
 import { useFriendsQuery } from '@/entities/user';
 import { PostDetailModal } from '@/widgets/postDetailModal';
 import BellIcon from '@/shared/assets/icons/example_bell.svg';
+import OptionIcon from '@/shared/assets/icons/option.svg';
 
 function showNotReady() {
   const message = '아직 준비 중인 기능이에요';
@@ -121,8 +122,6 @@ function ProfileHeader({
   );
 
   if (device === 'desktop') {
-    // 아바타는 왼쪽 고정, 오른쪽 컬럼을 위(이름+버튼)/아래(통계)로 justify-between —
-    // 아바타 높이만큼 두 줄이 위아래로 벌어진다
     return (
       <View className="px-xl py-2xl">
         <View className="flex-row gap-xl">
@@ -152,8 +151,6 @@ function ProfileHeader({
   }
 
   if (device === 'tablet') {
-    // 데스크탑과 같은 구조: 아바타 왼쪽 고정 + 오른쪽 컬럼(이름 위 / 통계 아래) —
-    // 다만 버튼은 이름 옆이 아니라 그 아래 별도 줄에 전체 너비로 배치
     return (
       <View className="gap-lg px-xl py-xl">
         <View className="flex-row gap-lg">
@@ -202,6 +199,7 @@ function ProfileHeader({
 }
 
 export function ProfilePage() {
+  const router = useRouter();
   const { device } = useBreakpoints();
   const columns = columnsFor(device);
   const myId = useAuthStore((s) => s.user?.id);
@@ -243,13 +241,18 @@ export function ProfilePage() {
     <View className="flex-1 bg-page">
       <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
         <Text variant="heading">프로필</Text>
-        <Pressable onPress={showNotReady} hitSlop={8}>
-          {device === 'phone' ? (
+        <View className="flex-row items-center gap-lg">
+          {/* 알림 — 아직 준비 중 */}
+          <Pressable onPress={showNotReady} hitSlop={8}>
             <BellIcon width={20} height={22} color={COLORS.brand} />
-          ) : (
-            <Text className="text-secondary">⚙</Text>
+          </Pressable>
+          {/* 설정 — 폰에서의 진입점 */}
+          {device === 'phone' && (
+            <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
+              <OptionIcon width={22} height={22} color={COLORS.tertiary} />
+            </Pressable>
           )}
-        </Pressable>
+        </View>
       </View>
 
       {isLoading ? (
@@ -257,9 +260,6 @@ export function ProfilePage() {
           <ActivityIndicator color={COLORS.brand} />
         </View>
       ) : (
-        // 헤더("프로필"+톱니바퀴)는 전체 폭, 그 아래 콘텐츠는 1080px로 제한해서
-        // 데스크탑에서 가운데 정렬. nativewind의 max-w-[...] 임의값 클래스가
-        // FlashList 안에서 안 먹혀서 RN 인라인 style 숫자값으로 강제 지정한다.
         <View
           className="flex-1"
           style={device === 'desktop' ? { alignItems: 'center' } : undefined}
