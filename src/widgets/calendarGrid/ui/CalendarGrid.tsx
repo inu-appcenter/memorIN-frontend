@@ -4,6 +4,8 @@ import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { buildMonthGrid, isSameDate } from '@/shared/lib/calendarDate';
 import { useMonthPosts } from '../model/useMonthPosts';
+import BellIcon from '@/shared/assets/icons/bell.svg';
+import { showNotReady } from '@/shared/lib/showNotReady';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -62,6 +64,12 @@ export function CalendarGrid({
               </Text>
             </Pressable>
           </View>
+        </View>
+        {/* 알림 아이콘 */}
+        <View className="flex-row items-center justify-between px-xl py-lg">
+          <Pressable onPress={showNotReady} hitSlop={8}>
+            <BellIcon width={20} height={22} />
+          </Pressable>
         </View>
       </View>
       <View className="mb-sm flex-row gap-sm">

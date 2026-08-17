@@ -19,8 +19,9 @@ import {
   type PostSummary,
 } from '@/entities/post';
 import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
+import { showNotReady } from '@/shared/lib/showNotReady';
 import SearchIcon from '@/shared/assets/icons/search.svg';
-import BellIcon from '@/shared/assets/icons/example_bell.svg';
+import BellIcon from '@/shared/assets/icons/bell.svg';
 
 function FeedTab({
   label,
@@ -164,11 +165,11 @@ export function FeedPage() {
           <View className="flex-row items-center justify-between px-lg py-md">
             <Text variant="heading">피드</Text>
             <View className="flex-row items-center gap-lg">
-              <Pressable hitSlop={8}>
-                <SearchIcon width={22} height={22} color={COLORS.brand} />
+              <Pressable onPress={() => router.navigate('/search')} hitSlop={8}>
+                <SearchIcon width={22} height={22} />
               </Pressable>
-              <Pressable hitSlop={8}>
-                <BellIcon width={20} height={22} color={COLORS.brand} />
+              <Pressable onPress={showNotReady} hitSlop={8}>
+                <BellIcon width={20} height={22} />
               </Pressable>
               <Pressable
                 onPress={() => router.navigate('/profile')}

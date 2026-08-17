@@ -1,5 +1,7 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
+import { showNotReady } from '@/shared/lib/showNotReady';
+import SearchIcon from '@/shared/assets/icons/search.svg';
 import { ChatRoomListItem } from '@/entities/chatRoom';
 import { dummyChatRooms } from '@/shared/config/dummy';
 
@@ -9,7 +11,10 @@ export function ChatRoomList() {
     <View className="w-full border-r border-border tablet:w-[320px]">
       <View className="h-[62px] flex-row items-center justify-between border-b border-border px-lg">
         <Text variant="title">채팅</Text>
-        <Text className="text-[24px]">⌕</Text>
+        {/* 채팅방 검색 */}
+        <Pressable onPress={showNotReady} hitSlop={8}>
+          <SearchIcon width={22} height={22} />
+        </Pressable>
       </View>
       {dummyChatRooms.map((room, index) => (
         <ChatRoomListItem

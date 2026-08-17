@@ -6,8 +6,10 @@ import type { SvgProps } from 'react-native-svg';
 import { Text } from '@/shared/ui/text';
 import {
   PATH,
+  SIDE_NAV_ITEMS,
   TAB_LABELS,
   TABLISTS,
+  type SideNavItem,
   type TabItem,
 } from '@/shared/config/tabList';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
@@ -17,16 +19,18 @@ import HomeIcon from '@/shared/assets/icons/home.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import LogIcon from '@/shared/assets/icons/log.svg';
 import ChatIcon from '@/shared/assets/icons/chat.svg';
+import OptionIcon from '@/shared/assets/icons/option.svg';
 
-const NAV_ICON: Record<TabItem, FC<SvgProps>> = {
+const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   feed: HomeIcon,
   search: SearchIcon,
   log: LogIcon,
   chat: ChatIcon,
+  settings: OptionIcon,
 };
 
-function getActiveTab(pathname: string): TabItem | undefined {
-  return TABLISTS.find((tab) => pathname.startsWith(PATH[tab]));
+function getActiveTab(pathname: string): SideNavItem | undefined {
+  return SIDE_NAV_ITEMS.find((item) => pathname.startsWith(PATH[item]));
 }
 
 function Brand({ compact = false }: { compact?: boolean }) {
@@ -75,7 +79,7 @@ function NavItem({
   compact,
   onPress,
 }: {
-  tab: TabItem;
+  tab: SideNavItem;
   active: boolean;
   compact: boolean;
   onPress: () => void;
@@ -132,14 +136,15 @@ function SideNav({
           <UploadButton compact={compact} />
         </View>
       )}
+      {/* 탭 4개 + 설정. 설정은 탭바에 없는 항목이라 SIDE_NAV_ITEMS로 들어간다 */}
       <View className="mt-3xl gap-md">
-        {TABLISTS.map((tab) => (
+        {SIDE_NAV_ITEMS.map((item) => (
           <NavItem
-            key={tab}
-            tab={tab}
+            key={item}
+            tab={item}
             compact={compact}
-            active={activeTab === tab}
-            onPress={() => router.navigate(PATH[tab])}
+            active={activeTab === item}
+            onPress={() => router.navigate(PATH[item])}
           />
         ))}
       </View>
