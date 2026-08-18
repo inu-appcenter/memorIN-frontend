@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Text } from '@/shared/ui/text';
 import { Alert, Image, Platform, Pressable, View } from 'react-native';
 import type { PostSummary } from '../api/postsApi';
@@ -22,6 +22,7 @@ import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
 import UploadIcon from '@/shared/assets/icons/upload.svg';
+import { PostShareSheet } from '@/features/post-share';
 
 interface PostCardProps {
   post: PostSummary;
@@ -59,6 +60,7 @@ function PostCardComponent({
   const isOwnPost = post.authorId === myId;
 
   const deletePost = useDeletePost();
+  const [shareVisible, setShareVisible] = useState(false);
 
   const {
     liked,
@@ -171,7 +173,9 @@ function PostCardComponent({
               <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
               <Text className="text-tertiary">{commentCount}</Text>
             </Pressable>
-            <UploadIcon width={20} height={20} color={COLORS.tertiary} />
+            <Pressable onPress={() => setShareVisible(true)} hitSlop={8}>
+              <UploadIcon width={20} height={20} color={COLORS.tertiary} />
+            </Pressable>
           </View>
         </View>
       </View>
@@ -182,6 +186,11 @@ function PostCardComponent({
       >
         <CommentThread postId={post.postId} />
       </Sheet>
+      <PostShareSheet
+        post={post}
+        visible={shareVisible}
+        onClose={() => setShareVisible(false)}
+      />
     </>
   );
 }

@@ -156,7 +156,7 @@ export function DayDetailContent({
                       justifyContent: 'center',
                     }}
                   >
-                    <PostActionsMenu post={post} variant="dark" />
+                    <PostActionsMenu post={post} isOwnPost variant="dark" />
                   </View>
                 )}
               </View>

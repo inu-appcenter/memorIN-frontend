@@ -177,7 +177,11 @@ function PostInfoPanel({
         </View>
         <View className="flex-row items-center gap-md">
           {/* 삭제되면 모달 자체를 닫아야 한다 — 지워진 게시물이 남아 있으면 안 됨 */}
-          {isOwnPost && <PostActionsMenu post={post} onDeleted={onClose} />}
+          <PostActionsMenu
+            post={post}
+            isOwnPost={isOwnPost}
+            onDeleted={onClose}
+          />
           {showClose && (
             <Pressable onPress={onClose} hitSlop={8}>
               <Text className="text-secondary">✕</Text>
@@ -238,7 +242,7 @@ export function PostDetailModal({
   const [index, setIndex] = useState(startIndex);
 
   const post = posts[index];
-  // 게시물이 삭제되면 목록이 줄어 인덱스가 범위를 벗어날 수 있다 — 그땐 아무것도 안 그린다.
+  // 게시물이 삭제되면 목록이 줄어 인덱스가 범위를 벗어날 수 있다(그땐 아무것도 안 그린다)
   if (!post) return null;
 
   const canPrev = index > 0;

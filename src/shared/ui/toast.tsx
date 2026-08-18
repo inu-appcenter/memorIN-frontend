@@ -40,7 +40,7 @@ export function ToastHost() {
     <Portal name="toast-host">
       <View
         pointerEvents="box-none"
-        className="absolute inset-x-0 top-0 items-center px-lg pb-xl"
+        className="absolute inset-x-0 top-0 items-center px-lg pb-xl pt-3xl"
       >
         {toasts.map((t) => (
           <ToastItem key={t.id} {...t} />
