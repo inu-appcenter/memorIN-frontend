@@ -9,6 +9,7 @@ import {
   signInSchema,
   type SignInInput,
 } from '@/features/auth/model/authSchema';
+import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 
 export function SignInPage() {
   const {
@@ -27,14 +28,9 @@ export function SignInPage() {
   return (
     <View className="flex-1 items-center justify-center bg-page px-lg">
       <View className="w-full max-w-[420px]">
-        <View className="mb-3xl">
-          <Text className="font-sans-bold text-[40px] text-primary">
-            MemorIN
-          </Text>
-          <Text className="mt-sm text-muted">
-            오늘 하루의 기록을 캘린더에 담아
-          </Text>
-          <Text className="text-muted">소중한 순간을 오래 기억해요</Text>
+        <View className="mx-auto mb-3xl flex-row gap-xl">
+          <MemorINLogo />
+          <Text className="font-sans-bold text-[40px] text-brand">MemorIN</Text>
         </View>
 
         <View className="gap-md">
@@ -81,7 +77,7 @@ export function SignInPage() {
         <Pressable
           onPress={handleSubmit(onSubmit)}
           disabled={isPending}
-          className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press disabled:opacity-50"
+          className="mt-lg h-[52px] items-center justify-center rounded-lg bg-brand active:bg-brand-press disabled:opacity-50"
         >
           <Text className="font-sans-bold text-on-brand">
             {isPending ? '로그인 중...' : '로그인'}
