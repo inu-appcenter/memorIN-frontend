@@ -191,13 +191,12 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                 </View>
               </View>
               <View className="flex-row items-center gap-lg">
-                {isOwnPost && (
-                  <PostActionsMenu
-                    post={post}
-                    variant="dark"
-                    onDeleted={onClose}
-                  />
-                )}
+                <PostActionsMenu
+                  post={post}
+                  isOwnPost={isOwnPost}
+                  variant="dark"
+                  onDeleted={onClose}
+                />
                 <Pressable onPress={onClose} hitSlop={8}>
                   <Text variant="heading" className="text-white">
                     ×
