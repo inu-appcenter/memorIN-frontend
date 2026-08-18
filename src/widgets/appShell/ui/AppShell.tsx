@@ -3,7 +3,9 @@ import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
+
 import { Text } from '@/shared/ui/text';
+
 import {
   PATH,
   SIDE_NAV_ITEMS,
@@ -12,14 +14,19 @@ import {
   type SideNavItem,
   type TabItem,
 } from '@/shared/config/tabList';
+
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
+
 import HomeIcon from '@/shared/assets/icons/home.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import LogIcon from '@/shared/assets/icons/log.svg';
 import ChatIcon from '@/shared/assets/icons/chat.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
+import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
+import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
+import PlusIcon from '@/shared/assets/icons/plus.svg';
 
 const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   feed: HomeIcon,
@@ -40,16 +47,15 @@ function Brand({ compact = false }: { compact?: boolean }) {
     <Pressable
       onPress={() => router.navigate(PATH.feed)}
       className={cn(
-        'flex-row items-center gap-sm',
+        'flex-row items-center gap-md',
         compact && 'justify-center'
       )}
     >
-      <View className="h-[34px] w-[34px] items-center justify-center rounded-lg bg-brand">
-        <Text className="font-sans-bold text-on-brand">m</Text>
+      <View className="-translate-y-[6.5px]">
+        <MemorINLogo width={34} height={32} />
       </View>
-      {!compact && (
-        <Text className="font-sans-bold text-[24px] text-primary">MemorIN</Text>
-      )}
+
+      {!compact && <MemorINtext color={COLORS.brand} />}
     </Pressable>
   );
 }
@@ -66,8 +72,9 @@ function UploadButton({ compact = false }: { compact?: boolean }) {
       )}
     >
       <Text className="text-[28px] leading-[28px] text-on-brand">+</Text>
+
       {!compact && (
-        <Text className="font-sans-bold text-on-brand">기록 올리기</Text>
+        <Text className="font-sans-bold text-on-brand">사진 올리기</Text>
       )}
     </Pressable>
   );
@@ -100,6 +107,7 @@ function NavItem({
         height={22}
         color={active ? COLORS.brand : COLORS.tertiary}
       />
+
       {!compact && (
         <Text
           variant="body"
@@ -131,12 +139,13 @@ function SideNav({
       )}
     >
       <Brand compact={compact} />
+
       {showUpload && (
         <View className="mt-xl">
           <UploadButton compact={compact} />
         </View>
       )}
-      {/* 탭 4개 + 설정. 설정은 탭바에 없는 항목이라 SIDE_NAV_ITEMS로 들어간다 */}
+
       <View className="mt-3xl gap-md">
         {SIDE_NAV_ITEMS.map((item) => (
           <NavItem
@@ -156,12 +165,14 @@ function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const activeTab = getActiveTab(pathname);
+
   const leftTabs = TABLISTS.slice(0, 2);
   const rightTabs = TABLISTS.slice(2);
 
   const renderItem = (tab: TabItem) => {
     const Icon = NAV_ICON[tab];
     const active = activeTab === tab;
+
     return (
       <Pressable
         key={tab}
@@ -173,6 +184,7 @@ function BottomNav() {
           height={20}
           color={active ? COLORS.brand : COLORS.textMuted}
         />
+
         <Text variant="caption" className={active ? 'text-link' : 'text-muted'}>
           {TAB_LABELS[tab]}
         </Text>
@@ -181,17 +193,28 @@ function BottomNav() {
   };
 
   return (
-    <View className="h-[68px] flex-row border-t border-border bg-page">
-      {leftTabs.map(renderItem)}
+    <View className="relative h-[92px]">
+      <View className="absolute inset-x-0 bottom-0 h-[68px] flex-row rounded-t-[18px] bg-page shadow-modal">
+        {leftTabs.map(renderItem)}
+
+        <View className="w-[72px]" />
+
+        {rightTabs.map(renderItem)}
+      </View>
+
       <Pressable
-        className="w-[72px] items-center justify-center"
+        className="absolute top-0 z-10 h-[88px] w-[88px] items-center justify-center"
+        style={{ left: '50%', marginLeft: -44 }}
         onPress={() => router.navigate('/upload')}
       >
-        <View className="h-[56px] w-[56px] items-center justify-center rounded-full bg-brand">
-          <Text className="text-[30px] leading-[30px] text-on-brand">+</Text>
+        <View className="h-[60px] w-[60px] rounded-full bg-page">
+          <PlusIcon
+            width={77}
+            height={87}
+            style={{ position: 'absolute', top: -4, left: -8 }}
+          />
         </View>
       </Pressable>
-      {rightTabs.map(renderItem)}
     </View>
   );
 }
@@ -200,20 +223,19 @@ export function AppShell({ children }: PropsWithChildren) {
   const { device } = useBreakpoints();
   const inset = useSafeAreaInsets();
   const pathname = usePathname();
+
   const isUploadRoute = pathname.startsWith('/upload');
   const isPhone = device === 'phone';
 
-  // desktop/tablet/phone 사이를 오갈 때 {children}이 unmount되지 않도록,
-  // 어느 device든 {children}을 감싸는 View가 같은 부모·같은 자리에 있게 만들고
-  // key로 고정한다. SideNav/BottomNav는 그 안팎에서 조건부로 여닫히는 형제일 뿐이라,
-  // key가 없으면 걔들이 나타나거나 사라질 때 React가 위치 기반으로 비교하다가
-  // {children} 자리까지 통째로 다른 엘리먼트로 오인해서 unmount/remount해버린다.
   return (
     <View
       className="h-full flex-1 items-center bg-surface"
       style={
         isPhone
-          ? { paddingTop: inset.top, paddingBottom: inset.bottom }
+          ? {
+              paddingTop: inset.top,
+              paddingBottom: inset.bottom,
+            }
           : undefined
       }
     >
@@ -225,10 +247,12 @@ export function AppShell({ children }: PropsWithChildren) {
             showUpload={device === 'tablet'}
           />
         )}
+
         <View key="content-column" className="flex-1 overflow-hidden">
           <View key="content" className="flex-1">
             {children}
           </View>
+
           {isPhone && !isUploadRoute && <BottomNav />}
         </View>
       </View>

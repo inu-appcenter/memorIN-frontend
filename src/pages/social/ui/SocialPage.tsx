@@ -1,19 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
-
 import { Link, useRouter } from 'expo-router';
-
 import { FlashList } from '@shopify/flash-list';
-
 import { Text } from '@/shared/ui/text';
-
 import { cn } from '@/shared/lib/utils';
-
 import { COLORS } from '@/shared/lib/theme';
-
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
-
 import {
   useFriendsQuery,
   useFollowRequestsQuery,
@@ -22,17 +14,13 @@ import {
   type UserFollowSummary,
   type FollowRequestItem,
 } from '@/entities/user';
-
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
-
 import { showNotReady } from '@/shared/lib/showNotReady';
-
 const CONTENT_CLASS = 'w-full max-w-[720px] self-center';
 
 function FriendRow({ friend }: { friend: UserFollowSummary }) {
   const unfollowUser = useUnfollowUser();
-
   return (
     <View className="w-full px-xl">
       <View
@@ -44,15 +32,12 @@ function FriendRow({ friend }: { friend: UserFollowSummary }) {
         <Link href={`/user/${friend.id}`} asChild>
           <Pressable className="flex-1 flex-row items-center gap-md">
             <View className="h-[44px] w-[44px] rounded-full border border-border bg-subtle" />
-
             <View className="flex-1 gap-xs">
               <Text className="font-bold">{friend.displayName}</Text>
-
               <Text className="text-muted">@{friend.username}</Text>
             </View>
           </Pressable>
         </Link>
-
         <Pressable
           onPress={() => unfollowUser.mutate(friend.id)}
           disabled={unfollowUser.isPending}
@@ -72,7 +57,6 @@ function FriendRow({ friend }: { friend: UserFollowSummary }) {
 
 function FriendRequestRow({ request }: { request: FollowRequestItem }) {
   const acceptFollow = useAcceptFollow();
-
   return (
     <View className="w-full px-xl">
       <View
@@ -84,15 +68,12 @@ function FriendRequestRow({ request }: { request: FollowRequestItem }) {
         <Link href={`/user/${request.userId}`} asChild>
           <Pressable className="flex-1 flex-row items-center gap-md">
             <View className="h-[44px] w-[44px] rounded-full border border-border bg-subtle" />
-
             <View className="flex-1">
               <Text className="font-bold">{request.displayName}</Text>
-
               <Text className="text-muted">@{request.username}</Text>
             </View>
           </Pressable>
         </Link>
-
         <Pressable
           onPress={() => acceptFollow.mutate(request.followId)}
           disabled={acceptFollow.isPending}
@@ -112,21 +93,13 @@ function FriendRequestRow({ request }: { request: FollowRequestItem }) {
 
 export function SocialPage() {
   const router = useRouter();
-
   const myId = useAuthStore((s) => s.user?.id);
-
   const [keyword, setKeyword] = useState('');
-
   const friendsQuery = useFriendsQuery(myId);
-
   const allFriends = friendsQuery.friends;
-
   const requestsQuery = useFollowRequestsQuery();
-
   const requests = requestsQuery.data ?? [];
-
   const trimmedKeyword = keyword.trim().toLowerCase();
-
   const filteredFriends = useMemo(() => {
     if (!trimmedKeyword) {
       return allFriends;
