@@ -7,9 +7,9 @@ import type { SvgProps } from 'react-native-svg';
 import { Text } from '@/shared/ui/text';
 
 import {
+  getTabLabel,
   PATH,
   SIDE_NAV_ITEMS,
-  TAB_LABELS,
   TABLISTS,
   type SideNavItem,
   type TabItem,
@@ -27,6 +27,7 @@ import OptionIcon from '@/shared/assets/icons/option.svg';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
 import PlusIcon from '@/shared/assets/icons/plus.svg';
+import { useTranslation } from 'react-i18next';
 
 const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   feed: HomeIcon,
@@ -62,7 +63,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
 
 function UploadButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
-
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={() => router.navigate('/upload')}
@@ -74,7 +75,9 @@ function UploadButton({ compact = false }: { compact?: boolean }) {
       <Text className="text-[28px] leading-[28px] text-on-brand">+</Text>
 
       {!compact && (
-        <Text className="font-sans-bold text-on-brand">사진 올리기</Text>
+        <Text className="font-sans-bold text-on-brand">
+          {t('appShell.upload')}
+        </Text>
       )}
     </Pressable>
   );
@@ -113,7 +116,7 @@ function NavItem({
           variant="body"
           className={active ? 'font-sans-bold text-primary' : 'text-secondary'}
         >
-          {TAB_LABELS[tab]}
+          {getTabLabel(tab)}
         </Text>
       )}
     </Pressable>
@@ -186,7 +189,7 @@ function BottomNav() {
         />
 
         <Text variant="caption" className={active ? 'text-link' : 'text-muted'}>
-          {TAB_LABELS[tab]}
+          {getTabLabel(tab)}
         </Text>
       </Pressable>
     );

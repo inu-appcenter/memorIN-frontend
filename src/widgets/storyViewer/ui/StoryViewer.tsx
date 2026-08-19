@@ -15,6 +15,7 @@ import { Sheet } from '@/shared/ui/sheet';
 import { PostActionsMenu } from '@/features/post-edit';
 import { StoryProgressBar } from './StoryProgressBar';
 import { CommentThread } from '@/entities/post';
+import { useTranslation } from 'react-i18next';
 
 interface StoryViewerProps {
   posts: PostSummary[];
@@ -31,6 +32,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [videoDurationMs, setVideoDurationMs] = useState<number | null>(null);
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
+  const { t } = useTranslation();
 
   const post = posts[activeIndex];
   // 게시물 실제 작성자(post.authorId) 기준으로 조회 — 로그인한 내 프로필로
@@ -103,9 +105,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                   justifyContent: 'center',
                 }}
               >
-                <Text className="text-white/50">
-                  기록에 첨부된 미디어가 없어요
-                </Text>
+                <Text className="text-white/50">{t('story.noMedia')}</Text>
               </View>
             )}
           </View>
@@ -186,7 +186,9 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                     {authorLabel}
                   </Text>
                   <Text variant="caption" className="text-white/60">
-                    {getTimeslotLabel(post.timeslot)} 기록
+                    {t('story.slotRecord', {
+                      slot: getTimeslotLabel(post.timeslot) ?? '',
+                    })}
                   </Text>
                 </View>
               </View>
@@ -240,7 +242,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                   variant="body-small"
                   style={{ flex: 1, color: 'rgba(255,255,255,0.6)' }}
                 >
-                  댓글 보기
+                  {t('story.viewComments')}
                 </Text>
               </Pressable>
             )}

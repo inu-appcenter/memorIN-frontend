@@ -20,6 +20,7 @@ import {
 import { FollowButton } from '@/features/follow-button';
 import { PostDetailModal } from '@/widgets/postDetailModal';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import { useTranslation } from 'react-i18next';
 
 interface UserProfilePageProps {
   userId: string;
@@ -79,12 +80,15 @@ function ProfileHeader({
       style={{ width: avatarSize, height: avatarSize }}
     />
   );
-
+  const { t } = useTranslation();
   const StatsRow = (
     <View className="flex-row gap-3xl">
-      <StatBlock label="기록" value={postCountLabel} />
-      <StatBlock label="친구" value={friendCountLabel} />
-      <StatBlock label="받은 반응" value={reactionCountLabel} />
+      <StatBlock label={t('profile.statRecords')} value={postCountLabel} />
+      <StatBlock label={t('profile.statFriends')} value={friendCountLabel} />
+      <StatBlock
+        label={t('profile.statReactions')}
+        value={reactionCountLabel}
+      />
     </View>
   );
 
@@ -147,7 +151,10 @@ function ProfileHeader({
           </Text>
           <Text className="text-muted">{displayName}</Text>
           <Text className="text-muted">
-            기록 {postCountLabel} · 친구 {friendCountLabel}
+            {t('profile.statSummary', {
+              postCount: postCountLabel,
+              friendCount: friendCountLabel,
+            })}
           </Text>
         </View>
       </View>
@@ -217,6 +224,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 bg-page">
@@ -229,7 +237,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         >
           <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
-        <Text variant="heading">프로필</Text>
+        <Text variant="heading">{t('profile.title')}</Text>
       </View>
 
       {isLoading && (
@@ -242,7 +250,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
         <View className="items-center gap-sm py-3xl">
           <Text className="text-error">{(error as Error).message}</Text>
           <Pressable onPress={() => refetch()}>
-            <Text className="font-bold text-link">다시 시도</Text>
+            <Text className="font-bold text-link">{t('feed.retry')}</Text>
           </Pressable>
         </View>
       )}
@@ -284,7 +292,9 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
                     isAlreadyFollowing={isAlreadyFollowing}
                   />
                   <View className="border-t border-border px-xl py-2xl">
-                    <Text className="font-bold text-primary">기록</Text>
+                    <Text className="font-bold text-primary">
+                      {t('profile.records')}
+                    </Text>
                   </View>
                   {feedLoading && hasNoPosts && (
                     <View className="items-center py-xl">
@@ -301,7 +311,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
                   {!feedLoading && !feedIsError && hasNoPosts && (
                     <View className="items-center py-xl">
                       <Text className="text-muted">
-                        아직 올린 기록이 없어요
+                        {t('profile.emptyRecords')}
                       </Text>
                     </View>
                   )}

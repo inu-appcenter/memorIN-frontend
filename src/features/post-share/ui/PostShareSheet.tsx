@@ -8,6 +8,7 @@ import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { dummyChatRooms } from '@/shared/config/dummy';
 import type { PostSummary } from '@/entities/post/api/postsApi';
+import { useTranslation } from 'react-i18next';
 
 interface PostShareSheetProps {
   post: PostSummary;
@@ -27,6 +28,7 @@ export function PostShareSheet({
   visible,
   onClose,
 }: PostShareSheetProps) {
+  const { t } = useTranslation();
   const { device } = useBreakpoints();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [keyword, setKeyword] = useState('');
@@ -60,9 +62,7 @@ export function PostShareSheet({
   const handleSend = () => {
     const count = selectedIds.size;
     if (count === 0) return;
-    toast.success(
-      `${count}개 채팅방에 공유했어요.(실제 공유는 아님. api 연동필요)`
-    );
+    toast.success(t('share.shared', { count }));
     setSelectedIds(new Set());
     setKeyword('');
     onClose();
@@ -70,13 +70,13 @@ export function PostShareSheet({
 
   const content = (
     <View className="gap-lg px-md">
-      <Text variant="heading">공유하기</Text>
+      <Text variant="heading">{t('share.title')}</Text>
 
       <View className="h-[44px] flex-row items-center rounded-md bg-surface px-lg">
         <TextInput
           value={keyword}
           onChangeText={setKeyword}
-          placeholder="채팅방 검색"
+          placeholder={t('share.searchPlaceholder')}
           placeholderTextColor={COLORS.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
@@ -118,7 +118,7 @@ export function PostShareSheet({
         {filteredRooms.length === 0 && (
           <View className="items-center py-xl">
             <Text className="text-muted">
-              &lsquo;{keyword}&rsquo;에 대한 검색 결과가 없어요
+              {t('share.emptyResult', { keyword })}
             </Text>
           </View>
         )}
@@ -141,8 +141,8 @@ export function PostShareSheet({
           )}
         >
           {selectedIds.size === 0
-            ? '채팅방을 선택하세요'
-            : `${selectedIds.size}개 방에 보내기`}
+            ? t('share.selectPrompt')
+            : t('share.sendToRooms', { count: selectedIds.size })}
         </Text>
       </Pressable>
     </View>

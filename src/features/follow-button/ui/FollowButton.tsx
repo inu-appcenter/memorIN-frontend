@@ -3,6 +3,7 @@ import { Alert, Platform, Pressable } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { useFollowUser, useUnfollowUser } from '@/entities/user';
+import { useTranslation } from 'react-i18next';
 
 export type FollowRelationState = 'none' | 'pending' | 'following';
 
@@ -19,6 +20,7 @@ export function FollowButton({
   size = 'default',
   className,
 }: FollowButtonProps) {
+  const { t } = useTranslation();
   const [state, setState] = useState<FollowRelationState>(initialState);
   const followUser = useFollowUser();
   const unfollowUser = useUnfollowUser();
@@ -29,7 +31,7 @@ export function FollowButton({
     if (Platform.OS === 'web') {
       window.alert(message);
     } else {
-      Alert.alert('오류', message);
+      Alert.alert(t('follow.errorTitle'), message);
     }
   };
 
@@ -66,20 +68,28 @@ export function FollowButton({
     }
 
     if (Platform.OS === 'web') {
-      if (window.confirm('팔로우를 끊으시겠어요?')) {
+      if (window.confirm(t('follow.unfollowConfirm'))) {
         performUnfollow();
       }
       return;
     }
 
-    Alert.alert('팔로우 취소', '팔로우를 끊으시겠어요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '확인', style: 'destructive', onPress: performUnfollow },
+    Alert.alert(t('follow.unfollowTitle'), t('follow.unfollowConfirm'), [
+      { text: t('action.cancel'), style: 'cancel' },
+      {
+        text: t('follow.confirm'),
+        style: 'destructive',
+        onPress: performUnfollow,
+      },
     ]);
   };
 
   const label =
-    state === 'none' ? '팔로우' : state === 'pending' ? '요청됨' : '팔로잉';
+    state === 'none'
+      ? t('follow.follow')
+      : state === 'pending'
+        ? t('follow.requested')
+        : t('follow.following');
 
   return (
     <Pressable

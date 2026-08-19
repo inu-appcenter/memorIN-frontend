@@ -1,4 +1,5 @@
 import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import i18next from '@/shared/lib/i18n';
 
 export type VisibilityType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 export type TimeslotType = 'AM' | 'PM';
@@ -44,7 +45,7 @@ export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '피드를 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.feedLoad')
     );
   }
 
@@ -63,7 +64,7 @@ export async function getFriendFeed(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '친구 피드를 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.friendFeedLoad')
     );
   }
 
@@ -83,7 +84,7 @@ export async function getUserFeed(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '게시물을 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.postLoad')
     );
   }
 
@@ -129,7 +130,7 @@ export async function createPost(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '게시물을 작성하지 못했습니다'
+      data.error?.message ?? i18next.t('error.postCreate')
     );
   }
 
@@ -170,7 +171,7 @@ export async function updatePost(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '게시물을 수정하지 못했습니다'
+      data.error?.message ?? i18next.t('error.postUpdate')
     );
   }
 
@@ -186,7 +187,7 @@ export async function deletePost(postId: string): Promise<void> {
   if (!data.success) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '게시물을 삭제하지 못했습니다'
+      data.error?.message ?? i18next.t('error.postDelete')
     );
   }
 }

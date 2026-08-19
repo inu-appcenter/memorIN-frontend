@@ -1,4 +1,5 @@
 import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import i18next from '@/shared/lib/i18n';
 
 // 백엔드 domain/users, domain/follows DTO를 그대로 미러링한 타입.
 // (memorIN-backend develop 브랜치 UserSearchResponse / UserSearchPageResponse /
@@ -51,7 +52,7 @@ export async function searchUsers(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '사용자를 검색하지 못했습니다'
+      data.error?.message ?? i18next.t('error.profileLoad')
     );
   }
 
@@ -71,7 +72,7 @@ export async function getFollowers(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '팔로워 목록을 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.followersLoad')
     );
   }
 
@@ -91,7 +92,7 @@ export async function getFollowings(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '팔로잉 목록을 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.followingsLoad')
     );
   }
 
@@ -115,7 +116,7 @@ export async function getFollowRequests(): Promise<FollowRequestItem[]> {
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '받은 요청을 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.followRequestsLoad')
     );
   }
 
@@ -132,7 +133,7 @@ export async function requestFollow(followingId: string): Promise<void> {
   if (!data.success) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '팔로우 요청을 보내지 못했습니다'
+      data.error?.message ?? i18next.t('error.followRequest')
     );
   }
 }
@@ -147,7 +148,7 @@ export async function acceptFollow(followId: string): Promise<void> {
   if (!data.success) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '팔로우 요청을 수락하지 못했습니다'
+      data.error?.message ?? i18next.t('error.followAccept')
     );
   }
 }
@@ -182,7 +183,7 @@ export async function unfollow(followingId: string): Promise<void> {
   if (!data.success) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '팔로우를 취소하지 못했습니다'
+      data.error?.message ?? i18next.t('error.unfollow')
     );
   }
 }

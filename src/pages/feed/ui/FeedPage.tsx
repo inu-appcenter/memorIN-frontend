@@ -22,6 +22,7 @@ import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
 import { showNotReady } from '@/shared/lib/showNotReady';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import BellIcon from '@/shared/assets/icons/bell.svg';
+import { useTranslation } from 'react-i18next';
 
 function FeedTab({
   label,
@@ -157,13 +158,14 @@ export function FeedPage() {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 flex-row bg-page">
       <View className="flex-1">
         {device !== 'desktop' && (
           <View className="flex-row items-center justify-between px-lg py-md">
-            <Text variant="heading">피드</Text>
+            <Text variant="heading">{t('feed.title')}</Text>
             <View className="flex-row items-center gap-lg">
               <Pressable onPress={() => router.navigate('/search')} hitSlop={8}>
                 <SearchIcon width={22} height={22} />
@@ -182,13 +184,13 @@ export function FeedPage() {
         )}
         <View className="h-[48px] flex-row border-b border-border">
           <FeedTab
-            label="추천"
+            label={t('feed.tabRecommended')}
             active={activeTab === 'recommended'}
             onPress={() => setActiveTab('recommended')}
             device={device}
           />
           <FeedTab
-            label="팔로잉"
+            label={t('feed.tabFollowing')}
             active={isFollowingTab}
             onPress={() => setActiveTab('following')}
             device={device}
@@ -198,7 +200,7 @@ export function FeedPage() {
         <View className="flex-1">
           {!isFollowingTab ? (
             <View className="items-center py-3xl">
-              <Text className="text-muted">추천 기능은 아직 준비 중이에요</Text>
+              <Text className="text-muted">{t('feed.notReady')}</Text>
             </View>
           ) : (
             <FlashList
@@ -214,22 +216,22 @@ export function FeedPage() {
                 <View className="mx-auto w-full px-lg pt-lg">
                   {isLoading && (
                     <Text className="py-xl text-center text-muted">
-                      불러오는 중...
+                      {t('comment.loading')}
                     </Text>
                   )}
                   {isError && (
                     <View className="items-center gap-sm py-xl">
-                      <Text className="text-error">
-                        피드를 불러오지 못했어요
-                      </Text>
+                      <Text className="text-error">{t('error.feedLoad')}</Text>
                       <Pressable onPress={refetch}>
-                        <Text className="font-bold text-link">다시 시도</Text>
+                        <Text className="font-bold text-link">
+                          {t('feed.retry')}
+                        </Text>
                       </Pressable>
                     </View>
                   )}
                   {!isLoading && !isError && posts.length === 0 && (
                     <Text className="py-xl text-center text-muted">
-                      아직 표시할 기록이 없어요.
+                      {t('feed.empty')}
                     </Text>
                   )}
                 </View>

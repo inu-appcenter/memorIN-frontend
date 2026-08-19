@@ -1,11 +1,14 @@
 import { useMonthPosts } from '@/widgets/calendarGrid/model/useMonthPosts';
 import { toDateKey } from '@/shared/lib/calendarDate';
+import i18next from '@/shared/lib/i18n';
 import type { PostSummary, TimeslotType } from '@/entities/post/api/postsApi';
 
-export const SLOT_LABEL: Record<TimeslotType, string> = {
-  AM: '오전',
-  PM: '오후',
-};
+// 상수 객체로 두면 모듈 로드 시 1회만 평가돼 언어 전환이 반영되지 않아 함수로 바꿨다.
+export function getSlotLabel(slot: TimeslotType): string {
+  return slot === 'AM'
+    ? i18next.t('post.timeslotAm')
+    : i18next.t('post.timeslotPm');
+}
 export const SLOTS: TimeslotType[] = ['AM', 'PM'];
 
 // 하루(오전/오후) 슬롯별 게시물 매핑 — DayDetailContent(본문)와 DayDetailPanel(하단 입력줄)이

@@ -2,6 +2,7 @@ import { Text } from '@/shared/ui/text';
 import { Link } from 'expo-router';
 import { View } from 'react-native';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { useTranslation } from 'react-i18next';
 
 // 피드페이지 우측에 렌더링되는 패널.
 //
@@ -12,6 +13,7 @@ import { useMyProfile } from '@/entities/session/model/useMyProfile';
 // 이 자리를 실제 데이터로 채운다.
 export function RightPanel() {
   const { data: profile } = useMyProfile();
+  const { t } = useTranslation();
 
   return (
     <View className="hidden w-[320px] border-l border-border p-lg desktop:flex">
@@ -19,23 +21,29 @@ export function RightPanel() {
         <View className="flex-row items-center gap-md">
           <View className="h-[48px] w-[48px] rounded-full border border-border bg-subtle" />
           <View>
-            <Text className="font-bold">{profile?.username ?? '내 계정'}</Text>
+            <Text className="font-bold">
+              {profile?.username ?? t('feedPanel.myAccount')}
+            </Text>
             <Text className="text-muted">{profile?.displayName ?? ''}</Text>
           </View>
         </View>
         {/* 프로필 페이지로 리다이렉팅 */}
         <Link href="/profile">
-          <Text className="font-bold text-link">내 프로필</Text>
+          <Text className="font-bold text-link">
+            {t('feedPanel.myProfile')}
+          </Text>
         </Link>
       </View>
 
       <View className="mb-md flex-row justify-between">
-        <Text className="font-bold text-secondary">추천 친구</Text>
+        <Text className="font-bold text-secondary">
+          {t('feedPanel.suggestedFriends')}
+        </Text>
         <Link href="/social">
-          <Text className="text-secondary">모두 보기</Text>
+          <Text className="text-secondary">{t('feedPanel.seeAll')}</Text>
         </Link>
       </View>
-      <Text className="text-muted">추천 기능은 아직 준비 중이에요</Text>
+      <Text className="text-muted">{t('feedPanel.suggestionNotReady')}</Text>
     </View>
   );
 }

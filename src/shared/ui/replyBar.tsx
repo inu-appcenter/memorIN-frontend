@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import SubmitArrowIcon from '@/shared/assets/icons/submitArrow.svg';
 import { cn } from '@/shared/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface ReplyBarProps {
   onSubmit: (text: string) => void;
@@ -15,9 +16,10 @@ interface ReplyBarProps {
 export function ReplyBar({
   onSubmit,
   variant = 'dark',
-  placeholder = '댓글 달기...',
+  placeholder,
   padded = true,
 }: ReplyBarProps) {
+  const { t } = useTranslation();
   const [text, setText] = useState('');
   const isDark = variant === 'dark';
 
@@ -49,7 +51,7 @@ export function ReplyBar({
       <TextInput
         value={text}
         onChangeText={setText}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('reply.placeholder')}
         placeholderTextColor={isDark ? 'rgba(255,255,255,0.5)' : '#8A8F9C'}
         onSubmitEditing={handleSubmit}
         returnKeyType="send"

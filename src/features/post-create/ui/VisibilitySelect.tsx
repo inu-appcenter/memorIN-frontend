@@ -1,16 +1,30 @@
 import { Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import type { VisibilityType } from '@/entities/post';
 
-const VISIBILITY_OPTIONS: {
+// 라벨은 키만 담고 렌더 시점에 t()로 변환한다 (TimeslotSelect와 동일한 이유).
+const VISIBILITY_OPTIONS = [
+  {
+    value: 'PUBLIC',
+    labelKey: 'postCreate.visibilityPublic',
+    compactKey: 'postCreate.visibilityPublic',
+  },
+  {
+    value: 'FRIENDS',
+    labelKey: 'postCreate.visibilityFriends',
+    compactKey: 'postCreate.visibilityFriends',
+  },
+  {
+    value: 'PRIVATE',
+    labelKey: 'postCreate.visibilityPrivate',
+    compactKey: 'postCreate.visibilityPrivateCompact',
+  },
+] as const satisfies readonly {
   value: VisibilityType;
-  label: string;
-  compactLabel: string;
-}[] = [
-  { value: 'PUBLIC', label: '전체', compactLabel: '전체' },
-  { value: 'FRIENDS', label: '친구', compactLabel: '친구' },
-  { value: 'PRIVATE', label: '나만 보기', compactLabel: '나만' },
-];
+  labelKey: string;
+  compactKey: string;
+}[];
 
 interface VisibilitySelectProps {
   value: VisibilityType;
@@ -25,9 +39,13 @@ export function VisibilitySelect({
   disabled,
   compact = false,
 }: VisibilitySelectProps) {
+  const { t } = useTranslation();
+
   return (
     <View className="gap-md">
-      <Text className="font-bold">공개 범위</Text>
+      <Text className="font-bold">
+        {t('postCreate.visibilitySectionTitle')}
+      </Text>
       <View className="flex-row gap-sm">
         {VISIBILITY_OPTIONS.map((option) => {
           const selected = option.value === value;
@@ -39,7 +57,7 @@ export function VisibilitySelect({
               className={`rounded-full border px-lg py-sm transition-opacity hover:opacity-80 ${selected ? 'border-brand bg-brand' : 'border-border bg-page'}`}
             >
               <Text className={selected ? 'text-on-brand' : 'text-primary'}>
-                {compact ? option.compactLabel : option.label}
+                {t(compact ? option.compactKey : option.labelKey)}
               </Text>
             </Pressable>
           );

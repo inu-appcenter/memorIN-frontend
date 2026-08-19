@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Alert, Platform, ScrollView, View } from 'react-native';
 import { DayDetailContent } from './DayDetailContent';
 import { ReplyBar } from '@/shared/ui/replyBar';
-import { useDaySlots, SLOT_LABEL } from '../model/useDaySlots';
+import { useTranslation } from 'react-i18next';
+import { useDaySlots, getSlotLabel } from '../model/useDaySlots';
 import { useCreateComment } from '@/entities/post/model/useComments';
 import type { PostSummary, TimeslotType } from '@/entities/post/api/postsApi';
 
@@ -15,6 +16,7 @@ interface DayDetailPanelProps {
 export function DayDetailPanel({ date, onOpenStory }: DayDetailPanelProps) {
   const [activeSlot, setActiveSlot] = useState<TimeslotType | null>(null);
   const { postBySlot } = useDaySlots(date);
+  const { t } = useTranslation();
 
   // 클릭으로 고른 슬롯이 없거나(또는 그 슬롯 게시물이 사라졌으면) 존재하는 슬롯 중
   // 가장 나중 시간대를 기본 활성 대상으로 삼는다.
@@ -34,11 +36,11 @@ export function DayDetailPanel({ date, onOpenStory }: DayDetailPanelProps) {
     createComment.mutate(text, {
       onError: (error) => {
         const message =
-          error instanceof Error ? error.message : '알 수 없는 오류';
+          error instanceof Error ? error.message : t('postEdit.unknownError');
         if (Platform.OS === 'web') {
-          window.alert(`댓글 작성 실패: ${message}`);
+          window.alert(t('calendarPage.commentFailMessage', { message }));
         } else {
-          Alert.alert('댓글 작성 실패', message);
+          Alert.alert(t('calendarPage.commentFailTitle'), message);
         }
       },
     });
@@ -70,7 +72,9 @@ export function DayDetailPanel({ date, onOpenStory }: DayDetailPanelProps) {
         >
           <ReplyBar
             variant="light"
-            placeholder={`${SLOT_LABEL[effectiveActiveSlot as TimeslotType]} 기록에 댓글 달기...`}
+            placeholder={t('calendarPage.commentPlaceholder', {
+              slot: getSlotLabel(effectiveActiveSlot as TimeslotType),
+            })}
             onSubmit={handleSubmitComment}
             padded={false}
           />

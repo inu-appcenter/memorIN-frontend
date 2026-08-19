@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
@@ -18,11 +19,10 @@ import {
 const CAPTION_MIN_HEIGHT = 30;
 const CAPTION_MAX_HEIGHT = 124;
 const CAPTION_VERTICAL_PADDING = 8;
-const CAPTION_PLACEHOLDER = '이 순간을 기록해보세요...';
-const CAPTION_PLACEHOLDER_PHONE = '무슨 순간이었나요?';
 
 export function UploadPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { device } = useBreakpoints();
   const isPhone = device === 'phone';
   const { assets, pickAssets, removeAsset, maxAttachments, canAddMore } =
@@ -46,7 +46,7 @@ export function UploadPage() {
 
   const handleSubmit = () => {
     if (assets.length === 0) {
-      Alert.alert('사진/영상을 추가해주세요');
+      Alert.alert(t('uploadPage.needMedia'));
       return;
     }
     submitPost(
@@ -60,8 +60,8 @@ export function UploadPage() {
         onSuccess: () => router.replace('/feed'),
         onError: (error) =>
           Alert.alert(
-            '업로드 실패',
-            error instanceof Error ? error.message : '알 수 없는 오류'
+            t('uploadPage.failTitle'),
+            error instanceof Error ? error.message : t('postEdit.unknownError')
           ),
       }
     );
@@ -81,7 +81,7 @@ export function UploadPage() {
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
             </Pressable>
-            <Text variant="heading">기록 올리기</Text>
+            <Text variant="heading">{t('uploadPage.title')}</Text>
           </>
         ) : (
           <>
@@ -90,7 +90,7 @@ export function UploadPage() {
               className="flex-row items-center gap-sm rounded-md px-xs py-xs transition-opacity hover:opacity-70"
             >
               <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
-              <Text variant="heading">기록 올리기</Text>
+              <Text variant="heading">{t('uploadPage.title')}</Text>
             </Pressable>
             <Pressable
               onPress={handleSubmit}
@@ -98,7 +98,7 @@ export function UploadPage() {
               className="transition-opacity hover:opacity-70"
             >
               <Text className="font-bold text-link">
-                {isPending ? '업로드 중...' : '완료'}
+                {isPending ? t('uploadPage.submitting') : t('uploadPage.done')}
               </Text>
             </Pressable>
           </>
@@ -116,11 +116,11 @@ export function UploadPage() {
                   className="h-full w-full items-center justify-center gap-sm"
                 >
                   <CameraIcon width={32} height={32} />
-                  <Text className="font-bold">사진 또는 영상 추가</Text>
+                  <Text className="font-bold">{t('upload.pickerTitle')}</Text>
                   <Text className="text-muted">
                     {assets.length > 0
-                      ? `${assets.length}장 · 자동 압축됨`
-                      : '오늘의 순간을 담아보세요'}
+                      ? t('uploadPage.assetCount', { count: assets.length })
+                      : t('upload.pickerSubtitle')}
                   </Text>
                 </Pressable>
               </DashedBox>
@@ -133,7 +133,7 @@ export function UploadPage() {
                 <TextInput
                   value={caption}
                   onChangeText={setCaption}
-                  placeholder={CAPTION_PLACEHOLDER_PHONE}
+                  placeholder={t('uploadPage.captionPlaceholderPhone')}
                   multiline
                   editable={!isPending}
                   textAlignVertical="top"
@@ -167,7 +167,7 @@ export function UploadPage() {
               className="h-[52px] items-center justify-center rounded-lg bg-brand disabled:opacity-50"
             >
               <Text className="font-bold text-on-brand">
-                {isPending ? '업로드 중...' : '기록 올리기'}
+                {isPending ? t('uploadPage.submitting') : t('uploadPage.title')}
               </Text>
             </Pressable>
           </View>
@@ -192,7 +192,7 @@ export function UploadPage() {
             <TextInput
               value={caption}
               onChangeText={setCaption}
-              placeholder={CAPTION_PLACEHOLDER}
+              placeholder={t('uploadPage.captionPlaceholder')}
               multiline
               editable={!isPending}
               textAlignVertical="top"
@@ -215,10 +215,10 @@ export function UploadPage() {
           />
           <View className="gap-xs">
             <Text variant="caption" className="text-muted">
-              · 나만 보기로 설정하면 댓글・반응이 꺼져요
+              {t('uploadPage.hintPrivate')}
             </Text>
             <Text variant="caption" className="text-muted">
-              · 업로드 시 이미지・영상이 자동으로 압축돼요
+              {t('uploadPage.hintCompress')}
             </Text>
           </View>
           <Pressable
@@ -227,7 +227,7 @@ export function UploadPage() {
             className="h-[52px] items-center justify-center rounded-lg bg-brand transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Text className="font-bold text-on-brand">
-              {isPending ? '업로드 중...' : '기록 올리기'}
+              {isPending ? t('uploadPage.submitting') : t('uploadPage.title')}
             </Text>
           </Pressable>
         </ScrollView>

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string -- 목데이터(가상 인물 이름·대화)라 번역 대상이 아니다. 실제 API 연동 시 통째로 삭제될 파일. */
 export const dummyPeopleArray = [
   '김도윤',
   '이서율',

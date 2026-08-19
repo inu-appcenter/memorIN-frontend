@@ -1,3 +1,5 @@
+import i18next from '@/shared/lib/i18n';
+
 export interface CalendarDay {
   date: Date;
   dateKey: string; // yyyy-MM-dd
@@ -36,8 +38,18 @@ export function buildMonthGrid(year: number, month: number): CalendarDay[] {
   });
 }
 
-const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
-export function formatKoreanDateHeading(date: Date): string {
-  return `${date.getMonth() + 1}월 ${date.getDate()}일 ${WEEKDAY_LABELS[date.getDay()]}요일`;
+export function getWeekdayLabel(dayIndex: number): string {
+  return i18next.t(`calendar.weekday.${WEEKDAY_KEYS[dayIndex]}` as const);
+}
+
+// 한국어는 "3월 15일 화요일", 영어는 "Tue, 3/15"처럼 어순이 달라서
+// 리소스의 보간 문자열에 값만 넘긴다.
+export function formatDateHeading(date: Date): string {
+  return i18next.t('calendar.dateHeading', {
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    weekday: getWeekdayLabel(date.getDay()),
+  });
 }

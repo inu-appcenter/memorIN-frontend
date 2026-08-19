@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { Video } from 'react-native-compressor';
 import * as FileSystem from 'expo-file-system/legacy';
+import i18next from '@/shared/lib/i18n';
 
 // 백엔드 MINIO_MAX_UPLOAD_SIZE_BYTES 기본값과 동일 (50MiB)
 const MAX_UPLOAD_SIZE_BYTES = 52428800;
@@ -36,9 +37,7 @@ export async function compressMedia(
 
   if (result.contentLength > MAX_UPLOAD_SIZE_BYTES) {
     const sizeMb = (result.contentLength / (1024 * 1024)).toFixed(1);
-    throw new Error(
-      `파일 크기(${sizeMb}MB)가 최대 업로드 용량(50MB)을 초과합니다.`
-    );
+    throw new Error(i18next.t('upload.fileTooLarge', { sizeMb }));
   }
   return result;
 }
@@ -91,7 +90,10 @@ async function prepareVideo(
   if (durationMs != null && durationMs > MAX_VIDEO_DURATION_SEC * 1000) {
     const seconds = (durationMs / 1000).toFixed(1);
     throw new Error(
-      `동영상 길이(${seconds}초)가 최대 허용 길이(${MAX_VIDEO_DURATION_SEC}초)를 초과합니다.`
+      i18next.t('upload.videoTooLong', {
+        seconds,
+        max: MAX_VIDEO_DURATION_SEC,
+      })
     );
   }
 

@@ -6,6 +6,7 @@ import { useDeletePost } from '@/entities/post/model/useDeletePost';
 import type { PostSummary } from '@/entities/post/api/postsApi';
 import { PostShareSheet } from '@/features/post-share';
 import { EditPostSheet } from './EditPostSheet';
+import { useTranslation } from 'react-i18next';
 
 interface PostActionsMenuProps {
   post: PostSummary;
@@ -20,6 +21,7 @@ export function PostActionsMenu({
   variant = 'light',
   onDeleted,
 }: PostActionsMenuProps) {
+  const { t } = useTranslation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
   const [shareVisible, setShareVisible] = useState(false);
@@ -32,11 +34,11 @@ export function PostActionsMenu({
       onSuccess: () => onDeleted?.(),
       onError: (error) => {
         const message =
-          error instanceof Error ? error.message : '알 수 없는 오류';
+          error instanceof Error ? error.message : t('postEdit.unknownError');
         if (Platform.OS === 'web') {
-          window.alert(`삭제 실패: ${message}`);
+          window.alert(t('post.deleteFailMessage', { message }));
         } else {
-          Alert.alert('삭제 실패', message);
+          Alert.alert(t('post.deleteFailTitle'), message);
         }
       },
     });
@@ -44,12 +46,12 @@ export function PostActionsMenu({
 
   const handlePressDelete = () => {
     if (Platform.OS === 'web') {
-      if (window.confirm('이 게시물을 삭제할까요?')) runDelete();
+      if (window.confirm(t('post.deleteConfirm'))) runDelete();
       return;
     }
-    Alert.alert('게시물 삭제', '이 게시물을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: runDelete },
+    Alert.alert(t('post.deleteTitle'), t('post.deleteConfirm'), [
+      { text: t('action.cancel'), style: 'cancel' },
+      { text: t('action.delete'), style: 'destructive', onPress: runDelete },
     ]);
   };
 
@@ -73,7 +75,7 @@ export function PostActionsMenu({
         <View style={{ paddingHorizontal: 24, paddingVertical: 8, gap: 4 }}>
           <Pressable onPress={handlePressShare} style={{ paddingVertical: 12 }}>
             <Text variant="body" className="text-primary">
-              공유하기
+              {t('postEdit.menuShare')}
             </Text>
           </Pressable>
           {isOwnPost && (
@@ -82,7 +84,7 @@ export function PostActionsMenu({
               style={{ paddingVertical: 12 }}
             >
               <Text variant="body" className="text-primary">
-                수정하기
+                {t('postEdit.menuEdit')}
               </Text>
             </Pressable>
           )}
@@ -93,7 +95,9 @@ export function PostActionsMenu({
               style={{ paddingVertical: 12 }}
             >
               <Text variant="body" className="text-error">
-                {deletePost.isPending ? '삭제 중...' : '삭제하기'}
+                {deletePost.isPending
+                  ? t('postEdit.menuDeleting')
+                  : t('postEdit.menuDelete')}
               </Text>
             </Pressable>
           )}

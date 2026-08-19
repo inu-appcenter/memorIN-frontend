@@ -1,0 +1,260 @@
+{
+  "common": {
+    "notice": "Notice",
+    "notReady": "This feature isn't ready yet"
+  },
+  "error": {
+    "noRefreshToken": "No stored refresh token",
+    "sessionExpired": "Please sign in again.",
+    "network": "Can't connect to the server",
+    "commentsLoad": "Couldn't load comments",
+    "commentCreate": "Couldn't post your comment",
+    "feedLoad": "Couldn't load the feed",
+    "friendFeedLoad": "Couldn't load the friends feed",
+    "postLoad": "Couldn't load the post",
+    "postCreate": "Couldn't create the post",
+    "postUpdate": "Couldn't update the post",
+    "postDelete": "Couldn't delete the post",
+    "profileLoad": "Couldn't load the profile",
+    "userSearch": "Couldn't search users",
+    "followersLoad": "Couldn't load followers",
+    "followingsLoad": "Couldn't load following",
+    "followRequestsLoad": "Couldn't load follow requests",
+    "followRequest": "Couldn't send the follow request",
+    "followAccept": "Couldn't accept the follow request",
+    "unfollow": "Couldn't unfollow"
+  },
+  "post": {
+    "timeslotAm": "AM",
+    "timeslotPm": "PM",
+    "emptyContent": "No content",
+    "deleteTitle": "Delete post",
+    "deleteConfirm": "Delete this post?",
+    "deleteFailTitle": "Delete failed",
+    "deleteFailMessage": "Delete failed: {{message}}"
+  },
+  "action": {
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "comment": {
+    "loading": "Loading...",
+    "empty": "No comments yet. Be the first!",
+    "count": "Comments {{count}}",
+    "deleted": "Deleted comment",
+    "unknownAuthor": "Unknown",
+    "timeJustNow": "Just now",
+    "timeMinutes": "{{count}}m",
+    "timeHours": "{{count}}h",
+    "timeDays": "{{count}}d"
+  },
+  "tabs": {
+    "feed": "Feed",
+    "search": "Explore",
+    "log": "Log",
+    "chat": "Chat",
+    "settings": "Settings"
+  },
+  "calendar": {
+    "weekday": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "dateHeading": "{{weekday}}, {{month}}/{{day}}"
+  },
+  "reply": {
+    "placeholder": "Add a comment..."
+  },
+  "settings": {
+    "title": "Settings",
+    "sectionAccount": "Account",
+    "fieldName": "Name",
+    "fieldUsername": "Username",
+    "fieldEmail": "Email",
+    "sectionGeneral": "General",
+    "fieldLanguage": "Language",
+    "languageSheetTitle": "Select language",
+    "languageKorean": "Korean",
+    "languageEnglish": "English",
+    "fieldNotification": "Notifications",
+    "comingSoon": "Coming soon",
+    "sectionAppInfo": "App info",
+    "fieldVersion": "Version",
+    "emptyValue": "-"
+  },
+  "auth": {
+    "signInFailed": "Sign-in failed",
+    "signUpFailed": "Sign-up failed",
+    "emailRequired": "Enter your email",
+    "emailInvalid": "That's not a valid email address",
+    "passwordRequired": "Enter your password",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordNeedsLetter": "Must include a letter",
+    "passwordNeedsNumber": "Must include a number",
+    "passwordMismatch": "Passwords don't match",
+    "usernameRequired": "Enter a username",
+    "displayNameRequired": "Enter a display name",
+    "maxLength50": "Must be 50 characters or fewer"
+  },
+  "follow": {
+    "errorTitle": "Error",
+    "unfollowTitle": "Unfollow",
+    "unfollowConfirm": "Unfollow this person?",
+    "confirm": "Confirm",
+    "follow": "Follow",
+    "requested": "Requested",
+    "following": "Following"
+  },
+  "upload": {
+    "fileTooLarge": "File size ({{sizeMb}}MB) exceeds the 50MB upload limit.",
+    "videoTooLong": "Video length ({{seconds}}s) exceeds the {{max}}s limit.",
+    "uploadFailed": "Upload failed ({{status}})",
+    "permissionTitle": "Permission needed",
+    "permissionMessage": "Please allow access to your photos and videos.",
+    "pickerTitle": "Add a photo or video",
+    "pickerSubtitle": "Capture a moment from today"
+  },
+  "postCreate": {
+    "timeslotSectionTitle": "Time of day",
+    "timeslotAmRange": "12am-12pm",
+    "timeslotPmRange": "12pm-12am",
+    "visibilitySectionTitle": "Visibility",
+    "visibilityPublic": "Everyone",
+    "visibilityFriends": "Friends",
+    "visibilityPrivate": "Only me",
+    "visibilityPrivateCompact": "Me"
+  },
+  "postEdit": {
+    "title": "Edit post",
+    "captionPlaceholder": "Write about this moment...",
+    "save": "Save",
+    "saving": "Saving...",
+    "updateFailTitle": "Update failed",
+    "updateFailMessage": "Update failed: {{message}}",
+    "unknownError": "Unknown error",
+    "menuShare": "Share",
+    "menuEdit": "Edit",
+    "menuDelete": "Delete",
+    "menuDeleting": "Deleting..."
+  },
+  "share": {
+    "title": "Share",
+    "searchPlaceholder": "Search chats",
+    "emptyResult": "No results for ‘{{keyword}}’",
+    "selectPrompt": "Select a chat",
+    "sendToRooms": "Send to {{count}} chats",
+    "shared": "Shared to {{count}} chats. (Mock only — API not connected yet)"
+  },
+  "calendarPage": {
+    "title": "Log",
+    "noRecord": "No record",
+    "slotRecord": "{{slot}} record",
+    "emptyRecord": "Nothing recorded yet",
+    "commentPlaceholder": "Comment on the {{slot}} record...",
+    "commentFailTitle": "Couldn't post comment",
+    "commentFailMessage": "Couldn't post comment: {{message}}",
+    "daySummary": "{{count}}/2 records logged (AM · PM)",
+    "viewAsStory": "View as story ›"
+  },
+  "feedPanel": {
+    "myAccount": "My account",
+    "myProfile": "My profile",
+    "suggestedFriends": "Suggested friends",
+    "seeAll": "See all",
+    "suggestionNotReady": "Suggestions aren't ready yet"
+  },
+  "story": {
+    "railTitle": "Friends today",
+    "noMedia": "No media attached to this record",
+    "slotRecord": "{{slot}} record",
+    "viewComments": "View comments"
+  },
+  "chat": {
+    "title": "Chat",
+    "inputPlaceholder": "Type a message..."
+  },
+  "postDetail": {
+    "title": "Post"
+  },
+  "appShell": {
+    "upload": "Upload a photo"
+  },
+  "signIn": {
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "findId": "Find ID",
+    "findPassword": "Find password",
+    "signUp": "Sign up",
+    "snsDivider": "Or sign in with social"
+  },
+  "signUp": {
+    "taglineFirst": "Put each day into your calendar,",
+    "tagline": "Keep your precious moments alive",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "passwordConfirmPlaceholder": "Re-enter your password",
+    "usernamePlaceholder": "Enter a username",
+    "displayNamePlaceholder": "Enter a display name",
+    "submit": "Sign up",
+    "submitting": "Signing up...",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "snsDivider": "Or sign up with social"
+  },
+  "uploadPage": {
+    "title": "New record",
+    "captionPlaceholder": "Write about this moment...",
+    "captionPlaceholderPhone": "What was this moment?",
+    "needMedia": "Add a photo or video first",
+    "failTitle": "Upload failed",
+    "submitting": "Uploading...",
+    "done": "Done",
+    "assetCount": "{{count}} files · auto-compressed",
+    "hintPrivate": "· Comments and reactions are off for private posts",
+    "hintCompress": "· Photos and videos are compressed automatically on upload"
+  },
+  "feed": {
+    "title": "Feed",
+    "tabRecommended": "For you",
+    "tabFollowing": "Following",
+    "notReady": "Recommendations aren't ready yet",
+    "retry": "Try again",
+    "empty": "Nothing to show yet."
+  },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit profile",
+    "manageFriends": "Manage friends",
+    "logout": "Log out",
+    "loggingOut": "Logging out...",
+    "statRecords": "Records",
+    "statFriends": "Friends",
+    "statReactions": "Reactions",
+    "myRecords": "My records",
+    "records": "Records",
+    "emptyRecords": "No records posted yet",
+    "statSummary": "{{postCount}} records · {{friendCount}} friends"
+  },
+  "searchPage": {
+    "placeholder": "Search by username or name",
+    "emptyFeed": "Nothing to show yet{{newline}}Try following someone",
+    "emptyResult": "No results for ‘{{keyword}}’"
+  },
+  "socialPage": {
+    "title": "Manage friends",
+    "searchPlaceholder": "Search friends by username",
+    "emptyResult": "No results for ‘{{keyword}}’",
+    "emptyFriends": "No friends yet",
+    "remove": "Remove",
+    "accept": "Accept",
+    "requestsHeading": "Friend requests {{count}}",
+    "friendsHeading": "My friends {{count}}"
+  }
+}

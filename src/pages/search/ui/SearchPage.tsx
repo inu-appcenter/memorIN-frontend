@@ -21,6 +21,7 @@ import {
 } from '@/entities/post';
 import { FollowButton } from '@/features/follow-button';
 import { PostDetailModal } from '@/widgets/postDetailModal';
+import { useTranslation } from 'react-i18next';
 
 function UserRow({
   user,
@@ -142,6 +143,7 @@ export function SearchPage() {
     []
   );
 
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-page">
       <View className="flex-row items-center gap-md border-b border-border px-lg py-lg">
@@ -150,7 +152,7 @@ export function SearchPage() {
           <TextInput
             value={keyword}
             onChangeText={setKeyword}
-            placeholder="아이디 · 이름으로 검색"
+            placeholder={t('searchPage.placeholder')}
             placeholderTextColor={COLORS.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
@@ -179,7 +181,7 @@ export function SearchPage() {
             !exploreLoading && !exploreIsError ? (
               <View className="items-center py-3xl">
                 <Text className="text-center text-muted">
-                  아직 표시할 기록이 없어요{'\n'}친구를 팔로우해보세요
+                  {t('searchPage.emptyFeed', { newline: '\n' })}
                 </Text>
               </View>
             ) : null
@@ -232,7 +234,7 @@ export function SearchPage() {
           ListEmptyComponent={
             <View className="items-center py-3xl">
               <Text className="text-muted">
-                &lsquo;{debouncedKeyword}&rsquo;에 대한 검색 결과가 없어요
+                {t('searchPage.emptyResult', { keyword: debouncedKeyword })}
               </Text>
             </View>
           }

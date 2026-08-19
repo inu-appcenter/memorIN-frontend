@@ -1,5 +1,6 @@
 import { client, ApiError, type ApiResponse } from '@/shared/api/client';
 import type { EmojiSummary } from '@/entities/reaction';
+import i18next from '@/shared/lib/i18n';
 
 // memorIN-backend PostCommentResponse / PostCommentCreateRequest 그대로 미러링
 export interface PostComment {
@@ -27,7 +28,7 @@ export async function getCommentThread(postId: string): Promise<PostComment[]> {
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '댓글을 불러오지 못했습니다'
+      data.error?.message ?? i18next.t('error.commentsLoad')
     );
   }
   return data.data;
@@ -44,7 +45,7 @@ export async function createComment(
   if (!data.success || !data.data) {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
-      data.error?.message ?? '댓글을 작성하지 못했습니다'
+      data.error?.message ?? i18next.t('error.commentCreate')
     );
   }
   return data.data;

@@ -1,7 +1,9 @@
 import { Pressable, ScrollView, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { useCommentThread, useCreateComment } from '../model/useComments';
 import { getSurfaceColors } from '@/shared/lib/theme';
+import i18next from '@/shared/lib/i18n';
 import { ReplyBar } from '@/shared/ui/replyBar';
 import { ReactionBar } from '@/entities/reaction';
 
@@ -14,15 +16,17 @@ interface CommentThreadProps {
 
 const POLLING_INTERVAL_MS = 5000;
 
+// 컴포넌트 밖 순수 함수라 useTranslation을 쓸 수 없어 i18next 인스턴스를 직접 쓴다.
+// 호출 시점(=렌더 시점)에 평가되므로 언어 전환도 반영된다.
 function formatTimeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return '방금';
-  if (diffMin < 60) return `${diffMin}분`;
+  if (diffMin < 1) return i18next.t('comment.timeJustNow');
+  if (diffMin < 60) return i18next.t('comment.timeMinutes', { count: diffMin });
   const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간`;
+  if (diffHour < 24) return i18next.t('comment.timeHours', { count: diffHour });
   const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}일`;
+  return i18next.t('comment.timeDays', { count: diffDay });
 }
 
 export function CommentThread({
@@ -31,6 +35,7 @@ export function CommentThread({
   polling = false,
   onClose,
 }: CommentThreadProps) {
+  const { t } = useTranslation();
   const {
     background: bg,
     border: borderColor,
@@ -56,7 +61,7 @@ export function CommentThread({
         // style={{ borderBottomWidth: 1, borderBottomColor: borderColor }}
       >
         <Text variant="label" style={{ color: textPrimary }}>
-          댓글 {comments?.length ?? 0}
+          {t('comment.count', { count: comments?.length ?? 0 })}
         </Text>
         {onClose && (
           <Pressable onPress={onClose} hitSlop={8}>
@@ -70,7 +75,7 @@ export function CommentThread({
             variant="body-small"
             style={{ color: textMuted, marginTop: 16 }}
           >
-            불러오는 중...
+            {t('comment.loading')}
           </Text>
         )}
         {!isLoading && comments?.length === 0 && (
@@ -78,7 +83,7 @@ export function CommentThread({
             variant="body-small"
             style={{ color: textMuted, marginTop: 16 }}
           >
-            아직 댓글이 없어요. 첫 댓글을 남겨보세요!
+            {t('comment.empty')}
           </Text>
         )}
         {comments?.map((comment) => (
@@ -97,10 +102,10 @@ export function CommentThread({
                 <View className="flex-row items-baseline gap-sm">
                   <Text variant="label" style={{ color: textPrimary }}>
                     {comment.deleted
-                      ? '삭제된 댓글'
+                      ? t('comment.deleted')
                       : (comment.authorDisplayName ??
                         comment.authorUsername ??
-                        '알 수 없음')}
+                        t('comment.unknownAuthor'))}
                   </Text>
                   <Text variant="caption" style={{ color: textMuted }}>
                     {formatTimeAgo(comment.createdAt)}
