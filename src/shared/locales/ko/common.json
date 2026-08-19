@@ -1,0 +1,260 @@
+{
+  "common": {
+    "notice": "안내",
+    "notReady": "아직 준비 중인 기능이에요"
+  },
+  "error": {
+    "noRefreshToken": "저장된 refresh token이 없습니다",
+    "sessionExpired": "다시 로그인하여 주세요.",
+    "network": "서버에 연결할 수 없습니다",
+    "commentsLoad": "댓글을 불러오지 못했습니다",
+    "commentCreate": "댓글을 작성하지 못했습니다",
+    "feedLoad": "피드를 불러오지 못했습니다",
+    "friendFeedLoad": "친구 피드를 불러오지 못했습니다",
+    "postLoad": "게시물을 불러오지 못했습니다",
+    "postCreate": "게시물을 작성하지 못했습니다",
+    "postUpdate": "게시물을 수정하지 못했습니다",
+    "postDelete": "게시물을 삭제하지 못했습니다",
+    "profileLoad": "프로필을 불러오지 못했습니다",
+    "userSearch": "사용자를 검색하지 못했습니다",
+    "followersLoad": "팔로워 목록을 불러오지 못했습니다",
+    "followingsLoad": "팔로잉 목록을 불러오지 못했습니다",
+    "followRequestsLoad": "받은 요청을 불러오지 못했습니다",
+    "followRequest": "팔로우 요청을 보내지 못했습니다",
+    "followAccept": "팔로우 요청을 수락하지 못했습니다",
+    "unfollow": "팔로우를 취소하지 못했습니다"
+  },
+  "post": {
+    "timeslotAm": "오전",
+    "timeslotPm": "오후",
+    "emptyContent": "내용 없음",
+    "deleteTitle": "게시물 삭제",
+    "deleteConfirm": "이 게시물을 삭제할까요?",
+    "deleteFailTitle": "삭제 실패",
+    "deleteFailMessage": "삭제 실패: {{message}}"
+  },
+  "action": {
+    "cancel": "취소",
+    "delete": "삭제"
+  },
+  "comment": {
+    "loading": "불러오는 중...",
+    "empty": "아직 댓글이 없어요. 첫 댓글을 남겨보세요!",
+    "count": "댓글 {{count}}",
+    "deleted": "삭제된 댓글",
+    "unknownAuthor": "알 수 없음",
+    "timeJustNow": "방금",
+    "timeMinutes": "{{count}}분",
+    "timeHours": "{{count}}시간",
+    "timeDays": "{{count}}일"
+  },
+  "tabs": {
+    "feed": "피드",
+    "search": "탐색",
+    "log": "기록",
+    "chat": "채팅",
+    "settings": "설정"
+  },
+  "calendar": {
+    "weekday": {
+      "sun": "일",
+      "mon": "월",
+      "tue": "화",
+      "wed": "수",
+      "thu": "목",
+      "fri": "금",
+      "sat": "토"
+    },
+    "dateHeading": "{{month}}월 {{day}}일 {{weekday}}요일"
+  },
+  "reply": {
+    "placeholder": "댓글 달기..."
+  },
+  "settings": {
+    "title": "설정",
+    "sectionAccount": "계정",
+    "fieldName": "이름",
+    "fieldUsername": "아이디",
+    "fieldEmail": "이메일",
+    "sectionGeneral": "일반",
+    "fieldLanguage": "언어",
+    "languageSheetTitle": "언어 선택",
+    "languageKorean": "한국어",
+    "languageEnglish": "영어",
+    "fieldNotification": "알림",
+    "comingSoon": "준비 중",
+    "sectionAppInfo": "앱 정보",
+    "fieldVersion": "버전",
+    "emptyValue": "-"
+  },
+  "auth": {
+    "signInFailed": "로그인 실패",
+    "signUpFailed": "회원가입 실패",
+    "emailRequired": "이메일을 입력하세요",
+    "emailInvalid": "올바른 이메일 형식이 아닙니다",
+    "passwordRequired": "비밀번호를 입력하세요",
+    "passwordMinLength": "비밀번호는 8자 이상이어야 합니다",
+    "passwordNeedsLetter": "영문자를 포함해야 합니다",
+    "passwordNeedsNumber": "숫자를 포함해야 합니다",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "usernameRequired": "사용자명을 입력하세요",
+    "displayNameRequired": "화면 표시명을 입력하세요",
+    "maxLength50": "50자 이하여야 합니다"
+  },
+  "follow": {
+    "errorTitle": "오류",
+    "unfollowTitle": "팔로우 취소",
+    "unfollowConfirm": "팔로우를 끊으시겠어요?",
+    "confirm": "확인",
+    "follow": "팔로우",
+    "requested": "요청됨",
+    "following": "팔로잉"
+  },
+  "upload": {
+    "fileTooLarge": "파일 크기({{sizeMb}}MB)가 최대 업로드 용량(50MB)을 초과합니다.",
+    "videoTooLong": "동영상 길이({{seconds}}초)가 최대 허용 길이({{max}}초)를 초과합니다.",
+    "uploadFailed": "업로드 실패 ({{status}})",
+    "permissionTitle": "권한 필요",
+    "permissionMessage": "사진/동영상 접근 권한을 허용해주세요.",
+    "pickerTitle": "사진 또는 영상 추가",
+    "pickerSubtitle": "오늘의 순간을 담아보세요"
+  },
+  "postCreate": {
+    "timeslotSectionTitle": "시간대",
+    "timeslotAmRange": "24-12시",
+    "timeslotPmRange": "12-24시",
+    "visibilitySectionTitle": "공개 범위",
+    "visibilityPublic": "전체",
+    "visibilityFriends": "친구",
+    "visibilityPrivate": "나만 보기",
+    "visibilityPrivateCompact": "나만"
+  },
+  "postEdit": {
+    "title": "게시물 수정",
+    "captionPlaceholder": "이 순간을 기록해보세요...",
+    "save": "저장",
+    "saving": "저장 중...",
+    "updateFailTitle": "수정 실패",
+    "updateFailMessage": "수정 실패: {{message}}",
+    "unknownError": "알 수 없는 오류",
+    "menuShare": "공유하기",
+    "menuEdit": "수정하기",
+    "menuDelete": "삭제하기",
+    "menuDeleting": "삭제 중..."
+  },
+  "share": {
+    "title": "공유하기",
+    "searchPlaceholder": "채팅방 검색",
+    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요",
+    "selectPrompt": "채팅방을 선택하세요",
+    "sendToRooms": "{{count}}개 방에 보내기",
+    "shared": "{{count}}개 채팅방에 공유했어요.(실제 공유는 아님. api 연동필요)"
+  },
+  "calendarPage": {
+    "title": "기록",
+    "noRecord": "기록 없음",
+    "slotRecord": "{{slot}} 기록",
+    "emptyRecord": "아직 기록이 없어요",
+    "commentPlaceholder": "{{slot}} 기록에 댓글 달기...",
+    "commentFailTitle": "댓글 작성 실패",
+    "commentFailMessage": "댓글 작성 실패: {{message}}",
+    "daySummary": "오전 · 오후 {{count}}/2 기록 완료",
+    "viewAsStory": "스토리로 보기 ›"
+  },
+  "feedPanel": {
+    "myAccount": "내 계정",
+    "myProfile": "내 프로필",
+    "suggestedFriends": "추천 친구",
+    "seeAll": "모두 보기",
+    "suggestionNotReady": "추천 기능은 아직 준비 중이에요"
+  },
+  "story": {
+    "railTitle": "친구들의 오늘",
+    "noMedia": "기록에 첨부된 미디어가 없어요",
+    "slotRecord": "{{slot}} 기록",
+    "viewComments": "댓글 보기"
+  },
+  "chat": {
+    "title": "채팅",
+    "inputPlaceholder": "메시지 입력..."
+  },
+  "postDetail": {
+    "title": "게시물"
+  },
+  "appShell": {
+    "upload": "사진 올리기"
+  },
+  "signIn": {
+    "emailPlaceholder": "이메일을 입력하세요",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "submit": "로그인",
+    "submitting": "로그인 중...",
+    "findId": "아이디 찾기",
+    "findPassword": "비밀번호 찾기",
+    "signUp": "회원가입",
+    "snsDivider": "또는 SNS로 로그인"
+  },
+  "signUp": {
+    "taglineFirst": "오늘 하루의 기록을 캘린더에 담아",
+    "tagline": "소중한 순간을 오래 기억해요",
+    "emailPlaceholder": "이메일을 입력하세요",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "passwordConfirmPlaceholder": "비밀번호를 다시 입력하세요",
+    "usernamePlaceholder": "사용자명을 입력하세요",
+    "displayNamePlaceholder": "표시 이름을 입력하세요",
+    "submit": "회원가입",
+    "submitting": "가입 중...",
+    "hasAccount": "이미 계정이 있나요?",
+    "signIn": "로그인",
+    "snsDivider": "또는 SNS로 가입"
+  },
+  "uploadPage": {
+    "title": "기록 올리기",
+    "captionPlaceholder": "이 순간을 기록해보세요...",
+    "captionPlaceholderPhone": "무슨 순간이었나요?",
+    "needMedia": "사진/영상을 추가해주세요",
+    "failTitle": "업로드 실패",
+    "submitting": "업로드 중...",
+    "done": "완료",
+    "assetCount": "{{count}}장 · 자동 압축됨",
+    "hintPrivate": "· 나만 보기로 설정하면 댓글・반응이 꺼져요",
+    "hintCompress": "· 업로드 시 이미지・영상이 자동으로 압축돼요"
+  },
+  "feed": {
+    "title": "피드",
+    "tabRecommended": "추천",
+    "tabFollowing": "팔로잉",
+    "notReady": "추천 기능은 아직 준비 중이에요",
+    "retry": "다시 시도",
+    "empty": "아직 표시할 기록이 없어요."
+  },
+  "profile": {
+    "title": "프로필",
+    "edit": "프로필 편집",
+    "manageFriends": "친구 관리",
+    "logout": "로그아웃",
+    "loggingOut": "로그아웃 중...",
+    "statRecords": "기록",
+    "statFriends": "친구",
+    "statReactions": "받은 반응",
+    "myRecords": "내 기록",
+    "records": "기록",
+    "emptyRecords": "아직 올린 기록이 없어요",
+    "statSummary": "기록 {{postCount}} · 친구 {{friendCount}}"
+  },
+  "searchPage": {
+    "placeholder": "아이디 · 이름으로 검색",
+    "emptyFeed": "아직 표시할 기록이 없어요{{newline}}친구를 팔로우해보세요",
+    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요"
+  },
+  "socialPage": {
+    "title": "친구 관리",
+    "searchPlaceholder": "아이디로 친구 검색",
+    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요",
+    "emptyFriends": "아직 친구가 없어요",
+    "remove": "삭제",
+    "accept": "수락",
+    "requestsHeading": "받은 친구 요청 {{count}}",
+    "friendsHeading": "내 친구 {{count}}"
+  }
+}

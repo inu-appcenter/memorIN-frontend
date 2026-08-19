@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { AppProviders } from '@/shared/providers/AppProviders';
 import { PortalHost } from '@rn-primitives/portal';
 import { ToastHost } from '@/shared/ui/toast';
+import { initI18n } from '@/shared/lib/i18n';
 import {
   tokenStorage,
   ACCESS_TOKEN_KEY,
@@ -36,8 +37,15 @@ export default function RootLayout() {
     'Pretendard-Bold': require('@/shared/assets/fonts/Pretendard-Bold.otf'),
   });
 
+  const [i18nReady, setI18nReady] = useState(false);
+
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const setUnauthenticated = useAuthStore((s) => s.setUnauthenticated);
+
+  // i18n 초기화 — 저장된 언어 또는 기기 로케일을 읽어와야 해서 비동기다.
+  useEffect(() => {
+    initI18n().finally(() => setI18nReady(true));
+  }, []);
 
   // 재발급 인터셉터 테스트를 위한 코드 삽입 위치
 
@@ -63,7 +71,7 @@ export default function RootLayout() {
     });
   }, [setAuthenticated, setUnauthenticated]);
 
-  if (!loaded && !error) {
+  if ((!loaded && !error) || !i18nReady) {
     return null;
   }
   return (

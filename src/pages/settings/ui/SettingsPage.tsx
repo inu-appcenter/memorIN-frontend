@@ -1,10 +1,18 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
 import { Text } from '@/shared/ui/text';
+import { Sheet } from '@/shared/ui/sheet';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
+import {
+  changeLanguage,
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
+} from '@/shared/lib/i18n';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
@@ -55,13 +63,75 @@ function SettingRow({
   );
 }
 
+function LanguageSheet({
+  visible,
+  onClose,
+}: {
+  visible: boolean;
+  onClose: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+
+  const languageLabel: Record<SupportedLanguage, string> = {
+    ko: t('settings.languageKorean'),
+    en: t('settings.languageEnglish'),
+    // jp: t('settings.없는 키'), npm run typecheck 테스트를 위해 추가
+  };
+
+  const handleSelect = (language: SupportedLanguage) => {
+    changeLanguage(language);
+    onClose();
+  };
+
+  return (
+    <Sheet visible={visible} onClose={onClose}>
+      <View style={{ paddingHorizontal: 24, paddingVertical: 8, gap: 4 }}>
+        <Text variant="heading" style={{ marginBottom: 12 }}>
+          {t('settings.languageSheetTitle')}
+        </Text>
+
+        {SUPPORTED_LANGUAGES.map((language) => (
+          <Pressable
+            key={language}
+            onPress={() => handleSelect(language)}
+            style={{ paddingVertical: 12 }}
+            className="flex-row items-center justify-between"
+          >
+            <Text
+              variant="body"
+              className={
+                i18n.language === language
+                  ? 'font-bold text-brand'
+                  : 'text-primary'
+              }
+            >
+              {languageLabel[language]}
+            </Text>
+            {i18n.language === language && (
+              <Text className="text-brand">✓</Text>
+            )}
+          </Pressable>
+        ))}
+      </View>
+    </Sheet>
+  );
+}
+
 export function SettingsPage() {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
   const { device } = useBreakpoints();
   const email = useAuthStore((s) => s.user?.email);
   const { data: profile, isLoading } = useMyProfile();
+  const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
 
-  const appVersion = Constants.expoConfig?.version ?? '-';
+  const appVersion = Constants.expoConfig?.version ?? t('settings.emptyValue');
+
+  const languageLabel: Record<SupportedLanguage, string> = {
+    ko: t('settings.languageKorean'),
+    en: t('settings.languageEnglish'),
+  };
+  const currentLanguage = (i18n.language as SupportedLanguage) ?? 'ko';
 
   return (
     <View className="flex-1 bg-page">
@@ -74,7 +144,7 @@ export function SettingsPage() {
         >
           <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
-        <Text variant="heading">설정</Text>
+        <Text variant="heading">{t('settings.title')}</Text>
       </View>
 
       <View
@@ -85,31 +155,53 @@ export function SettingsPage() {
           className="w-full flex-1"
           style={device === 'desktop' ? { maxWidth: 720 } : undefined}
         >
-          <SectionTitle label="계정" />
+          <SectionTitle label={t('settings.sectionAccount')} />
           {isLoading ? (
             <View className="items-center py-2xl">
               <ActivityIndicator color={COLORS.brand} />
             </View>
           ) : (
             <>
-              <SettingRow label="이름" value={profile?.displayName ?? '-'} />
               <SettingRow
-                label="아이디"
-                value={profile?.username ? `@${profile.username}` : '-'}
+                label={t('settings.fieldName')}
+                value={profile?.displayName ?? t('settings.emptyValue')}
               />
-              <SettingRow label="이메일" value={email ?? '-'} />
+              <SettingRow
+                label={t('settings.fieldUsername')}
+                value={
+                  profile?.username
+                    ? `@${profile.username}`
+                    : t('settings.emptyValue')
+                }
+              />
+              <SettingRow
+                label={t('settings.fieldEmail')}
+                value={email ?? t('settings.emptyValue')}
+              />
             </>
           )}
 
-          <SectionTitle label="일반" />
-          {/* 다국어 지원 작업에서 이 자리에 언어 선택을 붙인다 */}
-          <SettingRow label="언어" value="준비 중" disabled />
-          <SettingRow label="알림" value="준비 중" disabled />
+          <SectionTitle label={t('settings.sectionGeneral')} />
+          <SettingRow
+            label={t('settings.fieldLanguage')}
+            value={languageLabel[currentLanguage]}
+            onPress={() => setLanguageSheetVisible(true)}
+          />
+          <SettingRow
+            label={t('settings.fieldNotification')}
+            value={t('settings.comingSoon')}
+            disabled
+          />
 
-          <SectionTitle label="앱 정보" />
-          <SettingRow label="버전" value={appVersion} />
+          <SectionTitle label={t('settings.sectionAppInfo')} />
+          <SettingRow label={t('settings.fieldVersion')} value={appVersion} />
         </ScrollView>
       </View>
+
+      <LanguageSheet
+        visible={languageSheetVisible}
+        onClose={() => setLanguageSheetVisible(false)}
+      />
     </View>
   );
 }
