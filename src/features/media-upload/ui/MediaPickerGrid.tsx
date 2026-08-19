@@ -2,6 +2,7 @@ import { Image, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { DashedBox } from '@/shared/ui/dashedBox';
 import type { PickedMediaAsset } from '../model/useMediaPicker';
+import { useTranslation } from 'react-i18next';
 
 interface MediaPickerGridProps {
   assets: PickedMediaAsset[];
@@ -20,6 +21,7 @@ export function MediaPickerGrid({
   onPick,
   onRemove,
 }: MediaPickerGridProps) {
+  const { t } = useTranslation();
   if (assets.length === 0) {
     return (
       <DashedBox className="h-[280px] bg-surface">
@@ -33,8 +35,8 @@ export function MediaPickerGrid({
               ＋
             </Text>
           </View>
-          <Text className="font-bold">사진 또는 영상 추가</Text>
-          <Text className="text-muted">오늘의 순간을 담아보세요</Text>
+          <Text className="font-bold">{t('upload.pickerTitle')}</Text>
+          <Text className="text-muted">{t('upload.pickerSubtitle')}</Text>
         </Pressable>
       </DashedBox>
     );

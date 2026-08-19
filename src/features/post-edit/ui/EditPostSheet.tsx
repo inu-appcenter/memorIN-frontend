@@ -7,6 +7,7 @@ import { TimeslotSelect, VisibilitySelect } from '@/features/post-create';
 import { useUpdatePost } from '@/entities/post/model/useUpdatePost';
 import { extractPreviewText } from '@/entities/post/model/postContent';
 import type { PostSummary } from '@/entities/post/api/postsApi';
+import { useTranslation } from 'react-i18next';
 
 interface EditPostSheetProps {
   visible: boolean;
@@ -16,6 +17,7 @@ interface EditPostSheetProps {
 
 // 캡션 / 시간대 / 공개범위만 수정한다. 미디어 재업로드는 범위 밖(별도 작업으로 분리).
 export function EditPostSheet({ visible, onClose, post }: EditPostSheetProps) {
+  const { t } = useTranslation();
   const [caption, setCaption] = useState(() =>
     extractPreviewText(post.content)
   );
@@ -37,11 +39,11 @@ export function EditPostSheet({ visible, onClose, post }: EditPostSheetProps) {
         onSuccess: () => onClose(),
         onError: (error) => {
           const message =
-            error instanceof Error ? error.message : '알 수 없는 오류';
+            error instanceof Error ? error.message : t('postEdit.unknownError');
           if (Platform.OS === 'web') {
-            window.alert(`수정 실패: ${message}`);
+            window.alert(t('postEdit.updateFailMessage', { message }));
           } else {
-            Alert.alert('수정 실패', message);
+            Alert.alert(t('postEdit.updateFailTitle'), message);
           }
         },
       }
@@ -51,12 +53,12 @@ export function EditPostSheet({ visible, onClose, post }: EditPostSheetProps) {
   return (
     <Sheet visible={visible} onClose={onClose} className="h-[70%]">
       <View className="gap-lg">
-        <Text variant="heading">게시물 수정</Text>
+        <Text variant="heading">{t('postEdit.title')}</Text>
         <View className="min-h-[100px] rounded-md bg-surface p-lg">
           <TextInput
             value={caption}
             onChangeText={setCaption}
-            placeholder="이 순간을 기록해보세요..."
+            placeholder={t('postEdit.captionPlaceholder')}
             multiline
             editable={!isPending}
             textAlignVertical="top"
@@ -80,7 +82,9 @@ export function EditPostSheet({ visible, onClose, post }: EditPostSheetProps) {
             disabled={isPending}
             className="h-[48px] flex-1 items-center justify-center rounded-md border border-border"
           >
-            <Text className="font-bold text-secondary">취소</Text>
+            <Text className="font-bold text-secondary">
+              {t('action.cancel')}
+            </Text>
           </Pressable>
           <Pressable
             onPress={handleSubmit}
@@ -89,7 +93,7 @@ export function EditPostSheet({ visible, onClose, post }: EditPostSheetProps) {
             className="h-[48px] flex-1 items-center justify-center rounded-md disabled:opacity-50"
           >
             <Text className="font-bold text-on-brand">
-              {isPending ? '저장 중...' : '저장'}
+              {isPending ? t('postEdit.saving') : t('postEdit.save')}
             </Text>
           </Pressable>
         </View>

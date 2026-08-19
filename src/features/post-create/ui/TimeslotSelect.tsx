@@ -1,15 +1,26 @@
 import { Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import type { TimeslotType } from '@/entities/post';
 
-const TIMESLOT_OPTIONS: {
+// 라벨을 상수에 박아두면 모듈 로드 시 1회만 평가돼 언어 전환이 반영되지 않는다.
+// 번역 키만 담고 렌더 시점에 t()로 변환한다.
+const TIMESLOT_OPTIONS = [
+  {
+    value: 'AM',
+    labelKey: 'post.timeslotAm',
+    rangeKey: 'postCreate.timeslotAmRange',
+  },
+  {
+    value: 'PM',
+    labelKey: 'post.timeslotPm',
+    rangeKey: 'postCreate.timeslotPmRange',
+  },
+] as const satisfies readonly {
   value: TimeslotType;
-  label: string;
-  rangeLabel: string;
-}[] = [
-  { value: 'AM', label: '오전', rangeLabel: '24-12시' },
-  { value: 'PM', label: '오후', rangeLabel: '12-24시' },
-];
+  labelKey: string;
+  rangeKey: string;
+}[];
 
 interface TimeslotSelectProps {
   value: TimeslotType;
@@ -24,10 +35,14 @@ export function TimeslotSelect({
   disabled,
   variant = 'pill',
 }: TimeslotSelectProps) {
+  const { t } = useTranslation();
+
   if (variant === 'card') {
     return (
       <View className="gap-md">
-        <Text className="font-bold">시간대</Text>
+        <Text className="font-bold">
+          {t('postCreate.timeslotSectionTitle')}
+        </Text>
         <View className="flex-row gap-sm">
           {TIMESLOT_OPTIONS.map((option) => {
             const selected = option.value === value;
@@ -41,13 +56,13 @@ export function TimeslotSelect({
                 <Text
                   className={`font-bold ${selected ? 'text-on-brand' : 'text-primary'}`}
                 >
-                  {option.label}
+                  {t(option.labelKey)}
                 </Text>
                 <Text
                   variant="caption"
                   className={selected ? 'text-on-brand' : 'text-muted'}
                 >
-                  {option.rangeLabel}
+                  {t(option.rangeKey)}
                 </Text>
               </Pressable>
             );
@@ -59,7 +74,7 @@ export function TimeslotSelect({
 
   return (
     <View className="gap-md">
-      <Text className="font-bold">시간대</Text>
+      <Text className="font-bold">{t('postCreate.timeslotSectionTitle')}</Text>
       <View className="flex-row gap-sm">
         {TIMESLOT_OPTIONS.map((option) => {
           const selected = option.value === value;
@@ -71,7 +86,7 @@ export function TimeslotSelect({
               className={`rounded-full border px-lg py-sm transition-opacity hover:opacity-80 ${selected ? 'border-brand bg-brand' : 'border-border bg-page'}`}
             >
               <Text className={selected ? 'text-on-brand' : 'text-secondary'}>
-                {option.label}
+                {t(option.labelKey)}
               </Text>
             </Pressable>
           );

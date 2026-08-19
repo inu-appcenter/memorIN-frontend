@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import type { PresignedUpload } from '@/features/media-upload/api/mediaApi';
+import i18next from '@/shared/lib/i18n';
 // MinIO 직접 PUT (플랫폼 분기 "MinIO 클라이언트")
 
 // axios client를 우회해야 한다 (plain fetch / FileSystem)
@@ -17,8 +18,8 @@ export async function uploadToStorage(
       headers: presigned.requiredHeaders, // Content-Type 그대로
       body: blob,
     });
-    if (!res.ok) throw new Error(`업로드 실패 (${res.status})`);
-    return;
+    if (!res.ok)
+      throw new Error(i18next.t('upload.uploadFailed', { status: res.status }));
   }
 
   // 네이티브: 파일을 스트리밍 PUT (메모리에 통째로 안 올림)
@@ -28,6 +29,8 @@ export async function uploadToStorage(
     headers: presigned.requiredHeaders,
   });
   if (result.status < 200 || result.status >= 300) {
-    throw new Error(`업로드 실패 (${result.status})`);
+    throw new Error(
+      i18next.t('upload.uploadFailed', { status: result.status })
+    );
   }
 }

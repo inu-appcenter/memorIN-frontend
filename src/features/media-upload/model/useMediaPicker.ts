@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MAX_VIDEO_DURATION_SEC } from '../lib/compressMedia';
+import i18next from '@/shared/lib/i18n';
 
 export interface PickedMediaAsset {
   uri: string;
@@ -19,7 +20,10 @@ export function useMediaPicker() {
   const pickAssets = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('권한 필요', '사진/동영상 접근 권한을 허용해주세요.');
+      Alert.alert(
+        i18next.t('upload.permissionTitle'),
+        i18next.t('upload.permissionMessage')
+      );
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
