@@ -23,6 +23,7 @@ import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
 import UploadIcon from '@/shared/assets/icons/upload.svg';
 import { PostShareSheet } from '@/features/post-share';
+import { useTranslation } from 'react-i18next';
 
 interface PostCardProps {
   post: PostSummary;
@@ -77,9 +78,9 @@ function PostCardComponent({
       onError: (error) => {
         const message = (error as Error).message;
         if (Platform.OS === 'web') {
-          window.alert(`삭제 실패: ${message}`);
+          window.alert(t('post.deleteFailMessage', { message }));
         } else {
-          Alert.alert('삭제 실패', message);
+          Alert.alert(t('post.deleteFailTitle'), message);
         }
       },
     });
@@ -87,21 +88,22 @@ function PostCardComponent({
 
   const handlePressMenu = () => {
     if (Platform.OS === 'web') {
-      if (window.confirm('이 게시물을 삭제할까요?')) {
+      if (window.confirm(t('post.deleteConfirm'))) {
         runDelete();
       }
       return;
     }
 
-    Alert.alert('게시물 삭제', '이 게시물을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: runDelete },
+    Alert.alert(t('post.deleteTitle'), t('post.deleteConfirm'), [
+      { text: t('action.cancel'), style: 'cancel' },
+      { text: t('action.delete'), style: 'destructive', onPress: runDelete },
     ]);
   };
 
   const handlePressComments = () => {
     onOpenComments?.(post.postId);
   };
+  const { t } = useTranslation();
 
   return (
     <>
@@ -150,7 +152,7 @@ function PostCardComponent({
           {previewText ? (
             <Text className="text-secondary">{previewText}</Text>
           ) : (
-            <Text className="text-tertiary">내용 없음</Text>
+            <Text className="text-tertiary">{t('post.emptyContent')}</Text>
           )}
           <View className="flex-row items-center gap-xl">
             <Pressable

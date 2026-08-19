@@ -1,3 +1,4 @@
+import i18next from '@/shared/lib/i18n';
 import type { TimeslotType } from '../api/postsApi';
 
 // posts.content는 JSONB 원문(블록 배열 문자열)로 내려온다.
@@ -22,8 +23,8 @@ export function extractPreviewText(rawContent: string): string {
 
 // 뱃지 등 라벨만 단독으로 필요한 곳에서 재사용하기 위해 분리
 export function getTimeslotLabel(timeslot: TimeslotType | null): string | null {
-  if (timeslot === 'AM') return '오전';
-  if (timeslot === 'PM') return '오후';
+  if (timeslot === 'AM') return i18next.t('post.timeslotAm');
+  if (timeslot === 'PM') return i18next.t('post.timeslotPm');
   return null;
 }
 
@@ -31,7 +32,6 @@ export function formatRecordedLabel(
   recordedDate: string,
   timeslot: TimeslotType | null
 ): string {
-  const slotLabel =
-    timeslot === 'AM' ? '오전' : timeslot === 'PM' ? '오후' : '';
+  const slotLabel = getTimeslotLabel(timeslot) ?? '';
   return [recordedDate, slotLabel].filter(Boolean).join(' ');
 }
