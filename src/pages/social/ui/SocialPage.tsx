@@ -17,10 +17,12 @@ import {
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import { showNotReady } from '@/shared/lib/showNotReady';
+import { useTranslation } from 'react-i18next';
 const CONTENT_CLASS = 'w-full max-w-[720px] self-center';
 
 function FriendRow({ friend }: { friend: UserFollowSummary }) {
   const unfollowUser = useUnfollowUser();
+  const { t } = useTranslation();
   return (
     <View className="w-full px-xl">
       <View
@@ -47,7 +49,7 @@ function FriendRow({ friend }: { friend: UserFollowSummary }) {
           )}
         >
           <Text variant="label" className="text-neutral-400">
-            삭제
+            {t('socialPage.remove')}
           </Text>
         </Pressable>
       </View>
@@ -57,6 +59,7 @@ function FriendRow({ friend }: { friend: UserFollowSummary }) {
 
 function FriendRequestRow({ request }: { request: FollowRequestItem }) {
   const acceptFollow = useAcceptFollow();
+  const { t } = useTranslation();
   return (
     <View className="w-full px-xl">
       <View
@@ -83,7 +86,7 @@ function FriendRequestRow({ request }: { request: FollowRequestItem }) {
           )}
         >
           <Text variant="label" className="text-on-brand">
-            수락
+            {t('socialPage.accept')}
           </Text>
         </Pressable>
       </View>
@@ -127,7 +130,7 @@ export function SocialPage() {
     (friend: UserFollowSummary) => friend.id,
     []
   );
-
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-page">
       <FlashList
@@ -151,7 +154,7 @@ export function SocialPage() {
                 <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
               </Pressable>
 
-              <Text variant="heading">친구 관리</Text>
+              <Text variant="heading">{t('socialPage.title')}</Text>
             </View>
 
             {/* 검색 영역 */}
@@ -169,7 +172,7 @@ export function SocialPage() {
                 <TextInput
                   value={keyword}
                   onChangeText={setKeyword}
-                  placeholder="아이디로 친구 검색"
+                  placeholder={t('socialPage.searchPlaceholder')}
                   placeholderTextColor={COLORS.textMuted}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -184,9 +187,10 @@ export function SocialPage() {
               <View className="w-full border-b border-border px-xl pb-lg">
                 <View className={CONTENT_CLASS}>
                   <Text className="mb-sm font-bold text-secondary">
-                    받은 친구 요청 {requests.length}
+                    {t('socialPage.requestsHeading', {
+                      count: requests.length,
+                    })}
                   </Text>
-
                   {requests.map((request) => (
                     <FriendRequestRow
                       key={request.followId}
@@ -212,7 +216,7 @@ export function SocialPage() {
                 </Text>
 
                 <Pressable onPress={() => friendsQuery.refetch()}>
-                  <Text className="font-bold text-link">다시 시도</Text>
+                  <Text className="font-bold text-link">{t('feed.retry')}</Text>
                 </Pressable>
               </View>
             )}
@@ -222,16 +226,16 @@ export function SocialPage() {
               <View className="w-full px-xl">
                 <View className={CONTENT_CLASS}>
                   <Text className="mb-sm text-neutral-400" variant="label">
-                    내 친구 {allFriends.length}
+                    {t('socialPage.friendsHeading', {
+                      count: allFriends.length,
+                    })}
                   </Text>
 
                   {filteredFriends.length === 0 && (
                     <View className="items-center py-xl">
-                      <Text className="text-muted">
-                        {trimmedKeyword
-                          ? `'${keyword}'에 대한 검색 결과가 없어요`
-                          : '아직 친구가 없어요'}
-                      </Text>
+                      {trimmedKeyword
+                        ? t('socialPage.emptyResult', { keyword })
+                        : t('socialPage.emptyFriends')}
                     </View>
                   )}
                 </View>

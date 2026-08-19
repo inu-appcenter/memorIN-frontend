@@ -9,6 +9,7 @@ import {
   signUpSchema,
   type SignUpInput,
 } from '@/features/auth/model/authSchema';
+import { useTranslation } from 'react-i18next';
 
 export function SignUpPage() {
   const {
@@ -29,6 +30,7 @@ export function SignUpPage() {
   const { mutate, isPending, error: submitError } = useSignUp();
 
   const onSubmit = (data: SignUpInput) => mutate(data);
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 items-center justify-center bg-page px-lg">
@@ -37,10 +39,8 @@ export function SignUpPage() {
           <Text className="font-sans-bold text-[40px] text-primary">
             MemorIN
           </Text>
-          <Text className="mt-sm text-muted">
-            오늘 하루의 기록을 캘린더에 담아
-          </Text>
-          <Text className="text-muted">소중한 순간을 오래 기억해요</Text>
+          <Text className="mt-sm text-muted">{t('signUp.taglineFirst')}</Text>
+          <Text className="text-muted">{t('signUp.tagline')}</Text>
         </View>
 
         <View className="gap-md">
@@ -50,7 +50,7 @@ export function SignUpPage() {
             name="email"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="이메일을 입력하세요"
+                placeholder={t('signUp.emailPlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 returnKeyType="next"
@@ -67,7 +67,7 @@ export function SignUpPage() {
             name="password"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="비밀번호를 입력하세요"
+                placeholder={t('signUp.passwordPlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 isPassword
@@ -83,7 +83,7 @@ export function SignUpPage() {
             name="passwordConfirm"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="비밀번호를 다시 입력하세요"
+                placeholder={t('signUp.passwordConfirmPlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 isPassword
@@ -100,7 +100,7 @@ export function SignUpPage() {
             name="username"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="사용자명을 입력하세요"
+                placeholder={t('signUp.usernamePlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 returnKeyType="next"
@@ -115,7 +115,7 @@ export function SignUpPage() {
             name="displayName"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="표시 이름을 입력하세요"
+                placeholder={t('signUp.displayNamePlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 returnKeyType="next"
@@ -138,20 +138,22 @@ export function SignUpPage() {
           className="mt-lg h-[52px] items-center justify-center rounded-md bg-brand active:bg-brand-press disabled:opacity-50"
         >
           <Text className="font-sans-bold text-on-brand">
-            {isPending ? '가입 중...' : '회원가입'}
+            {isPending ? t('signUp.submitting') : t('signUp.submit')}
           </Text>
         </Pressable>
 
         <View className="mt-md flex-row justify-center gap-sm">
-          <Text className="text-muted">이미 계정이 있나요?</Text>
+          <Text className="text-muted">{t('signUp.hasAccount')}</Text>
           <Link href="/sign-in">
-            <Text className="font-sans-bold text-link">로그인</Text>
+            <Text className="font-sans-bold text-link">
+              {t('signUp.signIn')}
+            </Text>
           </Link>
         </View>
 
         <View className="mt-5xl flex-row items-center gap-md">
           <View className="h-px flex-1 bg-border" />
-          <Text className="text-muted">또는 SNS로 가입</Text>
+          <Text className="text-muted">{t('signUp.snsDivider')}</Text>
           <View className="h-px flex-1 bg-border" />
         </View>
         <View className="mt-xl flex-row justify-center gap-lg">

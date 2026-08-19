@@ -10,6 +10,7 @@ import {
   type SignInInput,
 } from '@/features/auth/model/authSchema';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
+import { useTranslation } from 'react-i18next';
 
 export function SignInPage() {
   const {
@@ -24,7 +25,7 @@ export function SignInPage() {
   const { mutate, isPending, error } = useSignIn();
 
   const onSubmit = (input: SignInInput) => mutate(input);
-
+  const { t } = useTranslation();
   return (
     <View className="flex-1 items-center justify-center bg-page px-lg">
       <View className="w-full max-w-[420px]">
@@ -39,7 +40,7 @@ export function SignInPage() {
             name="email"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="이메일을 입력하세요"
+                placeholder={t('signIn.emailPlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 autoCapitalize="none"
@@ -56,7 +57,7 @@ export function SignInPage() {
             name="password"
             render={({ field: { value, onChange } }) => (
               <Field
-                placeholder="비밀번호를 입력하세요"
+                placeholder={t('signIn.passwordPlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 isPassword
@@ -80,27 +81,27 @@ export function SignInPage() {
           className="mt-lg h-[52px] items-center justify-center rounded-lg bg-brand active:bg-brand-press disabled:opacity-50"
         >
           <Text className="font-sans-bold text-on-brand">
-            {isPending ? '로그인 중...' : '로그인'}
+            {isPending ? t('signIn.submitting') : t('signIn.submit')}
           </Text>
         </Pressable>
 
         <View className="mt-md flex-row justify-center gap-sm">
           <Pressable>
-            <Text className="text-muted">아이디 찾기</Text>
+            <Text className="text-muted">{t('signIn.findId')}</Text>
           </Pressable>
           <Text className="text-muted">·</Text>
           <Pressable>
-            <Text className="text-muted">비밀번호 찾기</Text>
+            <Text className="text-muted">{t('signIn.findPassword')}</Text>
           </Pressable>
           <Text className="text-muted">·</Text>
           <Link href="/sign-up">
-            <Text className="text-muted">회원가입</Text>
+            <Text className="text-muted">{t('signIn.signUp')}</Text>
           </Link>
         </View>
 
         <View className="mt-5xl flex-row items-center gap-md">
           <View className="h-px flex-1 bg-border" />
-          <Text className="text-muted">또는 SNS로 로그인</Text>
+          <Text className="text-muted">{t('signIn.snsDivider')}</Text>
           <View className="h-px flex-1 bg-border" />
         </View>
 

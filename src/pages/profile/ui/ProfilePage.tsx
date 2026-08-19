@@ -16,6 +16,7 @@ import { useFriendsQuery } from '@/entities/user';
 import { PostDetailModal } from '@/widgets/postDetailModal';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
+import { useTranslation } from 'react-i18next';
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
@@ -43,6 +44,7 @@ function ProfileHeader({
 }: ProfileHeaderProps) {
   const router = useRouter();
   const logout = useLogout();
+  const { t } = useTranslation();
 
   // 백엔드에 유저별 받은 반응(좋아요/이모지) 총합을 내려주는 API가 없어 표시할 수 없다.
   const reactionCountLabel = '—';
@@ -59,7 +61,9 @@ function ProfileHeader({
         stacked ? 'flex-1' : 'px-lg'
       )}
     >
-      <Text className="px-lg py-md font-bold text-secondary">프로필 편집</Text>
+      <Text className="px-lg py-md font-bold text-secondary">
+        {t('profile.edit')}
+      </Text>
     </Pressable>
   );
 
@@ -71,7 +75,9 @@ function ProfileHeader({
         stacked ? 'flex-1' : 'px-lg'
       )}
     >
-      <Text className="px-lg py-md font-bold text-secondary">친구 관리</Text>
+      <Text className="px-lg py-md font-bold text-secondary">
+        {t('profile.manageFriends')}
+      </Text>
     </Pressable>
   );
 
@@ -85,9 +91,7 @@ function ProfileHeader({
         logout.isPending && 'opacity-50'
       )}
     >
-      <Text className="px-lg py-md font-bold text-error">
-        {logout.isPending ? '로그아웃 중...' : '로그아웃'}
-      </Text>
+      {logout.isPending ? t('profile.loggingOut') : t('profile.logout')}
     </Pressable>
   );
 
@@ -101,9 +105,12 @@ function ProfileHeader({
 
   const StatsRow = (
     <View className="flex-row gap-3xl">
-      <StatBlock label="기록" value={postCountLabel} />
-      <StatBlock label="친구" value={friendCountLabel} />
-      <StatBlock label="받은 반응" value={reactionCountLabel} />
+      <StatBlock label={t('profile.statRecords')} value={postCountLabel} />
+      <StatBlock label={t('profile.statFriends')} value={friendCountLabel} />
+      <StatBlock
+        label={t('profile.statReactions')}
+        value={reactionCountLabel}
+      />
     </View>
   );
 
@@ -171,7 +178,10 @@ function ProfileHeader({
           </Text>
           <Text className="text-muted">{displayName}</Text>
           <Text className="text-muted">
-            기록 {postCountLabel} · 친구 {friendCountLabel}
+            {t('profile.statSummary', {
+              postCount: postCountLabel,
+              friendCount: friendCountLabel,
+            })}
           </Text>
         </View>
       </View>
@@ -222,11 +232,12 @@ export function ProfilePage() {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 bg-page">
       <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
-        <Text variant="heading">프로필</Text>
+        <Text variant="heading">{t('profile.title')}</Text>
         <View className="flex-row items-center gap-lg">
           {/* 알림 */}
           {device === 'phone' && (
@@ -276,7 +287,9 @@ export function ProfilePage() {
                     }
                   />
                   <View className="border-t border-border px-xl py-2xl">
-                    <Text className="font-bold text-primary">내 기록</Text>
+                    <Text className="font-bold text-primary">
+                      {t('profile.myRecords')}
+                    </Text>
                   </View>
                   {feedLoading && hasNoPosts && (
                     <View className="items-center py-xl">
@@ -293,7 +306,7 @@ export function ProfilePage() {
                   {!feedLoading && !isError && hasNoPosts && (
                     <View className="items-center py-xl">
                       <Text className="text-muted">
-                        아직 올린 기록이 없어요
+                        {t('profile.emptyRecords')}
                       </Text>
                     </View>
                   )}
