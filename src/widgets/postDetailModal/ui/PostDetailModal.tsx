@@ -30,6 +30,7 @@ import { PostActionsMenu } from '@/features/post-edit';
 import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
+import { useTranslation } from 'react-i18next';
 
 interface PostDetailModalProps {
   posts: PostSummary[];
@@ -162,6 +163,7 @@ function PostInfoPanel({
   } = usePostLikes(post.postId);
   const { data: comments } = useCommentThread(post.postId);
   const commentCount = comments?.length ?? 0;
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1">
@@ -201,7 +203,7 @@ function PostInfoPanel({
             {previewText}
           </Text>
         ) : (
-          <Text className="text-tertiary">내용 없음</Text>
+          <Text className="text-tertiary">{t('post.emptyContent')}</Text>
         )}
         <View className="flex-row items-center gap-xl">
           <Pressable
@@ -240,7 +242,7 @@ export function PostDetailModal({
 }: PostDetailModalProps) {
   const { device } = useBreakpoints();
   const [index, setIndex] = useState(startIndex);
-
+  const { t } = useTranslation();
   const post = posts[index];
   // 게시물이 삭제되면 목록이 줄어 인덱스가 범위를 벗어날 수 있다(그땐 아무것도 안 그린다)
   if (!post) return null;
@@ -265,7 +267,7 @@ export function PostDetailModal({
               <Pressable onPress={onClose} hitSlop={8}>
                 <Text className="text-secondary">✕</Text>
               </Pressable>
-              <Text variant="heading">게시물</Text>
+              <Text variant="heading">{t('postDetail.title')}</Text>
             </View>
             {/* 폰에서는 화면 폭이 좁아 오버레이 대신 헤더 우측에 이동 버튼을 둔다 */}
             <View className="flex-row items-center gap-lg">

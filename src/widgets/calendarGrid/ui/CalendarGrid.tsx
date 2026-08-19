@@ -2,12 +2,17 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
-import { buildMonthGrid, isSameDate } from '@/shared/lib/calendarDate';
+import { useTranslation } from 'react-i18next';
+import {
+  buildMonthGrid,
+  isSameDate,
+  getWeekdayLabel,
+} from '@/shared/lib/calendarDate';
 import { useMonthPosts } from '../model/useMonthPosts';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 import { showNotReady } from '@/shared/lib/showNotReady';
 
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_INDEXES = [0, 1, 2, 3, 4, 5, 6];
 
 interface CalendarGridProps {
   visibleMonth: Date; // 항상 해당 월 1일
@@ -23,6 +28,7 @@ export function CalendarGrid({
   onSelectDate,
   onChangeMonth,
 }: CalendarGridProps) {
+  const { t } = useTranslation();
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
 
@@ -48,7 +54,7 @@ export function CalendarGrid({
     <View className="flex-1 p-lg">
       <View className="mb-lg flex-row items-center justify-between">
         <View className="flex-row items-center gap-md">
-          <Text variant="title">기록</Text>
+          <Text variant="title">{t('calendarPage.title')}</Text>
           <View className="flex-row items-center gap-sm">
             <Pressable onPress={() => onChangeMonth(-1)} hitSlop={8}>
               <Text variant="subheading" className="text-secondary">
@@ -73,16 +79,16 @@ export function CalendarGrid({
         </View>
       </View>
       <View className="mb-sm flex-row gap-sm">
-        {WEEKDAYS.map((day) => (
+        {WEEKDAY_INDEXES.map((dayIndex) => (
           <Text
-            key={day}
+            key={dayIndex}
             variant="caption"
             className={cn(
               'flex-1 text-center text-muted',
-              day === '일' && 'text-error'
+              dayIndex === 0 && 'text-error'
             )}
           >
-            {day}
+            {getWeekdayLabel(dayIndex)}
           </Text>
         ))}
       </View>

@@ -3,14 +3,18 @@ import Svg, { Circle } from 'react-native-svg';
 import { Text } from '@/shared/ui/text';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { stories } from '@/shared/config/dummy';
+import { useTranslation } from 'react-i18next';
 
 export function StoryRail() {
   const { device } = useBreakpoints();
+  const { t } = useTranslation();
 
   return (
     <View className="border-b border-border px-lg py-md">
       {device === 'tablet' && (
-        <Text className="mb-sm font-bold text-secondary">친구들의 오늘</Text>
+        <Text className="mb-sm font-bold text-secondary">
+          {t('story.railTitle')}
+        </Text>
       )}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View className="flex-row gap-lg">
