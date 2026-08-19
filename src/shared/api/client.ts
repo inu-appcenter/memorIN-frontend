@@ -6,6 +6,7 @@ import {
   ACCESS_TOKEN_KEY,
   REFRESH_TOKEN_KEY,
 } from '@/entities/session/lib/tokenStorage';
+import i18next from '@/shared/lib/i18n';
 // axois 인터셉터, 인스턴스 등을 정의
 
 // 백엔드 API 명세서의 공통 응답 포맷을 따른다
@@ -91,7 +92,7 @@ let refreshPromise: Promise<string> | null = null;
 async function refreshAndPersistAccessToken(): Promise<string> {
   const currentRefreshToken = await tokenStorage.get(REFRESH_TOKEN_KEY);
   if (!currentRefreshToken) {
-    throw new Error('저장된 refresh token이 없습니다');
+    throw new Error(i18next.t('error.noRefreshToken'));
   }
 
   const { accessToken, refreshToken: newRefreshToken } =
@@ -141,7 +142,7 @@ client.interceptors.response.use(
       } catch {
         await handleSessionExpired();
         return Promise.reject(
-          new ApiError('AUTH_003', '다시 로그인하여 주세요.')
+          new ApiError('AUTH_003', i18next.t('error.sessionExpired'))
         );
       }
     }
@@ -154,7 +155,7 @@ client.interceptors.response.use(
       );
     }
     // 네트워크/타임아웃 등 응답 자체가 없는 경우
-    return Promise.reject(new ApiError('NETWORK', '서버에 연결할 수 없습니다'));
+    return Promise.reject(new ApiError('NETWORK', i18next.t('error.network')));
   }
 );
 

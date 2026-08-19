@@ -1,6 +1,7 @@
 import { Image, Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
-import { formatKoreanDateHeading } from '@/shared/lib/calendarDate';
+import { formatDateHeading } from '@/shared/lib/calendarDate';
 import { extractPreviewText } from '@/entities/post/model/postContent';
 import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
 import { PostVideoCover } from '@/entities/post/ui/PostVideoCover';
@@ -9,7 +10,7 @@ import { usePostLikes } from '@/entities/post/model/usePostLikes';
 import { PostActionsMenu } from '@/features/post-edit';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
-import { useDaySlots, SLOT_LABEL } from '../model/useDaySlots';
+import { useDaySlots, getSlotLabel } from '../model/useDaySlots';
 import type { PostSummary, TimeslotType } from '@/entities/post/api/postsApi';
 
 interface DayDetailContentProps {
@@ -22,6 +23,7 @@ interface DayDetailContentProps {
 
 // 게시물 하나의 좋아요/댓글 미리보기(개수 + 최근 2개). 입력은 DayDetailPanel 하단 공용 ReplyBar가 담당한다.
 function SlotCommentsPreview({ postId }: { postId: string }) {
+  const { t } = useTranslation();
   const { data: comments, isLoading } = useCommentThread(postId);
   const { liked, count: likeCount, toggle: toggleLike } = usePostLikes(postId); // PostCard와 같은 스토어라 피드 쪽 좋아요 상태와 자동으로 연동됨
   // 최근 댓글이 잘 보이도록 뒤에서 2개 — 백엔드가 오래된 순으로 내려주므로 새 댓글은 배열 끝에 붙는다
@@ -46,7 +48,7 @@ function SlotCommentsPreview({ postId }: { postId: string }) {
           </Text>
         </Pressable>
         <Text variant="body-small" className="text-secondary">
-          댓글 {comments?.length ?? 0}
+          {t('comment.count', { count: comments?.length ?? 0 })}
         </Text>
       </View>
       {!isLoading &&
@@ -64,7 +66,7 @@ function SlotCommentsPreview({ postId }: { postId: string }) {
             />
             <View className="flex-1">
               <Text variant="body-small" className="text-secondary">
-                {comment.deleted ? '삭제된 댓글' : comment.body}
+                {comment.deleted ? t('comment.deleted') : comment.body}
               </Text>
             </View>
           </View>
@@ -80,20 +82,21 @@ export function DayDetailContent({
   activeSlot = null,
   onSelectSlot,
 }: DayDetailContentProps) {
+  const { t } = useTranslation();
   const { postBySlot, orderedPosts, isLoading } = useDaySlots(date);
 
   return (
     <View>
       <View className="mb-lg">
-        <Text variant="heading">{formatKoreanDateHeading(date)}</Text>
+        <Text variant="heading">{formatDateHeading(date)}</Text>
         <Text variant="body-small" className="text-muted">
-          오전 · 오후 {orderedPosts.length}/2 기록 완료
+          {t('calendarPage.daySummary', { count: orderedPosts.length })}
         </Text>
       </View>
 
       {isLoading && (
         <Text variant="body-small" className="text-muted">
-          불러오는 중...
+          {t('comment.loading')}
         </Text>
       )}
 
@@ -139,7 +142,7 @@ export function DayDetailContent({
                   />
                 ) : (
                   <Text variant="caption" className="text-tertiary">
-                    {post ? 'IMG' : '기록 없음'}
+                    {post ? 'IMG' : t('calendarPage.noRecord')}
                   </Text>
                 )}
 
@@ -161,7 +164,9 @@ export function DayDetailContent({
                 )}
               </View>
               <View className="w-full flex-row items-center justify-between">
-                <Text variant="label">{SLOT_LABEL[slot]} 기록</Text>
+                <Text variant="label">
+                  {t('calendarPage.slotRecord', { slot: getSlotLabel(slot) })}
+                </Text>
                 {post && (
                   <Pressable
                     onPress={() =>
@@ -169,13 +174,15 @@ export function DayDetailContent({
                     }
                   >
                     <Text variant="body-small" className="text-link">
-                      스토리로 보기 ›
+                      {t('calendarPage.viewAsStory')}
                     </Text>
                   </Pressable>
                 )}
               </View>
               <Text variant="body-small" className="text-secondary">
-                {post ? extractPreviewText(post.content) : '아직 기록이 없어요'}
+                {post
+                  ? extractPreviewText(post.content)
+                  : t('calendarPage.emptyRecord')}
               </Text>
 
               {showComments && post && (
