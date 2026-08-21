@@ -4,6 +4,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  useWindowDimensions,
   View,
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -44,6 +45,7 @@ const CARD_MAX_WIDTH = 1100;
 const CARD_MAX_HEIGHT = 760;
 const CAPTION_MAX_LINES = 6;
 const ARROW_EDGE_INSET = 24;
+const PHONE_MEDIA_MAX_HEIGHT_RATIO = 0.42;
 
 function NavArrow({ label, onPress }: { label: string; onPress: () => void }) {
   return (
@@ -241,6 +243,7 @@ export function PostDetailModal({
   onClose,
 }: PostDetailModalProps) {
   const { device } = useBreakpoints();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [index, setIndex] = useState(startIndex);
   const { t } = useTranslation();
   const post = posts[index];
@@ -283,7 +286,15 @@ export function PostDetailModal({
               </Pressable>
             </View>
           </View>
-          <View className="aspect-square w-full">
+          <View
+            style={{
+              width: '100%',
+              height: Math.min(
+                windowWidth,
+                windowHeight * PHONE_MEDIA_MAX_HEIGHT_RATIO
+              ),
+            }}
+          >
             {/* postId를 key로 줘서 게시물을 넘길 때 페이저 내부 상태(현재 장)가 초기화되게 한다 */}
             <PostMediaPager key={post.postId} post={post} />
           </View>
