@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleCommentEmojis, type EmojiSummary } from '../api/reactionApi';
 import { EMOJI_TYPE_TO_REACTION, REACTION_TO_EMOJI_TYPE } from './emojiTypeMap';
 import type { ReactionType } from './types';
+import { toast } from '@/shared/lib/toast';
 
 // entities/post의 PostComment 전체를 끌어오면 entities/reaction ↔ entities/post
 // 순환 참조가 생긴다. 캐시 업데이트에 필요한 필드만 구조적으로 선언해서 쓴다.
@@ -75,10 +76,13 @@ export function useCommentReactionState(
 
       return { previous };
     },
-    onError: (_error, _type, context) => {
+    onError: (error, _type, context) => {
+      // 낙관적 업데이트를 되돌리고, 실패했다는 사실을 사용자에게 알린다.
+      // (안 알리면 오프라인에서 토글이 성공한 것처럼 보였다가 조용히 되돌아간다)
       if (context?.previous) {
         queryClient.setQueryData(queryKey, context.previous);
       }
+      toast.error((error as Error).message);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });

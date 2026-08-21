@@ -50,3 +50,34 @@ export async function createComment(
   }
   return data.data;
 }
+
+// PATCH /api/comments/{commentId} — 작성자 본인만 가능
+export async function updateComment(
+  commentId: string,
+  body: string
+): Promise<PostComment> {
+  const { data } = await client.patch<ApiResponse<PostComment>>(
+    `/api/comments/${commentId}`,
+    { body }
+  );
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.commentUpdate')
+    );
+  }
+  return data.data;
+}
+
+// DELETE /api/comments/{commentId} — 작성자 본인만 가능
+export async function deleteComment(commentId: string): Promise<void> {
+  const { data } = await client.delete<ApiResponse<null>>(
+    `/api/comments/${commentId}`
+  );
+  if (!data.success) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.commentDelete')
+    );
+  }
+}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import SubmitArrowIcon from '@/shared/assets/icons/submitArrow.svg';
 import { cn } from '@/shared/lib/utils';
-import { useTranslation } from 'react-i18next';
 
 interface ReplyBarProps {
   onSubmit: (text: string) => void;
@@ -22,6 +22,8 @@ export function ReplyBar({
   const { t } = useTranslation();
   const [text, setText] = useState('');
   const isDark = variant === 'dark';
+  // 공백만 입력한 상태에서는 전송 버튼 자체를 막는다.
+  const canSubmit = text.trim().length > 0;
 
   const handleSubmit = () => {
     const trimmed = text.trim();
@@ -58,7 +60,12 @@ export function ReplyBar({
         className="h-[36px] flex-1 rounded-full px-md"
         style={inputStyle}
       />
-      <Pressable onPress={handleSubmit} hitSlop={8}>
+      <Pressable
+        onPress={handleSubmit}
+        disabled={!canSubmit}
+        hitSlop={8}
+        style={{ opacity: canSubmit ? 1 : 0.35 }}
+      >
         <SubmitArrowIcon
           width={20}
           height={20}
