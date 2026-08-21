@@ -10,6 +10,15 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 60 * 1000, // 1분 — 이 안에는 재요청 없이 캐시 사용
       retry: 1, // 기본 1회만 재시도
+      refetchOnWindowFocus: 'always',
+      refetchOnMount: 'always',
+    },
+    mutations: {
+      // 기본값 'online'이면 오프라인에서 뮤테이션이 실행되지 않고 paused 상태로
+      // 대기한다. 에러가 안 나니 onError도 안 불려서 사용자는 아무 안내를 못 받고,
+      // 온라인 복구 시 밀려 있던 요청이 한꺼번에 나간다.
+      // 'always'로 두면 즉시 시도 → 실패 → onError → 에러 토스트로 이어진다.
+      networkMode: 'always',
     },
   },
 });
