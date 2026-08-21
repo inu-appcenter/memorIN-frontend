@@ -22,7 +22,9 @@
     "followRequestsLoad": "받은 요청을 불러오지 못했습니다",
     "followRequest": "팔로우 요청을 보내지 못했습니다",
     "followAccept": "팔로우 요청을 수락하지 못했습니다",
-    "unfollow": "팔로우를 취소하지 못했습니다"
+    "unfollow": "팔로우를 취소하지 못했습니다",
+    "commentUpdate": "댓글을 수정하지 못했습니다",
+    "commentDelete": "댓글을 삭제하지 못했습니다"
   },
   "post": {
     "timeslotAm": "오전",
@@ -46,7 +48,20 @@
     "timeJustNow": "방금",
     "timeMinutes": "{{count}}분",
     "timeHours": "{{count}}시간",
-    "timeDays": "{{count}}일"
+    "timeDays": "{{count}}일",
+    "reply": "답글 달기",
+    "viewReplies": "답글 보기 ({{count}})",
+    "hideReplies": "답글 숨기기",
+    "replyingTo": "@{{username}}님에게 답글 남기는 중",
+    "replyPlaceholder": "답글 달기...",
+    "edit": "수정하기",
+    "delete": "삭제하기",
+    "report": "신고하기",
+    "reportNotReady": "신고 기능은 아직 준비 중이에요",
+    "deleteTitle": "댓글 삭제",
+    "deleteConfirm": "이 댓글을 삭제할까요?",
+    "editSave": "저장",
+    "editSaving": "저장 중..."
   },
   "tabs": {
     "feed": "피드",

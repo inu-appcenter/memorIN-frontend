@@ -22,7 +22,9 @@
     "followRequestsLoad": "Couldn't load follow requests",
     "followRequest": "Couldn't send the follow request",
     "followAccept": "Couldn't accept the follow request",
-    "unfollow": "Couldn't unfollow"
+    "unfollow": "Couldn't unfollow",
+    "commentUpdate": "Couldn't update the comment",
+    "commentDelete": "Couldn't delete the comment"
   },
   "post": {
     "timeslotAm": "AM",
@@ -46,7 +48,20 @@
     "timeJustNow": "Just now",
     "timeMinutes": "{{count}}m",
     "timeHours": "{{count}}h",
-    "timeDays": "{{count}}d"
+    "timeDays": "{{count}}d",
+    "reply": "Reply",
+    "viewReplies": "View replies ({{count}})",
+    "hideReplies": "Hide replies",
+    "replyingTo": "Replying to @{{username}}",
+    "replyPlaceholder": "Write a reply...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "report": "Report",
+    "reportNotReady": "Reporting isn't available yet",
+    "deleteTitle": "Delete comment",
+    "deleteConfirm": "Delete this comment?",
+    "editSave": "Save",
+    "editSaving": "Saving..."
   },
   "tabs": {
     "feed": "Feed",
