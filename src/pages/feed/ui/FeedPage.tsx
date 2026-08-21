@@ -3,10 +3,13 @@ import {
   ActivityIndicator,
   Pressable,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type ViewToken,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { FlashList } from '@shopify/flash-list';
+import { useTranslation } from 'react-i18next';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { cn } from '@/shared/lib/utils';
@@ -22,7 +25,9 @@ import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
 import { showNotReady } from '@/shared/lib/showNotReady';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import BellIcon from '@/shared/assets/icons/bell.svg';
-import { useTranslation } from 'react-i18next';
+
+// 이만큼 내려가면 최상단 이동 버튼을 띄운다
+const SCROLL_TOP_BUTTON_THRESHOLD_PX = 600;
 
 function FeedTab({
   label,
@@ -65,6 +70,7 @@ function compareFeedOrder(a: PostSummary, b: PostSummary): number {
 
 export function FeedPage() {
   const { device } = useBreakpoints();
+  const { t } = useTranslation();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'recommended' | 'following'>(
     'following'
@@ -158,7 +164,22 @@ export function FeedPage() {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
-  const { t } = useTranslation();
+
+  const listRef = useRef<FlashListRef<PostSummary>>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      setShowScrollTop(
+        event.nativeEvent.contentOffset.y > SCROLL_TOP_BUTTON_THRESHOLD_PX
+      );
+    },
+    []
+  );
+
+  const scrollToTop = useCallback(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
 
   return (
     <View className="flex-1 flex-row bg-page">
@@ -204,6 +225,9 @@ export function FeedPage() {
             </View>
           ) : (
             <FlashList
+              ref={listRef}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
               data={posts}
               keyExtractor={keyExtractor}
               showsVerticalScrollIndicator={false}
@@ -246,6 +270,18 @@ export function FeedPage() {
                 )
               }
             />
+          )}
+
+          {/* 스크롤을 충분히 내렸을 때만 뜨는 최상단 이동 버튼 */}
+          {isFollowingTab && showScrollTop && (
+            <Pressable
+              onPress={scrollToTop}
+              className="absolute bottom-xl right-xl h-[44px] w-[44px] items-center justify-center rounded-full border border-border bg-page shadow-modal active:opacity-70"
+            >
+              <Text className="text-[20px] leading-[20px] text-secondary">
+                ↑
+              </Text>
+            </Pressable>
           )}
         </View>
       </View>
