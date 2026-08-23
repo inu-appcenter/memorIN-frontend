@@ -24,7 +24,8 @@
     "followAccept": "Couldn't accept the follow request",
     "unfollow": "Couldn't unfollow",
     "commentUpdate": "Couldn't update the comment",
-    "commentDelete": "Couldn't delete the comment"
+    "commentDelete": "Couldn't delete the comment",
+    "monthPostsLoad": "Couldn't load this month's records"
   },
   "post": {
     "timeslotAm": "AM",

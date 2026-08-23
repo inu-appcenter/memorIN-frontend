@@ -33,13 +33,22 @@ export interface FeedPage {
 export interface GetFeedParams {
   cursor?: string;
   size?: number;
+  // recorded_date 기준 기간 필터(yyyy-MM-dd, 양쪽 포함). 캘린더 뷰용.
+  // 하루만 보려면 from과 to에 같은 날짜를 준다.
+  from?: string;
+  to?: string;
 }
 
 // GET /api/posts — userId를 생략하면 백엔드가 JWT의 인증 사용자를 기준으로
 // "내 기록" 피드를 반환한다 (PostService.list 참고). 인증 필요.
 export async function getMyFeed(params: GetFeedParams = {}): Promise<FeedPage> {
   const { data } = await client.get<ApiResponse<FeedPage>>('/api/posts', {
-    params: { cursor: params.cursor, size: params.size },
+    params: {
+      cursor: params.cursor,
+      size: params.size,
+      from: params.from,
+      to: params.to,
+    },
   });
 
   if (!data.success || !data.data) {
