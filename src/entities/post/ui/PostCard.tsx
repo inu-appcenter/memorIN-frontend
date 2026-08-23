@@ -136,7 +136,11 @@ function PostCardComponent({
           )}
         </View>
         {coverUrl && isVideoCover ? (
-          <PostVideoCover uri={coverUrl} isVisible={isVisible} />
+          <PostVideoCover
+            uri={coverUrl}
+            isVisible={isVisible}
+            showPlayPauseToggle
+          />
         ) : coverUrl ? (
           <Image
             source={{ uri: coverUrl }}

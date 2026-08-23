@@ -34,7 +34,8 @@
     "deleteTitle": "Delete post",
     "deleteConfirm": "Delete this post?",
     "deleteFailTitle": "Delete failed",
-    "deleteFailMessage": "Delete failed: {{message}}"
+    "deleteFailMessage": "Delete failed: {{message}}",
+    "playVideo": "Play"
   },
   "action": {
     "cancel": "Cancel",

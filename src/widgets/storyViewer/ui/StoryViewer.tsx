@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Image, Modal, Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import {
@@ -15,7 +16,6 @@ import { Sheet } from '@/shared/ui/sheet';
 import { PostActionsMenu } from '@/features/post-edit';
 import { StoryProgressBar } from './StoryProgressBar';
 import { CommentThread } from '@/entities/post';
-import { useTranslation } from 'react-i18next';
 
 interface StoryViewerProps {
   posts: PostSummary[];
@@ -29,10 +29,13 @@ const IMAGE_SEGMENT_DURATION_MS = 5000;
 // 미디어는 배경 전체를 채우고, 진행바/헤더/캡션/입력줄은 그 위에 오버레이된다.
 export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const { device } = useBreakpoints();
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [videoDurationMs, setVideoDurationMs] = useState<number | null>(null);
   const [commentsSheetVisible, setCommentsSheetVisible] = useState(false);
-  const { t } = useTranslation();
+  // 탭으로 토글하는 일시정지. 영상과 진행바를 함께 멈춰야 한다 —
+  // 진행바만 계속 돌면 멈춘 채로 다음 장으로 넘어가버린다.
+  const [paused, setPaused] = useState(false);
 
   const post = posts[activeIndex];
   // 게시물 실제 작성자(post.authorId) 기준으로 조회 — 로그인한 내 프로필로
@@ -53,6 +56,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
   const isOwnPost = post.authorId === myId;
 
   const goPrev = () => {
+    setPaused(false);
     setVideoDurationMs(null);
     setActiveIndex((i) => Math.max(i - 1, 0));
   };
@@ -61,6 +65,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
       onClose();
       return;
     }
+    setPaused(false);
     setVideoDurationMs(null);
     setActiveIndex((i) => i + 1);
   };
@@ -71,8 +76,11 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 flex-row bg-black">
         <View style={{ flex: 1, position: 'relative' }}>
-          {/* 미디어: 이 영역 전체를 꽉 채우고 맨 뒤에 깔림 */}
-          <View
+          {/* 미디어: 이 영역 전체를 꽉 채우고 맨 뒤에 깔림.
+              탭하면 재생과 진행바가 함께 멈춘다. 화살표·헤더·하단 버튼은
+              위 레이어에 있어 이 Pressable에 가려지지 않는다. */}
+          <Pressable
+            onPress={() => setPaused((prev) => !prev)}
             style={{
               position: 'absolute',
               top: 0,
@@ -85,7 +93,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
               isVideo ? (
                 <PostVideoCover
                   uri={mediaUrl}
-                  isVisible
+                  isVisible={!paused}
                   nativeControls={false}
                   onDurationLoaded={setVideoDurationMs}
                   style={{ height: '100%', width: '100%' }}
@@ -108,7 +116,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                 <Text className="text-white/50">{t('story.noMedia')}</Text>
               </View>
             )}
-          </View>
+          </Pressable>
 
           {/* 좌우 이동 화살표: 미디어 위, 세로 중앙 */}
           <View
@@ -169,6 +177,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
               count={posts.length}
               activeIndex={activeIndex}
               durationMs={segmentDurationMs}
+              paused={paused}
               onComplete={goNext}
             />
             <View className="flex-row items-center justify-between px-md pb-sm">

@@ -34,7 +34,8 @@
     "deleteTitle": "게시물 삭제",
     "deleteConfirm": "이 게시물을 삭제할까요?",
     "deleteFailTitle": "삭제 실패",
-    "deleteFailMessage": "삭제 실패: {{message}}"
+    "deleteFailMessage": "삭제 실패: {{message}}",
+    "playVideo": "재생"
   },
   "action": {
     "cancel": "취소",
