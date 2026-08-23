@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { Sheet } from '@/shared/ui/sheet';
 import { cn } from '@/shared/lib/utils';
@@ -8,9 +9,11 @@ import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { dummyChatRooms } from '@/shared/config/dummy';
 import type { PostSummary } from '@/entities/post/api/postsApi';
-import { useTranslation } from 'react-i18next';
 
 interface PostShareSheetProps {
+  // 현재 화면에서는 쓰이지 않지만 시그니처를 유지한다. STOMP 연동 시
+  // /app/chat.sharePost 페이로드의 postId로 그대로 들어갈 값이라, 지금 빼면
+  // 호출부(PostCard, PostActionsMenu)를 전부 다시 고쳐야 한다.
   post: PostSummary;
   visible: boolean;
   onClose: () => void;
@@ -19,15 +22,12 @@ interface PostShareSheetProps {
 const DESKTOP_MODAL_WIDTH = 420;
 const DESKTOP_MODAL_MAX_HEIGHT = 560;
 
-// 채팅방 다중 선택 후 게시물을 공유
-// 백엔드에 채팅방 목록/메시지 전송 API가 아직 없어서 실제 전송은 하지 않고 선택 상태만 로컬에서 관리
-// 실 연동은 API가 나온 뒤 별도 이슈에서 진행한다.
+// 채팅방 다중 선택 후 게시물을 공유.
+// 백엔드 공유 API는 STOMP 전용(@MessageMapping "/chat.sharePost")이고 채팅방
+// 목록 API도 없어서, 실제 전송은 하지 않고 선택 상태만 로컬에서 관리한다.
+// 실 연동은 채팅방 목록 API가 나온 뒤 별도 이슈에서 진행한다.
 // 폰/태블릿은 하단 시트, 데스크탑은 중앙 모달로 분기한다.
-export function PostShareSheet({
-  post,
-  visible,
-  onClose,
-}: PostShareSheetProps) {
+export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
   const { t } = useTranslation();
   const { device } = useBreakpoints();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -89,13 +89,12 @@ export function PostShareSheet({
         {filteredRooms.map((room) => {
           const selected = selectedIds.has(room.id);
           return (
+            // 선택 상태는 우측 체크 하나로만 표현한다. 행 배경까지 바꾸면
+            // 같은 의미가 두 번 전달돼 시각적으로 과하다.
             <Pressable
               key={room.id}
               onPress={() => toggleRoom(room.id)}
-              className={cn(
-                'flex-row items-center gap-md rounded-md py-sm',
-                selected && 'bg-brand-subtle'
-              )}
+              className="flex-row items-center gap-md rounded-md py-sm"
             >
               <View className="h-[44px] w-[44px] rounded-full bg-subtle" />
               <View className="flex-1">
