@@ -191,7 +191,8 @@
   },
   "chat": {
     "title": "Chat",
-    "inputPlaceholder": "Type a message..."
+    "inputPlaceholder": "Type a message...",
+    "roomNotFound": "Chat room not found"
   },
   "postDetail": {
     "title": "Post"

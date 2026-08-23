@@ -191,7 +191,8 @@
   },
   "chat": {
     "title": "채팅",
-    "inputPlaceholder": "메시지 입력..."
+    "inputPlaceholder": "메시지 입력...",
+    "roomNotFound": "채팅방을 찾을 수 없어요"
   },
   "postDetail": {
     "title": "게시물"
