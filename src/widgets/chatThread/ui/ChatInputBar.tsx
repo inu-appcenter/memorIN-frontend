@@ -3,7 +3,10 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
-import { ChatAttachSheet, RecordPickerSheet } from '@/features/post-share';
+// 배럴(@/features/post-share)을 거치면 PostShareSheet → PostCard →
+// features/post-share로 이어지는 순환이 생겨 컴포넌트가 undefined가 된다.
+import { ChatAttachSheet } from '@/features/post-share/ui/ChatAttachSheet';
+import { RecordPickerSheet } from '@/features/post-share/ui/RecordPickerSheet';
 import ChatPlusIcon from '@/shared/assets/icons/chatPlus.svg';
 import SubmitArrowIcon from '@/shared/assets/icons/submitArrow.svg';
 
@@ -17,7 +20,7 @@ export function ChatInputBar() {
     <>
       <View className="h-[76px] flex-row items-center gap-md border-t border-border bg-page px-xl">
         <Pressable onPress={() => setAttachVisible(true)} hitSlop={8}>
-          <ChatPlusIcon width={18} height={18} />
+          <ChatPlusIcon width={24} height={24} />
         </Pressable>
         <View className="h-[44px] flex-1 justify-center rounded-full bg-surface px-lg">
           <Text className="text-muted">{t('chat.inputPlaceholder')}</Text>

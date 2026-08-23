@@ -17,11 +17,11 @@ import {
   useBreakpoints,
   MIN_SUPPORTED_WIDTH,
 } from '@/shared/lib/useBreakpoints';
-import {
-  useFeedQuery,
-  resolveMediaUrl,
-  type PostSummary,
-} from '@/entities/post';
+// @/entities/post 배럴을 거치면 PostCard가 딸려오고, PostCard가 다시
+// @/features/post-share를 import해서 순환 참조가 생긴다. 파일을 직접 가리킨다.
+import { useFeedQuery } from '@/entities/post/model/useFeedQuery';
+import { resolveMediaUrl } from '@/entities/post/lib/resolveMediaUrl';
+import type { PostSummary } from '@/entities/post/api/postsApi';
 import { PostVideoThumbnail } from '@/entities/post/ui/PostVideoThumbnail';
 import {
   extractPreviewText,

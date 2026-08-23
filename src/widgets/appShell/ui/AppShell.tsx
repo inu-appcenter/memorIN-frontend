@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/shared/ui/text';
 
@@ -27,7 +28,6 @@ import OptionIcon from '@/shared/assets/icons/option.svg';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
 import PlusIcon from '@/shared/assets/icons/plus.svg';
-import { useTranslation } from 'react-i18next';
 
 const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   feed: HomeIcon,
@@ -64,6 +64,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
 function UploadButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const { t } = useTranslation();
+
   return (
     <Pressable
       onPress={() => router.navigate('/upload')}
@@ -227,9 +228,17 @@ export function AppShell({ children }: PropsWithChildren) {
   const inset = useSafeAreaInsets();
   const pathname = usePathname();
 
-  const isUploadRoute = pathname.startsWith('/upload');
+  // 업로드와 채팅 대화창은 폰에서 전체 화면으로 쓰는 계층이라 탭바를 감춘다.
+  // /chat(목록)은 탭바를 유지하고 /chat/{roomId}(대화창)만 감춘다.
+  const isFullScreenRoute =
+    pathname.startsWith('/upload') || /^\/chat\/.+/.test(pathname);
   const isPhone = device === 'phone';
 
+  // desktop/tablet/phone 사이를 오갈 때 {children}이 unmount되지 않도록,
+  // 어느 device든 {children}을 감싸는 View가 같은 부모·같은 자리에 있게 만들고
+  // key로 고정한다. SideNav/BottomNav는 그 안팎에서 조건부로 여닫히는 형제일 뿐이라,
+  // key가 없으면 걔들이 나타나거나 사라질 때 React가 위치 기반으로 비교하다가
+  // {children} 자리까지 통째로 다른 엘리먼트로 오인해서 unmount/remount해버린다.
   return (
     <View
       className="h-full flex-1 items-center bg-surface"
@@ -256,7 +265,7 @@ export function AppShell({ children }: PropsWithChildren) {
             {children}
           </View>
 
-          {isPhone && !isUploadRoute && <BottomNav />}
+          {isPhone && !isFullScreenRoute && <BottomNav />}
         </View>
       </View>
     </View>
