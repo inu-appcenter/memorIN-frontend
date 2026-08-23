@@ -271,5 +271,24 @@
     "accept": "Accept",
     "requestsHeading": "Friend requests {{count}}",
     "friendsHeading": "My friends {{count}}"
+  },
+  "recordPicker": {
+    "title": "Share records",
+    "send": "Send",
+    "counter": "{{selected}}/{{max}}",
+    "dateHeading": "{{month}}/{{day}}",
+    "slotBadge": "{{slot}} record",
+    "empty": "No records yet",
+    "maxReached": "You can select up to {{max}}",
+    "shared": "Shared {{count}} records. (Mock only — API not connected yet)"
+  },
+  "chatAttach": {
+    "title": "Share",
+    "shareRecord": "Share a record",
+    "uploadMedia": "Upload photo/video"
+  },
+  "sharedPost": {
+    "viewRecord": "View record ›",
+    "meta": "{{name}} · {{month}}/{{day}}"
   }
 }

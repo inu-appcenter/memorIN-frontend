@@ -271,5 +271,24 @@
     "accept": "수락",
     "requestsHeading": "받은 친구 요청 {{count}}",
     "friendsHeading": "내 친구 {{count}}"
+  },
+  "recordPicker": {
+    "title": "기록 공유",
+    "send": "전송",
+    "counter": "{{selected}}/{{max}}",
+    "dateHeading": "{{month}}월 {{day}}일",
+    "slotBadge": "{{slot}} 기록",
+    "empty": "아직 올린 기록이 없어요",
+    "maxReached": "최대 {{max}}개까지 선택할 수 있어요",
+    "shared": "{{count}}개 기록을 공유했어요.(실제 공유는 아님. api 연동필요)"
+  },
+  "chatAttach": {
+    "title": "공유하기",
+    "shareRecord": "기록 공유",
+    "uploadMedia": "사진/영상 업로드"
+  },
+  "sharedPost": {
+    "viewRecord": "기록 보기 ›",
+    "meta": "{{name}} · {{month}}월 {{day}}일"
   }
 }
