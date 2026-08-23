@@ -13,6 +13,7 @@ interface StoryProgressBarProps {
   count: number;
   activeIndex: number;
   durationMs: number | null; // null이면(영상 길이 로딩 전) 아직 채우기 시작 안 함
+  paused?: boolean;
   onComplete: () => void;
 }
 
@@ -22,6 +23,7 @@ export function StoryProgressBar({
   count,
   activeIndex,
   durationMs,
+  paused = false,
   onComplete,
 }: StoryProgressBarProps) {
   return (
@@ -47,6 +49,7 @@ export function StoryProgressBar({
           <ActiveSegment
             key={index}
             durationMs={durationMs}
+            paused={paused}
             onComplete={onComplete}
           />
         );
@@ -57,19 +60,30 @@ export function StoryProgressBar({
 
 function ActiveSegment({
   durationMs,
+  paused,
   onComplete,
 }: {
   durationMs: number | null;
+  paused: boolean;
   onComplete: () => void;
 }) {
   const progress = useSharedValue(0);
 
   useEffect(() => {
-    progress.value = 0;
-    if (durationMs == null) return;
+    if (durationMs == null) {
+      progress.value = 0;
+      return;
+    }
+    if (paused) {
+      // cancelAnimation은 shared value를 현재 위치에 그대로 멈춰 세운다.
+      // 재개할 때 이 값을 읽어 남은 시간만 다시 채운다.
+      cancelAnimation(progress);
+      return;
+    }
+    const remainingMs = durationMs * (1 - progress.value);
     progress.value = withTiming(
       1,
-      { duration: durationMs, reduceMotion: ReduceMotion.Never },
+      { duration: remainingMs, reduceMotion: ReduceMotion.Never },
       (finished) => {
         if (finished) runOnJS(onComplete)();
       }
@@ -78,7 +92,7 @@ function ActiveSegment({
       cancelAnimation(progress);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [durationMs]);
+  }, [durationMs, paused]);
 
   const style = useAnimatedStyle(() => ({
     transform: [{ scaleX: progress.value }],

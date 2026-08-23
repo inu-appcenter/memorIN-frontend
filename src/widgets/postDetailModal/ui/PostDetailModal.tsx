@@ -107,6 +107,7 @@ function PostMediaPager({ post }: { post: PostSummary }) {
                   <PostVideoCover
                     uri={uri}
                     isVisible={page === index}
+                    showPlayPauseToggle
                     style={{ width: '100%', height: '100%' }}
                   />
                 ) : uri ? (
