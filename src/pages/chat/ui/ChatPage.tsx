@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { dummyChatRooms } from '@/shared/config/dummy';
 import { ChatRoomList } from '@/widgets/chatRoomList';
@@ -14,19 +14,28 @@ export function ChatPage() {
   const { device } = useBreakpoints();
   const isPhone = device === 'phone';
 
+  // 폰에서 대화창을 보다가 창을 넓히면 ChatRoomPage가 이 파라미터와 함께
+  // 여기로 되돌린다. 그때 보던 방을 그대로 선택 상태로 이어받는다.
+  const { roomId } = useLocalSearchParams<{ roomId?: string }>();
+
   const [selectedRoomId, setSelectedRoomId] = useState(
-    dummyChatRooms[0]?.id ?? ''
+    roomId ?? dummyChatRooms[0]?.id ?? ''
   );
+
+  useEffect(() => {
+    if (roomId) setSelectedRoomId(roomId);
+  }, [roomId]);
+
   const selectedRoom = dummyChatRooms.find(
     (room) => room.id === selectedRoomId
   );
 
-  const handleSelectRoom = (roomId: string) => {
+  const handleSelectRoom = (nextRoomId: string) => {
     if (isPhone) {
-      router.push(`/chat/${roomId}`);
+      router.push(`/chat/${nextRoomId}`);
       return;
     }
-    setSelectedRoomId(roomId);
+    setSelectedRoomId(nextRoomId);
   };
 
   return (
