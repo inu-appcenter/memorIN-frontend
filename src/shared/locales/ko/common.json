@@ -24,7 +24,8 @@
     "followAccept": "팔로우 요청을 수락하지 못했습니다",
     "unfollow": "팔로우를 취소하지 못했습니다",
     "commentUpdate": "댓글을 수정하지 못했습니다",
-    "commentDelete": "댓글을 삭제하지 못했습니다"
+    "commentDelete": "댓글을 삭제하지 못했습니다",
+    "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다"
   },
   "post": {
     "timeslotAm": "오전",
