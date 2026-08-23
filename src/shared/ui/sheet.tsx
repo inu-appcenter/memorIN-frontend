@@ -106,9 +106,15 @@ export function Sheet({
               maxHeight,
               overflow: 'hidden',
               backgroundColor: COLORS.background,
+              // 패딩을 className으로 주면 호출부가 넘긴 className과 병합될 때
+              // 적용 순서가 보장되지 않는다(p-0/pt-* 조합이 무시되는 경우가 있음).
+              // 시트 여백은 여기서 인라인으로 못박고, className은 높이 등 나머지만 받는다.
+              paddingTop: 12,
+              paddingHorizontal: 16,
+              paddingBottom: 16,
             },
           ]}
-          className={cn('rounded-t-lg p-lg', className)}
+          className={cn('rounded-t-lg', className)}
         >
           <View className="mb-md h-[4px] w-[40px] self-center rounded-full bg-border" />
           {children}
