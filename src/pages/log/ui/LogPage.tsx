@@ -72,6 +72,7 @@ export function LogPage() {
           visible={sheetVisible}
           onClose={() => setSheetVisible(false)}
           date={selectedDate}
+          onChangeDate={handleSelectDate}
           onOpenStory={handleOpenStory}
         />
       )}
