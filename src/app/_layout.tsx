@@ -13,6 +13,7 @@ import {
 } from '@/entities/session/lib/tokenStorage';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import '../../global.css';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function RootNav() {
   return (
@@ -75,8 +76,10 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <AppProviders>
-      <RootNav />
-    </AppProviders>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        <RootNav />
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }

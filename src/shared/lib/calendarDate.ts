@@ -18,6 +18,12 @@ export function isSameDate(a: Date, b: Date): boolean {
   return toDateKey(a) === toDateKey(b);
 }
 
+export function addDays(date: Date, amount: number): Date {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
 // month는 0-based(Date와 동일)
 export function buildMonthGrid(year: number, month: number): CalendarDay[] {
   const firstOfMonth = new Date(year, month, 1);

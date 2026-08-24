@@ -15,7 +15,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 interface SheetProps extends Omit<ModalProps, 'visible'> {
   visible: boolean;
   onClose: () => void;
@@ -90,36 +90,38 @@ export function Sheet({
       onRequestClose={onClose}
       {...props}
     >
-      <View className="flex-1 justify-end">
-        <Animated.View
-          style={[
-            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-            overlayStyle,
-          ]}
-        >
-          <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            contentStyle,
-            {
-              maxHeight,
-              overflow: 'hidden',
-              backgroundColor: COLORS.background,
-              // 패딩을 className으로 주면 호출부가 넘긴 className과 병합될 때
-              // 적용 순서가 보장되지 않는다(p-0/pt-* 조합이 무시되는 경우가 있음).
-              // 시트 여백은 여기서 인라인으로 못박고, className은 높이 등 나머지만 받는다.
-              paddingTop: 12,
-              paddingHorizontal: 16,
-              paddingBottom: 16,
-            },
-          ]}
-          className={cn('rounded-t-lg', className)}
-        >
-          <View className="mb-md h-[4px] w-[40px] self-center rounded-full bg-border" />
-          {children}
-        </Animated.View>
-      </View>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View className="flex-1 justify-end">
+          <Animated.View
+            style={[
+              { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+              overlayStyle,
+            ]}
+          >
+            <Pressable className="flex-1 bg-black/40" onPress={onClose} />
+          </Animated.View>
+          <Animated.View
+            style={[
+              contentStyle,
+              {
+                maxHeight,
+                overflow: 'hidden',
+                backgroundColor: COLORS.background,
+                // 패딩을 className으로 주면 호출부가 넘긴 className과 병합될 때
+                // 적용 순서가 보장되지 않는다(p-0/pt-* 조합이 무시되는 경우가 있음).
+                // 시트 여백은 여기서 인라인으로 못박고, className은 높이 등 나머지만 받는다.
+                paddingTop: 12,
+                paddingHorizontal: 16,
+                paddingBottom: 16,
+              },
+            ]}
+            className={cn('rounded-t-lg', className)}
+          >
+            <View className="mb-md h-[4px] w-[40px] self-center rounded-full bg-border" />
+            {children}
+          </Animated.View>
+        </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
