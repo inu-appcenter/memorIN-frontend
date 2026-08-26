@@ -25,15 +25,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
   // 분할 뷰로 보낸다. 보고 있던 방을 파라미터로 넘겨 선택 상태를 유지한다.
   useEffect(() => {
     if (isPhone) return;
-    router.replace({ pathname: '/chat', params: { roomId } });
+    router.navigate({ pathname: '/chat', params: { roomId } });
   }, [isPhone, roomId, router]);
 
   // 리다이렉트가 적용되기 전 한 프레임 동안 대화창이 스치는 걸 막는다.
   if (!isPhone) return null;
 
-  // 이 앱의 (main)/(tabs) 레이아웃은 Stack이 아니라 Slot이라 라우트 스택이
-  // 쌓이지 않는다. router.back()을 쓰면 채팅 목록이 아니라 직전에 보던
-  // 화면(피드 등)으로 튕기므로 목적지를 명시해서 이동한다.
+  // 헤더의 ←는 뒤로가기(Back)가 아니라 위로(Up) 버튼이다. 목록에서 들어왔든 링크로 바로 들어왔든 대화창의 부모는 언제나 채팅 목록
   const handleBack = () => {
     router.navigate('/chat');
   };
