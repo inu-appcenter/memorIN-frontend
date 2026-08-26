@@ -1,6 +1,7 @@
-import { Redirect, Slot } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { View } from 'react-native';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import { COLORS } from '@/shared/lib/theme';
 
 export default function AuthLayout() {
   const status = useAuthStore((state) => state.status);
@@ -15,7 +16,12 @@ export default function AuthLayout() {
 
   return (
     <View className="flex-1 bg-page">
-      <Slot />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: COLORS.background },
+        }}
+      />
     </View>
   );
 }
