@@ -162,19 +162,25 @@ export interface UserPublicProfile {
 }
 
 // GET /api/users/{userId} — 인증 필요. 다른 사용자의 공개 프로필 조회.
-// 주의: 이 프로젝트 다른 API와 다르게 {success,data,error} 봉투 없이 DTO를 그대로
-// 응답 바디로 내려준다(CommentEmojiController와 같은 패턴) — data.data가 아니라 data를 바로 쓴다.
 export async function getPublicProfile(
   userId: string
 ): Promise<UserPublicProfile> {
-  const { data } = await client.get<UserPublicProfile>(`/api/users/${userId}`);
-  return data;
+  const { data } = await client.get<ApiResponse<UserPublicProfile>>(
+    `/api/users/${userId}`
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.profileLoad')
+    );
+  }
+
+  return data.data;
 }
 
 // DELETE /api/follows/{followingId} — 인증 필요.
-// 주의(백엔드 확인 필요, 2026-08-11 기준 develop에서도 미해결): 여전히 "내가(follower)
-// 상대(followingId)를 팔로우한 관계"만 지울 수 있다 — 언팔로우/내가 보낸 요청 취소
-// 용도로만 쓸 수 있고, 상대가 나에게 보낸 요청을 내가 거절하는 용도로는 못 쓴다.
+// "내가(follower) 상대(followingId)를 팔로우한 관계"를 지운다.
 export async function unfollow(followingId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
     `/api/follows/${followingId}`
@@ -184,6 +190,20 @@ export async function unfollow(followingId: string): Promise<void> {
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
       data.error?.message ?? i18next.t('error.unfollow')
+    );
+  }
+}
+
+// DELETE /api/follows/requests/{followId} — 인증 필요, 요청을 받은(following) 쪽만 가능.
+export async function rejectFollowRequest(followId: string): Promise<void> {
+  const { data } = await client.delete<ApiResponse<null>>(
+    `/api/follows/requests/${followId}`
+  );
+
+  if (!data.success) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.followReject')
     );
   }
 }

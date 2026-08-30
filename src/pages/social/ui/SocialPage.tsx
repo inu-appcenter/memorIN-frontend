@@ -11,6 +11,7 @@ import {
   useFollowRequestsQuery,
   useUnfollowUser,
   useAcceptFollow,
+  useRejectFollow,
   type UserFollowSummary,
   type FollowRequestItem,
 } from '@/entities/user';
@@ -18,7 +19,17 @@ import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import { showNotReady } from '@/shared/lib/showNotReady';
 import { useTranslation } from 'react-i18next';
+
 const CONTENT_CLASS = 'w-full max-w-[720px] self-center';
+
+// 섹션 제목은 두 곳(받은 요청 / 내 친구)에서 같은 모양이어야 한다.
+function SectionHeading({ label }: { label: string }) {
+  return (
+    <Text className="mb-sm text-neutral-400" variant="label">
+      {label}
+    </Text>
+  );
+}
 
 function FriendRow({ friend }: { friend: UserFollowSummary }) {
   const unfollowUser = useUnfollowUser();
@@ -57,32 +68,48 @@ function FriendRow({ friend }: { friend: UserFollowSummary }) {
   );
 }
 
+// 호출부(받은 요청 섹션)가 이미 px-xl + CONTENT_CLASS로 감싸므로 여기서는
+// 행 자체만 그린다. 예전처럼 래퍼를 또 두면 좌우 여백이 이중으로 적용돼
+// 친구 목록보다 20px(px-xl) 안쪽으로 밀려 보인다.
 function FriendRequestRow({ request }: { request: FollowRequestItem }) {
   const acceptFollow = useAcceptFollow();
+  const rejectFollow = useRejectFollow();
   const { t } = useTranslation();
+
+  // 한쪽이 처리 중이면 둘 다 막는다. 수락과 거절이 같은 관계 행을 건드리므로
+  // 동시에 눌리면 나중 요청이 이미 사라진 행을 대상으로 실패한다.
+  const isPending = acceptFollow.isPending || rejectFollow.isPending;
+
   return (
-    <View className="w-full px-xl">
-      <View
-        className={cn(
-          CONTENT_CLASS,
-          'flex-row items-center justify-between py-md'
-        )}
-      >
-        <Link href={`/user/${request.userId}`} asChild>
-          <Pressable className="flex-1 flex-row items-center gap-md">
-            <View className="h-[44px] w-[44px] rounded-full border border-border bg-subtle" />
-            <View className="flex-1">
-              <Text className="font-bold">{request.displayName}</Text>
-              <Text className="text-muted">@{request.username}</Text>
-            </View>
-          </Pressable>
-        </Link>
+    <View className="flex-row items-center justify-between py-md">
+      <Link href={`/user/${request.userId}`} asChild>
+        <Pressable className="flex-1 flex-row items-center gap-md">
+          <View className="h-[44px] w-[44px] rounded-full border border-border bg-subtle" />
+          <View className="flex-1 gap-xs">
+            <Text className="font-bold">{request.displayName}</Text>
+            <Text className="text-muted">@{request.username}</Text>
+          </View>
+        </Pressable>
+      </Link>
+      <View className="flex-row items-center gap-sm">
+        <Pressable
+          onPress={() => rejectFollow.mutate(request.followId)}
+          disabled={isPending}
+          className={cn(
+            'h-[32px] items-center justify-center rounded-full border border-neutral-100 bg-page px-md',
+            isPending && 'opacity-50'
+          )}
+        >
+          <Text variant="label" className="text-neutral-400">
+            {t('socialPage.reject')}
+          </Text>
+        </Pressable>
         <Pressable
           onPress={() => acceptFollow.mutate(request.followId)}
-          disabled={acceptFollow.isPending}
+          disabled={isPending}
           className={cn(
-            'h-[30px] items-center justify-center rounded-full bg-brand px-md',
-            acceptFollow.isPending && 'opacity-50'
+            'h-[32px] items-center justify-center rounded-full bg-brand px-md',
+            isPending && 'opacity-50'
           )}
         >
           <Text variant="label" className="text-on-brand">
@@ -182,15 +209,18 @@ export function SocialPage() {
               </View>
             </View>
 
-            {/* 받은 친구 요청 */}
+            {/* 받은 친구 요청 — 구분선을 내용 폭에 맞춘다. 예전에는 바깥
+                w-full View에 border-b가 붙어 있어 화면 끝까지 그어졌다. */}
             {requests.length > 0 && (
-              <View className="w-full border-b border-border px-xl pb-lg">
-                <View className={CONTENT_CLASS}>
-                  <Text className="mb-sm font-bold text-secondary">
-                    {t('socialPage.requestsHeading', {
+              <View className="w-full px-xl pb-xl">
+                <View
+                  className={cn(CONTENT_CLASS, 'border-b border-border pb-lg')}
+                >
+                  <SectionHeading
+                    label={t('socialPage.requestsHeading', {
                       count: requests.length,
                     })}
-                  </Text>
+                  />
                   {requests.map((request) => (
                     <FriendRequestRow
                       key={request.followId}
@@ -225,17 +255,19 @@ export function SocialPage() {
             {!friendsQuery.isLoading && !friendsQuery.isError && (
               <View className="w-full px-xl">
                 <View className={CONTENT_CLASS}>
-                  <Text className="mb-sm text-neutral-400" variant="label">
-                    {t('socialPage.friendsHeading', {
+                  <SectionHeading
+                    label={t('socialPage.friendsHeading', {
                       count: allFriends.length,
                     })}
-                  </Text>
+                  />
 
                   {filteredFriends.length === 0 && (
                     <View className="items-center py-xl">
-                      {trimmedKeyword
-                        ? t('socialPage.emptyResult', { keyword })
-                        : t('socialPage.emptyFriends')}
+                      <Text className="text-muted">
+                        {trimmedKeyword
+                          ? t('socialPage.emptyResult', { keyword })
+                          : t('socialPage.emptyFriends')}
+                      </Text>
                     </View>
                   )}
                 </View>

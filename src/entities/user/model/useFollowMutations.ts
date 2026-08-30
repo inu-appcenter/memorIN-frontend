@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { requestFollow, unfollow, acceptFollow } from '../api/userApi';
+import {
+  requestFollow,
+  unfollow,
+  acceptFollow,
+  rejectFollowRequest,
+} from '../api/userApi';
 
 // 팔로우 요청(POST /api/follows). 성공해도 상태는 PENDING이라 팔로잉/팔로워
 // 목록에는 아직 반영되지 않는다 — 버튼 상태는 호출부(FollowButton)가 로컬로 들고 있는다.
@@ -38,6 +43,24 @@ export function useAcceptFollow() {
           query.queryKey[0] === 'users' &&
           (query.queryKey[2] === 'followers' ||
             query.queryKey[1] === 'followRequests'),
+      });
+    },
+  });
+}
+
+// 받은 팔로우 요청 거절(DELETE /api/follows/requests/{followId}).
+// 관계 행 자체가 삭제되므로 팔로워/팔로잉 목록에는 원래 없던 상태 그대로다.
+// 받은 요청 목록만 다시 불러오면 된다.
+export function useRejectFollow() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (followId: string) => rejectFollowRequest(followId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'users' &&
+          query.queryKey[1] === 'followRequests',
       });
     },
   });
