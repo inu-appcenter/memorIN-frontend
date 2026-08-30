@@ -38,7 +38,7 @@ export async function signup(input: SignUpInput): Promise<void> {
     throw new Error(data.error?.message ?? i18next.t('auth.signUpFailed'));
 }
 
-// 실연동 시 POST /auth/logout (서버가 쿠키 만료 + 토큰 무효화)
+// DELETE /auth/logout — 인증 필요. 서버의 refresh_token 행을 삭제한다.
 export async function logout(): Promise<void> {
-  await client.post('/auth/logout'); // Bearer는 인터셉터가 자동 첨부
+  await client.delete('/auth/logout'); // Bearer는 인터셉터가 자동 첨부
 }
