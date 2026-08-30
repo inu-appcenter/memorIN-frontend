@@ -25,7 +25,8 @@
     "unfollow": "Couldn't unfollow",
     "commentUpdate": "Couldn't update the comment",
     "commentDelete": "Couldn't delete the comment",
-    "monthPostsLoad": "Couldn't load this month's records"
+    "monthPostsLoad": "Couldn't load this month's records",
+    "followReject": "Couldn't decline the follow request"
   },
   "post": {
     "timeslotAm": "AM",
@@ -283,6 +284,7 @@
     "emptyFriends": "No friends yet",
     "remove": "Remove",
     "accept": "Accept",
+    "reject": "Decline",
     "requestsHeading": "Friend requests {{count}}",
     "friendsHeading": "My friends {{count}}"
   },

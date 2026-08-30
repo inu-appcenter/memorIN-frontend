@@ -7,6 +7,7 @@ export {
   useFollowUser,
   useUnfollowUser,
   useAcceptFollow,
+  useRejectFollow,
 } from './model/useFollowMutations';
 export type {
   UserSearchResult,

@@ -25,7 +25,8 @@
     "unfollow": "팔로우를 취소하지 못했습니다",
     "commentUpdate": "댓글을 수정하지 못했습니다",
     "commentDelete": "댓글을 삭제하지 못했습니다",
-    "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다"
+    "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다",
+    "followReject": "팔로우 요청을 거절하지 못했습니다"
   },
   "post": {
     "timeslotAm": "오전",
@@ -283,6 +284,7 @@
     "emptyFriends": "아직 친구가 없어요",
     "remove": "삭제",
     "accept": "수락",
+    "reject": "거절",
     "requestsHeading": "받은 친구 요청 {{count}}",
     "friendsHeading": "내 친구 {{count}}"
   },
