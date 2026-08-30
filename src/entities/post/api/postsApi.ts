@@ -79,6 +79,24 @@ export async function getFriendFeed(
 
   return data.data;
 }
+// GET /api/posts/recommend — 최근 14일 내 전체공개 게시물을 참여도(댓글 수)와 최신성으로 점수화해 정렬한다.
+export async function getRecommendedFeed(
+  params: GetFeedParams = {}
+): Promise<FeedPage> {
+  const { data } = await client.get<ApiResponse<FeedPage>>(
+    '/api/posts/recommend',
+    { params: { cursor: params.cursor, size: params.size } }
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.feedLoad')
+    );
+  }
+
+  return data.data;
+}
 
 // GET /api/posts?userId= — 특정 사용자의 게시물 목록 (다른 사람 프로필 화면용).
 // 백엔드가 공개범위(PUBLIC/FRIENDS)를 요청자 기준으로 이미 필터링해서 내려준다.

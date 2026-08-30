@@ -3,7 +3,7 @@ export { PostCardSkeleton } from './ui/PostCardSkeleton';
 export { PostThumbnail } from './ui/PostThumbnail';
 export { useFeedQuery } from './model/useFeedQuery';
 export { useFriendFeedQuery } from './model/useFriendFeedQuery';
-export { useExploreFeedQuery } from './model/useExploreFeedQuery';
+export { useRecommendedFeedQuery } from './model/useRecommendedFeedQuery';
 export { useUserFeedQuery } from './model/useUserFeedQuery';
 export { createPost } from './api/postsApi';
 export { resolveMediaUrl } from './lib/resolveMediaUrl';

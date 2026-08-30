@@ -15,7 +15,7 @@ import {
   type UserSearchResult,
 } from '@/entities/user';
 import {
-  useExploreFeedQuery,
+  useRecommendedFeedQuery,
   PostThumbnail,
   type PostSummary,
 } from '@/entities/post';
@@ -109,7 +109,7 @@ export function SearchPage() {
 
   const keyExtractor = useCallback((user: UserSearchResult) => user.id, []);
 
-  // 검색어가 없을 때 채우는 탐색 그리드
+  // 검색어가 없을 때 채우는 탐색 그리드 — 추천 피드를 쓴다.
   const {
     data: exploreData,
     isLoading: exploreLoading,
@@ -118,7 +118,7 @@ export function SearchPage() {
     hasNextPage: exploreHasNextPage,
     isFetchingNextPage: exploreIsFetchingNextPage,
     fetchNextPage: exploreFetchNextPage,
-  } = useExploreFeedQuery();
+  } = useRecommendedFeedQuery();
 
   const explorePosts = exploreData?.pages.flatMap((page) => page.items) ?? [];
   const hasNoExplorePosts = explorePosts.length === 0;

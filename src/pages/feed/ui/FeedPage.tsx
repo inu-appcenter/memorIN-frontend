@@ -19,6 +19,7 @@ import {
   PostCard,
   useFeedQuery,
   useFriendFeedQuery,
+  useRecommendedFeedQuery,
   type PostSummary,
 } from '@/entities/post';
 import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
@@ -28,6 +29,8 @@ import BellIcon from '@/shared/assets/icons/bell.svg';
 
 // 이만큼 내려가면 최상단 이동 버튼을 띄운다
 const SCROLL_TOP_BUTTON_THRESHOLD_PX = 600;
+
+type FeedTabKey = 'recommended' | 'following';
 
 function FeedTab({
   label,
@@ -72,13 +75,13 @@ export function FeedPage() {
   const { device } = useBreakpoints();
   const { t } = useTranslation();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'recommended' | 'following'>(
-    'following'
-  );
+  const [activeTab, setActiveTab] = useState<FeedTabKey>('following');
   const isFollowingTab = activeTab === 'following';
 
   const friendFeed = useFriendFeedQuery();
   const myFeed = useFeedQuery();
+  // 추천 탭 — 탐색 탭 그리드와 같은 쿼리 키를 써서 요청이 한 번만 나간다.
+  const recommendedFeed = useRecommendedFeedQuery();
 
   const friendPosts = useMemo(
     () => friendFeed.data?.pages.flatMap((page) => page.items) ?? [],
@@ -88,13 +91,18 @@ export function FeedPage() {
     () => myFeed.data?.pages.flatMap((page) => page.items) ?? [],
     [myFeed.data]
   );
+  const recommendedPosts = useMemo(
+    () => recommendedFeed.data?.pages.flatMap((page) => page.items) ?? [],
+    [recommendedFeed.data]
+  );
 
   const myHasNextPage = myFeed.hasNextPage;
   const friendHasNextPage = friendFeed.hasNextPage;
 
-  const posts = useMemo(() => {
-    if (!isFollowingTab) return [];
-
+  // 팔로잉 탭은 내 기록과 친구 기록을 합쳐 보여준다. 두 목록의 페이징이 따로
+  // 진행되므로, 아직 안 불러온 구간이 중간에 비어 보이지 않도록 두 목록이
+  // 공통으로 채워진 지점까지만 잘라낸다.
+  const followingPosts = useMemo(() => {
     const merged = [...myPosts, ...friendPosts].sort(compareFeedOrder);
 
     const openTails: PostSummary[] = [];
@@ -108,17 +116,28 @@ export function FeedPage() {
 
     const boundary = openTails.sort(compareFeedOrder)[0];
     return merged.filter((post) => compareFeedOrder(post, boundary) <= 0);
-  }, [isFollowingTab, myPosts, friendPosts, myHasNextPage, friendHasNextPage]);
+  }, [myPosts, friendPosts, myHasNextPage, friendHasNextPage]);
 
-  const isLoading = friendFeed.isLoading || myFeed.isLoading;
-  const isError = friendFeed.isError || myFeed.isError;
-  const isFetchingNextPage =
-    friendFeed.isFetchingNextPage || myFeed.isFetchingNextPage;
+  const posts = isFollowingTab ? followingPosts : recommendedPosts;
+
+  const isLoading = isFollowingTab
+    ? friendFeed.isLoading || myFeed.isLoading
+    : recommendedFeed.isLoading;
+  const isError = isFollowingTab
+    ? friendFeed.isError || myFeed.isError
+    : recommendedFeed.isError;
+  const isFetchingNextPage = isFollowingTab
+    ? friendFeed.isFetchingNextPage || myFeed.isFetchingNextPage
+    : recommendedFeed.isFetchingNextPage;
 
   const refetch = useCallback(() => {
-    friendFeed.refetch();
-    myFeed.refetch();
-  }, [friendFeed, myFeed]);
+    if (isFollowingTab) {
+      friendFeed.refetch();
+      myFeed.refetch();
+      return;
+    }
+    recommendedFeed.refetch();
+  }, [isFollowingTab, friendFeed, myFeed, recommendedFeed]);
 
   const [visiblePostIds, setVisiblePostIds] = useState<Set<string>>(new Set());
   const [activeCommentsPostId, setActiveCommentsPostId] = useState<
@@ -139,14 +158,19 @@ export function FeedPage() {
   }, []);
 
   const handleEndReached = useCallback(() => {
-    if (!isFollowingTab) return;
+    if (!isFollowingTab) {
+      if (recommendedFeed.hasNextPage && !recommendedFeed.isFetchingNextPage) {
+        recommendedFeed.fetchNextPage();
+      }
+      return;
+    }
     if (friendFeed.hasNextPage && !friendFeed.isFetchingNextPage) {
       friendFeed.fetchNextPage();
     }
     if (myFeed.hasNextPage && !myFeed.isFetchingNextPage) {
       myFeed.fetchNextPage();
     }
-  }, [isFollowingTab, friendFeed, myFeed]);
+  }, [isFollowingTab, friendFeed, myFeed, recommendedFeed]);
 
   const renderItem = useCallback(
     ({ item }: { item: PostSummary }) => (
@@ -167,6 +191,19 @@ export function FeedPage() {
 
   const listRef = useRef<FlashListRef<PostSummary>>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // 탭 전환 시 리스트에 데이터만 갈아끼우면, 스크롤 위치가 남는 것은 물론
+  // 재활용된 셀이 이전 탭의 카드를 그대로 들고 있는 경우가 생긴다
+  // (추천 탭에 "친구공개" 게시물이 보이던 원인). 아래 FlashList의 key로
+  // 탭마다 리스트를 새로 마운트해 그 두 가지를 함께 없앤다.
+  //
+  // setActiveTab과 같은 턴에 scrollToOffset을 부르는 방식은 그 시점의 리스트가
+  // 아직 이전 데이터를 들고 있어 먹히지 않는다.
+  const handleSelectTab = useCallback((tab: FeedTabKey) => {
+    setActiveTab(tab);
+    setShowScrollTop(false);
+    setVisiblePostIds(new Set());
+  }, []);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -206,74 +243,71 @@ export function FeedPage() {
         <View className="h-[48px] flex-row border-b border-border">
           <FeedTab
             label={t('feed.tabRecommended')}
-            active={activeTab === 'recommended'}
-            onPress={() => setActiveTab('recommended')}
+            active={!isFollowingTab}
+            onPress={() => handleSelectTab('recommended')}
             device={device}
           />
           <FeedTab
             label={t('feed.tabFollowing')}
             active={isFollowingTab}
-            onPress={() => setActiveTab('following')}
+            onPress={() => handleSelectTab('following')}
             device={device}
           />
         </View>
         <StoryRail />
         <View className="flex-1">
-          {!isFollowingTab ? (
-            <View className="items-center py-3xl">
-              <Text className="text-muted">{t('feed.notReady')}</Text>
-            </View>
-          ) : (
-            <FlashList
-              ref={listRef}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              data={posts}
-              keyExtractor={keyExtractor}
-              showsVerticalScrollIndicator={false}
-              onEndReached={handleEndReached}
-              onEndReachedThreshold={0.5}
-              renderItem={renderItem}
-              onViewableItemsChanged={onViewableItemsChanged}
-              viewabilityConfig={viewabilityConfig}
-              ListHeaderComponent={
-                <View className="mx-auto w-full px-lg pt-lg">
-                  {isLoading && (
-                    <Text className="py-xl text-center text-muted">
-                      {t('comment.loading')}
-                    </Text>
-                  )}
-                  {isError && (
-                    <View className="items-center gap-sm py-xl">
-                      <Text className="text-error">{t('error.feedLoad')}</Text>
-                      <Pressable onPress={refetch}>
-                        <Text className="font-bold text-link">
-                          {t('feed.retry')}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  )}
-                  {!isLoading && !isError && posts.length === 0 && (
-                    <Text className="py-xl text-center text-muted">
-                      {t('feed.empty')}
-                    </Text>
-                  )}
-                </View>
-              }
-              ListFooterComponent={
-                isFetchingNextPage ? (
-                  <View className="items-center py-lg">
-                    <ActivityIndicator color={COLORS.brand} />
+          <FlashList
+            key={activeTab}
+            ref={listRef}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            data={posts}
+            keyExtractor={keyExtractor}
+            showsVerticalScrollIndicator={false}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            renderItem={renderItem}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            ListHeaderComponent={
+              <View className="mx-auto w-full px-lg pt-lg">
+                {isLoading && (
+                  <Text className="py-xl text-center text-muted">
+                    {t('comment.loading')}
+                  </Text>
+                )}
+                {isError && (
+                  <View className="items-center gap-sm py-xl">
+                    <Text className="text-error">{t('error.feedLoad')}</Text>
+                    <Pressable onPress={refetch}>
+                      <Text className="font-bold text-link">
+                        {t('feed.retry')}
+                      </Text>
+                    </Pressable>
                   </View>
-                ) : (
-                  <View className="pb-lg" />
-                )
-              }
-            />
-          )}
+                )}
+                {!isLoading && !isError && posts.length === 0 && (
+                  <Text className="py-xl text-center text-muted">
+                    {isFollowingTab
+                      ? t('feed.empty')
+                      : t('feed.emptyRecommended')}
+                  </Text>
+                )}
+              </View>
+            }
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <View className="items-center py-lg">
+                  <ActivityIndicator color={COLORS.brand} />
+                </View>
+              ) : (
+                <View className="pb-lg" />
+              )
+            }
+          />
 
           {/* 스크롤을 충분히 내렸을 때만 뜨는 최상단 이동 버튼 */}
-          {isFollowingTab && showScrollTop && (
+          {showScrollTop && (
             <Pressable
               onPress={scrollToTop}
               className="absolute bottom-xl right-xl h-[44px] w-[44px] items-center justify-center rounded-full border border-border bg-page shadow-modal active:opacity-70"
