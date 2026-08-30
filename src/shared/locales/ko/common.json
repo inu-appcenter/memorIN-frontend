@@ -194,7 +194,18 @@
   "chat": {
     "title": "채팅",
     "inputPlaceholder": "메시지 입력...",
-    "roomNotFound": "채팅방을 찾을 수 없어요"
+    "send": "보내기",
+    "roomNotFound": "채팅방을 찾을 수 없어요",
+    "searchPlaceholder": "채팅방 검색",
+    "searchResult": "검색 결과",
+    "searchEmpty": "검색 결과가 없어요",
+    "clearSearch": "검색어 지우기",
+    "newChat": "새 채팅",
+    "newChatDirect": "1:1채팅",
+    "newChatGroup": "그룹채팅",
+    "emptyTitle": "대화를 선택해 주세요",
+    "emptyDescription": "왼쪽 목록에서 채팅방을 선택하면 대화가 표시됩니다",
+    "unreadCount": "안 읽은 메시지 {{count}}개"
   },
   "postDetail": {
     "title": "게시물"

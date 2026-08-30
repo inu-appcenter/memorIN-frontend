@@ -194,7 +194,18 @@
   "chat": {
     "title": "Chat",
     "inputPlaceholder": "Type a message...",
-    "roomNotFound": "Chat room not found"
+    "send": "Send",
+    "roomNotFound": "Chat room not found",
+    "searchPlaceholder": "Search chats",
+    "searchResult": "Results",
+    "searchEmpty": "No results",
+    "clearSearch": "Clear search",
+    "newChat": "New chat",
+    "newChatDirect": "Direct message",
+    "newChatGroup": "Group chat",
+    "emptyTitle": "Select a conversation",
+    "emptyDescription": "Pick a chat from the list to see the conversation",
+    "unreadCount": "{{count}} unread messages"
   },
   "postDetail": {
     "title": "Post"

@@ -1,5 +1,5 @@
 import type { FC, PropsWithChildren } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, useWindowDimensions, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
@@ -28,6 +28,10 @@ import OptionIcon from '@/shared/assets/icons/option.svg';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
 import PlusIcon from '@/shared/assets/icons/plus.svg';
+
+// tailwind.config.js의 maxWidth.limit과 같은 값. 창이 이보다 넓을 때만
+// 좌우에 여백이 생기고, 그때만 컨테이너 테두리를 그린다.
+const MAX_CONTENT_WIDTH = 1440;
 
 const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   feed: HomeIcon,
@@ -227,12 +231,14 @@ export function AppShell({ children }: PropsWithChildren) {
   const { device } = useBreakpoints();
   const inset = useSafeAreaInsets();
   const pathname = usePathname();
+  const { width } = useWindowDimensions();
 
   // 업로드와 채팅 대화창은 폰에서 전체 화면으로 쓰는 계층이라 탭바를 감춘다.
   // /chat(목록)은 탭바를 유지하고 /chat/{roomId}(대화창)만 감춘다.
   const isFullScreenRoute =
     pathname.startsWith('/upload') || /^\/chat\/.+/.test(pathname);
   const isPhone = device === 'phone';
+  const isClamped = width > MAX_CONTENT_WIDTH;
 
   // desktop/tablet/phone 사이를 오갈 때 {children}이 unmount되지 않도록,
   // 어느 device든 {children}을 감싸는 View가 같은 부모·같은 자리에 있게 만들고
@@ -251,7 +257,12 @@ export function AppShell({ children }: PropsWithChildren) {
           : undefined
       }
     >
-      <View className="h-full w-full max-w-limit flex-1 flex-row bg-page">
+      <View
+        className={cn(
+          'h-full w-full max-w-limit flex-1 flex-row bg-page',
+          isClamped && 'border-x border-border'
+        )}
+      >
         {!isPhone && (
           <SideNav
             key="side-nav"
