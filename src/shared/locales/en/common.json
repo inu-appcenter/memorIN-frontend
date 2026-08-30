@@ -253,9 +253,9 @@
     "title": "Feed",
     "tabRecommended": "For you",
     "tabFollowing": "Following",
-    "notReady": "Recommendations aren't ready yet",
-    "retry": "Try again",
-    "empty": "Nothing to show yet."
+    "retry": "Retry",
+    "empty": "No records to show yet.",
+    "emptyRecommended": "No public records from the last two weeks yet."
   },
   "profile": {
     "title": "Profile",

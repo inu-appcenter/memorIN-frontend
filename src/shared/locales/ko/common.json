@@ -253,9 +253,9 @@
     "title": "피드",
     "tabRecommended": "추천",
     "tabFollowing": "팔로잉",
-    "notReady": "추천 기능은 아직 준비 중이에요",
     "retry": "다시 시도",
-    "empty": "아직 표시할 기록이 없어요."
+    "empty": "아직 표시할 기록이 없어요.",
+    "emptyRecommended": "최근 2주 안에 올라온 공개 기록이 아직 없어요."
   },
   "profile": {
     "title": "프로필",
