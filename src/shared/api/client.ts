@@ -41,7 +41,7 @@ export class ApiError extends Error {
   }
 }
 
-function resolveApiBaseUrl(): string | undefined {
+export function resolveApiBaseUrl(): string | undefined {
   const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (Platform.OS === 'android' && baseUrl) {
     return baseUrl
@@ -89,6 +89,17 @@ const NO_REFRESH_RETRY_PATHS = ['/auth/login', '/auth/refresh'];
 // 동시에 여러 요청이 401을 받아도 재발급 요청이 한 번만 나가도록 진행 중인 Promise를 공유
 let refreshPromise: Promise<string> | null = null;
 
+// 인터셉터 밖(WebSocket 연결 등)에서도 같은 큐를 타도록 export한다.
+// 백엔드의 refresh_token은 유저당 한 행이고 재발급마다 회전하므로, 각자 따로 부르면 서로의 토큰을 무효화해 AUTH_003("다시 로그인하여 주세요")이 난다.
+export function ensureFreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = refreshAndPersistAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
 async function refreshAndPersistAccessToken(): Promise<string> {
   const currentRefreshToken = await tokenStorage.get(REFRESH_TOKEN_KEY);
   if (!currentRefreshToken) {
@@ -132,12 +143,7 @@ client.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        if (!refreshPromise) {
-          refreshPromise = refreshAndPersistAccessToken().finally(() => {
-            refreshPromise = null;
-          });
-        }
-        await refreshPromise;
+        await ensureFreshAccessToken();
         return client(originalRequest); // 요청 인터셉터가 갱신된 accessToken을 다시 붙여준다
       } catch {
         await handleSessionExpired();
@@ -158,6 +164,3 @@ client.interceptors.response.use(
     return Promise.reject(new ApiError('NETWORK', i18next.t('error.network')));
   }
 );
-
-// 로그아웃 api 연동 (예정)
-// POST /auth/logout

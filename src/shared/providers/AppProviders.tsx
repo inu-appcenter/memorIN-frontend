@@ -4,6 +4,7 @@ import '../../../global.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SocketProvider } from './SocketProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,7 +27,9 @@ const queryClient = new QueryClient({
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>{children}</SafeAreaProvider>
+      <SafeAreaProvider>
+        <SocketProvider>{children}</SocketProvider>
+      </SafeAreaProvider>
     </QueryClientProvider>
   );
 }
