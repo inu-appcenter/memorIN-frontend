@@ -91,7 +91,9 @@ function ProfileHeader({
         logout.isPending && 'opacity-50'
       )}
     >
-      {logout.isPending ? t('profile.loggingOut') : t('profile.logout')}
+      <Text className="px-lg py-md font-bold text-secondary">
+        {logout.isPending ? t('profile.loggingOut') : t('profile.logout')}
+      </Text>
     </Pressable>
   );
 
