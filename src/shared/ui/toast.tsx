@@ -5,9 +5,18 @@ import { Text } from './text';
 import {
   useToastStore,
   type ToastItem as ToastItemType,
+  type ToastVariant,
 } from '@/shared/lib/toast';
 
 const DURATION_MS = 3000;
+
+const BASE_CLASS = 'mb-sm w-full max-w-[360px] rounded-md px-lg py-md';
+
+const VARIANT_CLASS: Record<ToastVariant, string> = {
+  error: 'bg-error',
+  success: 'bg-success',
+  neutral: 'bg-neutral-500',
+};
 
 function ToastItem({ id, variant, message }: ToastItemType) {
   const dismiss = useToastStore((state) => state.dismiss);
@@ -18,13 +27,7 @@ function ToastItem({ id, variant, message }: ToastItemType) {
   }, [id, dismiss]);
 
   return (
-    <View
-      className={
-        variant === 'error'
-          ? 'mb-sm w-full max-w-[360px] rounded-md bg-error px-lg py-md'
-          : 'mb-sm w-full max-w-[360px] rounded-md bg-success px-lg py-md'
-      }
-    >
+    <View className={`${BASE_CLASS} ${VARIANT_CLASS[variant]}`}>
       <Text className="text-on-brand">{message}</Text>
     </View>
   );
