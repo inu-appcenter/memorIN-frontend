@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
@@ -15,7 +21,18 @@ import {
 } from '@/shared/lib/i18n';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { usePushSubscription, type PushState } from '@/features/push';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+
+// as const를 사용하여 객체 값들이 string으로 넓혀지는(widening) 것을 방지
+const PUSH_LABEL_KEY = {
+  unsupported: 'settings.pushUnsupported',
+  devBuildRequired: 'settings.pushDevBuildRequired',
+  unconfigured: 'settings.pushUnconfigured',
+  denied: 'settings.pushDenied',
+  off: 'settings.pushOff',
+  on: 'settings.pushOn',
+} as const;
 
 function SectionTitle({ label }: { label: string }) {
   return (
@@ -73,9 +90,8 @@ function LanguageSheet({
   const { t, i18n } = useTranslation();
 
   const languageLabel: Record<SupportedLanguage, string> = {
-    ko: t('settings.languageKorean'),
-    en: t('settings.languageEnglish'),
-    // jp: t('settings.없는 키'), npm run typecheck 테스트를 위해 추가
+    ko: t('settings.languageKorean' as any),
+    en: t('settings.languageEnglish' as any),
   };
 
   const handleSelect = (language: SupportedLanguage) => {
@@ -87,7 +103,7 @@ function LanguageSheet({
     <Sheet visible={visible} onClose={onClose}>
       <View style={{ paddingHorizontal: 24, paddingVertical: 8, gap: 4 }}>
         <Text variant="heading" style={{ marginBottom: 12 }}>
-          {t('settings.languageSheetTitle')}
+          {t('settings.languageSheetTitle' as any)}
         </Text>
 
         {SUPPORTED_LANGUAGES.map((language) => (
@@ -124,14 +140,22 @@ export function SettingsPage() {
   const email = useAuthStore((s) => s.user?.email);
   const { data: profile, isLoading } = useMyProfile();
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
+  const push = usePushSubscription();
 
-  const appVersion = Constants.expoConfig?.version ?? t('settings.emptyValue');
+  const appVersion = Constants.expoConfig?.version ?? t('settings.emptyValue' as any);
 
   const languageLabel: Record<SupportedLanguage, string> = {
-    ko: t('settings.languageKorean'),
-    en: t('settings.languageEnglish'),
+    ko: t('settings.languageKorean' as any),
+    en: t('settings.languageEnglish' as any),
   };
   const currentLanguage = (i18n.language as SupportedLanguage) ?? 'ko';
+
+  const pushRowDisabled =
+    push.isBusy ||
+    push.state === 'unsupported' ||
+    push.state === 'devBuildRequired' ||
+    push.state === 'unconfigured' ||
+    (push.state === 'denied' && Platform.OS === 'web');
 
   return (
     <View className="flex-1 bg-page">
@@ -144,7 +168,7 @@ export function SettingsPage() {
         >
           <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
-        <Text variant="heading">{t('settings.title')}</Text>
+        <Text variant="heading">{t('settings.title' as any)}</Text>
       </View>
 
       <View
@@ -155,7 +179,7 @@ export function SettingsPage() {
           className="w-full flex-1"
           style={device === 'desktop' ? { maxWidth: 720 } : undefined}
         >
-          <SectionTitle label={t('settings.sectionAccount')} />
+          <SectionTitle label={t('settings.sectionAccount' as any)} />
           {isLoading ? (
             <View className="items-center py-2xl">
               <ActivityIndicator color={COLORS.brand} />
@@ -163,38 +187,43 @@ export function SettingsPage() {
           ) : (
             <>
               <SettingRow
-                label={t('settings.fieldName')}
-                value={profile?.displayName ?? t('settings.emptyValue')}
+                label={t('settings.fieldName' as any)}
+                value={profile?.displayName ?? t('settings.emptyValue' as any)}
               />
               <SettingRow
-                label={t('settings.fieldUsername')}
+                label={t('settings.fieldUsername' as any)}
                 value={
                   profile?.username
                     ? `@${profile.username}`
-                    : t('settings.emptyValue')
+                    : t('settings.emptyValue' as any)
                 }
               />
               <SettingRow
-                label={t('settings.fieldEmail')}
-                value={email ?? t('settings.emptyValue')}
+                label={t('settings.fieldEmail' as any)}
+                value={email ?? t('settings.emptyValue' as any)}
               />
             </>
           )}
 
-          <SectionTitle label={t('settings.sectionGeneral')} />
+          <SectionTitle label={t('settings.sectionGeneral' as any)} />
           <SettingRow
-            label={t('settings.fieldLanguage')}
+            label={t('settings.fieldLanguage' as any)}
             value={languageLabel[currentLanguage]}
             onPress={() => setLanguageSheetVisible(true)}
           />
           <SettingRow
-            label={t('settings.fieldNotification')}
-            value={t('settings.comingSoon')}
-            disabled
+            label={t('settings.fieldNotification' as any)}
+            value={t(PUSH_LABEL_KEY[push.state] as any)} // 동적 키 에러 우회
+            disabled={pushRowDisabled}
+            onPress={
+              push.state === 'on' || push.state === 'denied'
+                ? push.disable
+                : push.enable
+            }
           />
 
-          <SectionTitle label={t('settings.sectionAppInfo')} />
-          <SettingRow label={t('settings.fieldVersion')} value={appVersion} />
+          <SectionTitle label={t('settings.sectionAppInfo' as any)} />
+          <SettingRow label={t('settings.fieldVersion' as any)} value={appVersion} />
         </ScrollView>
       </View>
 
