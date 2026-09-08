@@ -49,3 +49,5 @@ AGENTS.md
 .env
 .env.*
 !.env.example
+
+google-services.json

@@ -26,7 +26,9 @@
     "commentUpdate": "댓글을 수정하지 못했습니다",
     "commentDelete": "댓글을 삭제하지 못했습니다",
     "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다",
-    "followReject": "팔로우 요청을 거절하지 못했습니다"
+    "followReject": "팔로우 요청을 거절하지 못했습니다",
+    "pushRegister": "알림을 켜지 못했어요",
+    "pushUnregister": "알림을 끄지 못했어요"
   },
   "post": {
     "timeslotAm": "오전",
@@ -103,7 +105,15 @@
     "comingSoon": "준비 중",
     "sectionAppInfo": "앱 정보",
     "fieldVersion": "버전",
-    "emptyValue": "-"
+    "emptyValue": "-",
+    "pushUnsupported": "이 기기에서 지원 안 함",
+    "pushDevBuildRequired": "개발 빌드에서만 사용 가능",
+    "pushUnconfigured": "설정 필요",
+    "pushDenied": "차단됨",
+    "pushOff": "꺼짐",
+    "pushOn": "켜짐",
+    "pushEnabled": "알림을 켰어요",
+    "pushDisabled": "알림을 껐어요"
   },
   "auth": {
     "signInFailed": "로그인 실패",

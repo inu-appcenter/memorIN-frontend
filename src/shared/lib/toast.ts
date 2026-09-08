@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
-export type ToastVariant = 'error' | 'success';
+// neutral은 "성공했지만 축하할 일은 아닌" 알림용이다.
+// 알림 끄기처럼 사용자가 기능을 비활성화한 경우 녹색은 의미가 어긋난다.
+export type ToastVariant = 'error' | 'success' | 'neutral';
 
 export interface ToastItem {
   id: number;
@@ -37,4 +39,6 @@ export const toast = {
   error: (message: string) => useToastStore.getState().push('error', message),
   success: (message: string) =>
     useToastStore.getState().push('success', message),
+  neutral: (message: string) =>
+    useToastStore.getState().push('neutral', message),
 };
