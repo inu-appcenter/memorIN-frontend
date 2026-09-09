@@ -91,14 +91,22 @@ input::-webkit-strong-password-auto-fill-button {
     --chart-5: #d03b3b;
 
     /* 임시: 다크 서페이스(스토리 뷰어 오버레이, 댓글 패널 dark variant 등
-       어두운 배경 위에서 쓰는 색) 토큰. 앱 전체 다크모드가 아니라
-       컴포넌트 단위 "어두운 배경 위" 상태용. 정식 다크 테마 확정 전까지
-       임시로 사용하고, 확정되면 정식 토큰으로 교체할 것. */
+      어두운 배경 위에서 쓰는 색) 토큰. 앱 전체 다크모드가 아니라
+      컴포넌트 단위 "어두운 배경 위" 상태용. 정식 다크 테마 확정 전까지
+      임시로 사용하고, 확정되면 정식 토큰으로 교체할 것. */
     --surface-dark-bg: #22252b; /* neutral/800 */
+    --surface-dark-overlay: rgba(34, 37, 43, 0.6);
     --surface-dark-border: rgba(255, 255, 255, 0.15);
     --surface-dark-text-primary: #ffffff;
     --surface-dark-text-secondary: rgba(255, 255, 255, 0.7);
     --surface-dark-text-muted: rgba(255, 255, 255, 0.5);
     --surface-dark-avatar-bg: rgba(255, 255, 255, 0.15);
+  }
+  /* Pressable 안의 Text가 웹에서 드래그 선택되는 것을 막는다.
+   입력 요소는 선택이 필요하므로 제외한다. */
+  [role='button'],
+  [role='button'] * {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }

@@ -1,5 +1,5 @@
 import i18next from '@/shared/lib/i18n';
-import type { TimeslotType } from '../api/postsApi';
+import type { TagType, TimeslotType } from '../api/postsApi';
 
 // posts.content는 JSONB 원문(블록 배열 문자열)로 내려온다.
 // 아직 블록 스펙(텍스트/이미지/링크 혼합)이 확정 전이라, 이번 증분에서는
@@ -26,6 +26,87 @@ export function getTimeslotLabel(timeslot: TimeslotType | null): string | null {
   if (timeslot === 'AM') return i18next.t('post.timeslotAm');
   if (timeslot === 'PM') return i18next.t('post.timeslotPm');
   return null;
+}
+
+// 카드 배지는 "오전"이 아니라 "오전 기록"으로 읽힌다.
+export function getTimeslotBadgeLabel(
+  timeslot: TimeslotType | null
+): string | null {
+  if (timeslot === 'AM') return i18next.t('post.timeslotAmBadge');
+  if (timeslot === 'PM') return i18next.t('post.timeslotPmBadge');
+  return null;
+}
+
+const TAG_LABEL_KEY: Record<TagType, string> = {
+  STUDY: 'tag.study',
+  GAME: 'tag.game',
+  ANIMAL: 'tag.animal',
+  TRAVEL: 'tag.travel',
+  EXERCISE: 'tag.exercise',
+  FOOD: 'tag.food',
+  MUSIC: 'tag.music',
+  DAILY: 'tag.daily',
+  HOBBY: 'tag.hobby',
+  ETC: 'tag.etc',
+};
+
+export function getTagLabel(tag: TagType): string {
+  return i18next.t(TAG_LABEL_KEY[tag] as any);
+}
+
+// postId는 UUIDv7이라 앞 48비트가 생성 시각(밀리초)이다.
+// recordedDate가 LocalDate로 내려와 시각 정보가 없어서, 작성 시각은 여기서 얻는다.
+export function getPostCreatedAt(postId: string): Date | null {
+  const hex = postId.replace(/-/g, '').slice(0, 12);
+  if (hex.length < 12) return null;
+
+  const ms = Number.parseInt(hex, 16);
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+
+  return new Date(ms);
+}
+
+function startOfDay(date: Date): number {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  ).getTime();
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function formatDay(recordedDate: string): string {
+  const [year, month, day] = recordedDate.split('-').map(Number);
+  if (!year || !month || !day) return recordedDate;
+
+  const target = new Date(year, month - 1, day);
+  const diffDays = Math.round(
+    (startOfDay(target) - startOfDay(new Date())) / MS_PER_DAY
+  );
+
+  if (diffDays === 0) return i18next.t('post.dayToday');
+  if (diffDays === -1) return i18next.t('post.dayYesterday');
+
+  return new Intl.DateTimeFormat(i18next.language, {
+    month: 'long',
+    day: 'numeric',
+  }).format(target);
+}
+
+function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat(i18next.language, {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
+
+// 카드 헤더의 "오늘 오전 8:24".
+// 날짜는 사용자가 고른 기록 날짜(recordedDate), 시각은 작성 시각(postId)에서 온다.
+export function formatPostMeta(postId: string, recordedDate: string): string {
+  const createdAt = getPostCreatedAt(postId);
+  const day = formatDay(recordedDate);
+  return createdAt ? `${day} ${formatTime(createdAt)}` : day;
 }
 
 export function formatRecordedLabel(

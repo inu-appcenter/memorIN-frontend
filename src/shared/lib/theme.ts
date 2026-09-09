@@ -22,6 +22,7 @@ export const COLORS = {
 
   // 임시: 정식 다크 테마 확정 전까지 임시로 사용
   surfaceDarkBg: '#22252B',
+  surfaceDarkOverlay: 'rgba(34, 37, 43, 0.6)',
   surfaceDarkBorder: 'rgba(255,255,255,0.15)',
   surfaceDarkTextPrimary: '#FFFFFF',
   surfaceDarkTextSecondary: 'rgba(255,255,255,0.7)',

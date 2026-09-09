@@ -33,12 +33,28 @@
   "post": {
     "timeslotAm": "오전",
     "timeslotPm": "오후",
+    "timeslotAmBadge": "오전 기록",
+    "timeslotPmBadge": "오후 기록",
+    "dayToday": "오늘",
+    "dayYesterday": "어제",
     "emptyContent": "내용 없음",
     "deleteTitle": "게시물 삭제",
     "deleteConfirm": "이 게시물을 삭제할까요?",
     "deleteFailTitle": "삭제 실패",
     "deleteFailMessage": "삭제 실패: {{message}}",
     "playVideo": "재생"
+  },
+  "tag": {
+    "study": "공부",
+    "game": "게임",
+    "animal": "동물",
+    "travel": "여행",
+    "exercise": "운동",
+    "food": "음식",
+    "music": "음악",
+    "daily": "일상",
+    "hobby": "취미",
+    "etc": "기타"
   },
   "action": {
     "cancel": "취소",

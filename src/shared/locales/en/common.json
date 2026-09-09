@@ -33,12 +33,28 @@
   "post": {
     "timeslotAm": "AM",
     "timeslotPm": "PM",
+    "timeslotAmBadge": "Morning record",
+    "timeslotPmBadge": "Afternoon record",
+    "dayToday": "Today",
+    "dayYesterday": "Yesterday",
     "emptyContent": "No content",
     "deleteTitle": "Delete post",
     "deleteConfirm": "Delete this post?",
     "deleteFailTitle": "Delete failed",
     "deleteFailMessage": "Delete failed: {{message}}",
     "playVideo": "Play"
+  },
+  "tag": {
+    "study": "Study",
+    "game": "Game",
+    "animal": "Animal",
+    "travel": "Travel",
+    "exercise": "Exercise",
+    "food": "Food",
+    "music": "Music",
+    "daily": "Daily",
+    "hobby": "Hobby",
+    "etc": "Etc"
   },
   "action": {
     "cancel": "Cancel",

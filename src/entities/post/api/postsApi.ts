@@ -4,6 +4,18 @@ import i18next from '@/shared/lib/i18n';
 export type VisibilityType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 export type TimeslotType = 'AM' | 'PM';
 
+export type TagType =
+  | 'STUDY'
+  | 'GAME'
+  | 'ANIMAL'
+  | 'TRAVEL'
+  | 'EXERCISE'
+  | 'FOOD'
+  | 'MUSIC'
+  | 'DAILY'
+  | 'HOBBY'
+  | 'ETC';
+
 export interface PostMedia {
   objectKey: string;
   url: string | null;
@@ -22,6 +34,8 @@ export interface PostSummary {
   recordedDate: string;
   viewCount: number;
   attachments: PostMedia[];
+  // 백엔드 PostSummaryResponse는 요청 필드명(tags)과 달리 tagTypes로 내려준다.
+  tagTypes: TagType[];
 }
 
 export interface FeedPage {

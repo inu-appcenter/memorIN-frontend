@@ -1,11 +1,12 @@
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Text } from '@/shared/ui/text';
 import { Alert, Image, Platform, Pressable, View } from 'react-native';
-import type { PostSummary } from '../api/postsApi';
+import type { PostMedia, PostSummary } from '../api/postsApi';
 import {
   extractPreviewText,
-  formatRecordedLabel,
-  getTimeslotLabel,
+  formatPostMeta,
+  getTagLabel,
+  getTimeslotBadgeLabel,
 } from '../model/postContent';
 import { useDeletePost } from '../model/useDeletePost';
 import { useCommentThread } from '../model/useComments';
@@ -22,8 +23,62 @@ import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
 import UploadIcon from '@/shared/assets/icons/upload.svg';
+import DayIcon from '@/shared/assets/icons/day.svg';
+import NightIcon from '@/shared/assets/icons/night.svg';
 import { PostShareSheet } from '@/features/post-share';
 import { useTranslation } from 'react-i18next';
+
+const FIXED_MEDIA_HEIGHT_PX = 360;
+
+// 폰에서 원본 비율을 쓰되 이 범위를 벗어나면 잘라낸다.
+const MIN_MEDIA_ASPECT_RATIO = 3 / 4;
+const MAX_MEDIA_ASPECT_RATIO = 16 / 9;
+
+function resolveMediaAspectRatio(media: PostMedia | undefined): number | null {
+  if (!media?.width || !media?.height) return null;
+
+  const ratio = media.width / media.height;
+  if (!Number.isFinite(ratio) || ratio <= 0) return null;
+
+  return Math.min(
+    Math.max(ratio, MIN_MEDIA_ASPECT_RATIO),
+    MAX_MEDIA_ASPECT_RATIO
+  );
+}
+
+function TimeslotBadge({
+  timeslot,
+  overlay,
+}: {
+  timeslot: PostSummary['timeslot'];
+  overlay: boolean;
+}) {
+  const label = getTimeslotBadgeLabel(timeslot);
+  if (!label) return null;
+
+  const Icon = timeslot === 'PM' ? NightIcon : DayIcon;
+
+  return (
+    <View
+      className="flex-row items-center gap-xs self-start rounded-full px-md py-xs"
+      style={{
+        backgroundColor: overlay ? COLORS.surfaceDarkOverlay : COLORS.bgSubtle,
+      }}
+    >
+      <Icon
+        width={12}
+        height={12}
+        color={overlay ? COLORS.surfaceDarkTextPrimary : COLORS.textSecondary}
+      />
+      <Text
+        variant="label"
+        className={overlay ? 'text-on-brand' : 'text-secondary'}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
 
 interface PostCardProps {
   post: PostSummary;
@@ -45,6 +100,8 @@ function PostCardComponent({
   onCloseComments,
 }: PostCardProps) {
   const { device } = useBreakpoints();
+  const { t } = useTranslation();
+
   const previewText = extractPreviewText(post.content);
   const coverAttachment = post.attachments[0];
   const coverUrl = coverAttachment
@@ -52,7 +109,16 @@ function PostCardComponent({
     : undefined;
   const isVideoCover =
     coverAttachment?.contentType.startsWith('video/') ?? false;
-  const timeslotLabel = getTimeslotLabel(post.timeslot);
+
+  // PostVideoCover가 memo라서 매 렌더마다 새 객체를 넘기면 memo가 무의미해진다.
+  const mediaStyle = useMemo(() => {
+    const aspectRatio =
+      device === 'phone' ? resolveMediaAspectRatio(coverAttachment) : null;
+
+    return aspectRatio
+      ? { width: '100%' as const, aspectRatio }
+      : { width: '100%' as const, height: FIXED_MEDIA_HEIGHT_PX };
+  }, [device, coverAttachment]);
 
   const { data: authorProfile } = useUserProfileQuery(post.authorId);
   const authorLabel = authorProfile?.displayName ?? post.authorId.slice(0, 8);
@@ -72,6 +138,7 @@ function PostCardComponent({
   const commentCount = comments?.length ?? 0;
 
   const showCommentsSheet = isCommentsActive && device !== 'desktop';
+  const tags = post.tagTypes ?? [];
 
   const runDelete = () => {
     deletePost.mutate(post.postId, {
@@ -103,62 +170,76 @@ function PostCardComponent({
   const handlePressComments = () => {
     onOpenComments?.(post.postId);
   };
-  const { t } = useTranslation();
 
   return (
     <>
       <View className="mb-lg overflow-hidden rounded-lg border border-border bg-page">
-        <View className="gap-sm p-lg">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-md">
-              <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
-              <View>
-                <Text className="font-bold">{authorLabel}</Text>
-                <Text className="text-muted">
-                  {formatRecordedLabel(post.recordedDate, post.timeslot)}
-                </Text>
-              </View>
+        <View className="flex-row items-center justify-between p-lg">
+          <View className="flex-row items-center gap-md">
+            <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
+            <View className="gap-xs">
+              <Text className="font-bold">{authorLabel}</Text>
+              <Text variant="label" className="text-muted">
+                {formatPostMeta(post.postId, post.recordedDate)}
+              </Text>
             </View>
-            {isOwnPost && (
-              <Pressable
-                onPress={handlePressMenu}
-                disabled={deletePost.isPending}
-                hitSlop={8}
-              >
-                <Text className="text-tertiary">•••</Text>
-              </Pressable>
-            )}
           </View>
-          {timeslotLabel && (
-            <View className="self-start rounded-full bg-accent-subtle px-sm py-xs">
-              <Text className="text-accent-text">{timeslotLabel}</Text>
-            </View>
+          {isOwnPost && (
+            <Pressable
+              onPress={handlePressMenu}
+              disabled={deletePost.isPending}
+              hitSlop={8}
+            >
+              <Text className="text-tertiary">•••</Text>
+            </Pressable>
           )}
         </View>
-        {coverUrl && isVideoCover ? (
-          <PostVideoCover
-            uri={coverUrl}
-            isVisible={isVisible}
-            showPlayPauseToggle
-          />
-        ) : coverUrl ? (
-          <Image
-            source={{ uri: coverUrl }}
-            className="h-[360px] w-full bg-surface"
-            resizeMode="cover"
-          />
-        ) : (
-          <View className="h-[360px] items-center justify-center border-y border-dashed border-border bg-surface">
-            <Text className="text-tertiary">IMG</Text>
+
+        {coverUrl ? (
+          <View className="relative w-full">
+            {isVideoCover ? (
+              <PostVideoCover
+                uri={coverUrl}
+                isVisible={isVisible}
+                showPlayPauseToggle
+                style={mediaStyle}
+              />
+            ) : (
+              <Image
+                source={{ uri: coverUrl }}
+                className="bg-surface"
+                style={mediaStyle}
+                resizeMode="cover"
+              />
+            )}
+            <View className="absolute left-md top-md">
+              <TimeslotBadge timeslot={post.timeslot} overlay />
+            </View>
           </View>
-        )}
+        ) : null}
+
         <View className="gap-md p-lg">
+          {!coverUrl && (
+            <TimeslotBadge timeslot={post.timeslot} overlay={false} />
+          )}
+
           {previewText ? (
             <Text className="text-secondary">{previewText}</Text>
           ) : (
             <Text className="text-tertiary">{t('post.emptyContent')}</Text>
           )}
-          <View className="flex-row items-center gap-xl">
+
+          {tags.length > 0 && (
+            <View className="flex-row flex-wrap gap-md">
+              {tags.map((tag) => (
+                <Text key={tag} className="text-link">
+                  #{getTagLabel(tag)}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          <View className="flex-row items-center gap-lg">
             <Pressable
               onPress={toggleLike}
               hitSlop={8}

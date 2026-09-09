@@ -14,7 +14,6 @@ import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { cn } from '@/shared/lib/utils';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
-import { StoryRail } from '@/widgets/storyRail';
 import {
   PostCard,
   useFeedQuery,
@@ -23,8 +22,6 @@ import {
   type PostSummary,
 } from '@/entities/post';
 import { RightPanel, FeedCommentPanel } from '@/widgets/feedRightPanel';
-import { showNotReady } from '@/shared/lib/showNotReady';
-import SearchIcon from '@/shared/assets/icons/search.svg';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 
 // 이만큼 내려가면 최상단 이동 버튼을 띄운다
@@ -36,21 +33,19 @@ function FeedTab({
   label,
   active,
   onPress,
-  device,
 }: {
   label: string;
   active: boolean;
   onPress: () => void;
-  device: 'desktop' | 'tablet' | 'phone';
 }) {
-  const isDividerUnderline = device !== 'tablet';
-
   return (
-    <Pressable className="flex-1 items-center justify-center" onPress={onPress}>
+    <Pressable
+      className="h-full flex-1 items-center justify-end"
+      onPress={onPress}
+    >
       <View
         className={cn(
-          'items-center',
-          isDividerUnderline ? 'h-full justify-end pb-md' : 'self-center pb-xs',
+          'items-center pb-md',
           active && 'border-b-2 border-brand'
         )}
       >
@@ -224,20 +219,12 @@ export function FeedPage() {
         {device !== 'desktop' && (
           <View className="flex-row items-center justify-between px-lg py-md">
             <Text variant="heading">{t('feed.title')}</Text>
-            <View className="flex-row items-center gap-lg">
-              <Pressable onPress={() => router.navigate('/search')} hitSlop={8}>
-                <SearchIcon width={22} height={22} />
-              </Pressable>
-              <Pressable onPress={showNotReady} hitSlop={8}>
-                <BellIcon width={20} height={22} />
-              </Pressable>
-              <Pressable
-                onPress={() => router.navigate('/profile')}
-                hitSlop={8}
-              >
-                <View className="h-[34px] w-[34px] rounded-full border border-border bg-subtle" />
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={() => router.navigate('/notifications')}
+              hitSlop={8}
+            >
+              <BellIcon width={20} height={22} color={COLORS.brand} />
+            </Pressable>
           </View>
         )}
         <View className="h-[48px] flex-row border-b border-border">
@@ -245,16 +232,13 @@ export function FeedPage() {
             label={t('feed.tabRecommended')}
             active={!isFollowingTab}
             onPress={() => handleSelectTab('recommended')}
-            device={device}
           />
           <FeedTab
             label={t('feed.tabFollowing')}
             active={isFollowingTab}
             onPress={() => handleSelectTab('following')}
-            device={device}
           />
         </View>
-        <StoryRail />
         <View className="flex-1">
           <FlashList
             key={activeTab}
