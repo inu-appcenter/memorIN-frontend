@@ -28,7 +28,9 @@
     "monthPostsLoad": "Couldn't load this month's records",
     "followReject": "Couldn't decline the follow request",
     "pushRegister": "Couldn't enable notifications",
-    "pushUnregister": "Couldn't disable notifications"
+    "pushUnregister": "Couldn't disable notifications",
+    "notificationsLoad": "Could not load notifications.",
+    "notificationRead": "Could not mark the notification as read."
   },
   "post": {
     "timeslotAm": "AM",
@@ -332,5 +334,21 @@
   "sharedPost": {
     "viewRecord": "View record ›",
     "meta": "{{name}} · {{month}}/{{day}}"
+  },
+  "notification": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "groupToday": "Today",
+    "groupYesterday": "Yesterday",
+    "groupWeek": "Last 7 days",
+    "groupEarlier": "Earlier",
+    "followRequest": " requested to follow you.",
+    "followAccepted": " accepted your follow request.",
+    "comment": " commented on your record.",
+    "like": " liked your record.",
+    "timeJustNow": "just now",
+    "timeMinutesAgo": "{{count}}m ago",
+    "timeHoursAgo": "{{count}}h ago",
+    "timeDaysAgo": "{{count}}d ago"
   }
 }

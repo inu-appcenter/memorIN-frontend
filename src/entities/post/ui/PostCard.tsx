@@ -22,7 +22,7 @@ import { COLORS } from '@/shared/lib/theme';
 import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
-import UploadIcon from '@/shared/assets/icons/upload.svg';
+import ShareIcon from '@/shared/assets/icons/share.svg';
 import DayIcon from '@/shared/assets/icons/day.svg';
 import NightIcon from '@/shared/assets/icons/night.svg';
 import { PostShareSheet } from '@/features/post-share';
@@ -261,7 +261,7 @@ function PostCardComponent({
               <Text className="text-tertiary">{commentCount}</Text>
             </Pressable>
             <Pressable onPress={() => setShareVisible(true)} hitSlop={8}>
-              <UploadIcon width={20} height={20} color={COLORS.tertiary} />
+              <ShareIcon width={20} height={20} />
             </Pressable>
           </View>
         </View>

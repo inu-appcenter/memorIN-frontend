@@ -28,7 +28,9 @@
     "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다",
     "followReject": "팔로우 요청을 거절하지 못했습니다",
     "pushRegister": "알림을 켜지 못했어요",
-    "pushUnregister": "알림을 끄지 못했어요"
+    "pushUnregister": "알림을 끄지 못했어요",
+    "notificationsLoad": "알림을 불러오지 못했어요.",
+    "notificationRead": "알림 읽음 처리에 실패했어요."
   },
   "post": {
     "timeslotAm": "오전",
@@ -332,5 +334,21 @@
   "sharedPost": {
     "viewRecord": "기록 보기 ›",
     "meta": "{{name}} · {{month}}월 {{day}}일"
+  },
+  "notification": {
+    "title": "알림",
+    "empty": "아직 받은 알림이 없어요.",
+    "groupToday": "오늘",
+    "groupYesterday": "어제",
+    "groupWeek": "최근 7일",
+    "groupEarlier": "그 이전",
+    "followRequest": "님이 팔로우를 요청했어요.",
+    "followAccepted": "님이 팔로우를 승인했어요.",
+    "comment": "님이 회원님의 기록에 댓글을 남겼어요.",
+    "like": "님이 회원님의 기록을 좋아해요.",
+    "timeJustNow": "방금",
+    "timeMinutesAgo": "{{count}}분 전",
+    "timeHoursAgo": "{{count}}시간 전",
+    "timeDaysAgo": "{{count}}일 전"
   }
 }
