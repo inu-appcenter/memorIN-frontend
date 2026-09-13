@@ -16,6 +16,7 @@ export type TagType =
   | 'HOBBY'
   | 'ETC';
 
+export type PostSortType = 'LATEST' | 'VIEW_COUNT_DESC' | 'ACCURACY_DESC';
 export interface PostMedia {
   objectKey: string;
   url: string | null;
@@ -146,8 +147,9 @@ export interface CreatePostParams {
   timeslotType: TimeslotType;
   recordedDate?: string;
   attachments?: CreatePostAttachment[];
+  // 요청은 tags, 응답(PostSummaryResponse)은 tagTypes로 이름이 다른 상태
+  tags?: TagType[];
 }
-
 export interface CreatePostResponse {
   postId: string;
   authorId: string;
@@ -199,6 +201,36 @@ export interface UpdatePostParams {
   attachments?: CreatePostAttachment[];
 }
 
+export interface SearchPostsParams {
+  keyword?: string;
+  tags?: TagType[];
+  timeslot?: TimeslotType;
+  sort?: PostSortType;
+  cursor?: string;
+  size?: number;
+}
+
+// GET /api/posts/search — 인증 필요.
+//
+// 이 엔드포인트만 ApiResponse 봉투 없이 PostListResponse를 그대로 반환한다.
+export async function searchPosts(
+  params: SearchPostsParams = {}
+): Promise<FeedPage> {
+  const { data } = await client.get<FeedPage>('/api/posts/search', {
+    params: {
+      keyword: params.keyword,
+      tags: params.tags?.length ? params.tags : undefined,
+      timeslot: params.timeslot,
+      sort: params.sort,
+      cursor: params.cursor,
+      size: params.size,
+    },
+    // axios 기본값은 tags[]=STUDY라 인덱스 표기를 끈다.
+    paramsSerializer: { indexes: null },
+  });
+
+  return data;
+}
 // PATCH /api/posts/{postId} — 인증 필요, 작성자만 가능
 export async function updatePost(
   postId: string,

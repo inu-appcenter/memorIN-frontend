@@ -5,7 +5,13 @@ export { useFeedQuery } from './model/useFeedQuery';
 export { useFriendFeedQuery } from './model/useFriendFeedQuery';
 export { useRecommendedFeedQuery } from './model/useRecommendedFeedQuery';
 export { useUserFeedQuery } from './model/useUserFeedQuery';
-export { createPost } from './api/postsApi';
+export {
+  useSearchPostsQuery,
+  canSortByAccuracy,
+  DEFAULT_POST_SEARCH_FILTERS,
+  type PostSearchFilters,
+} from './model/useSearchPostsQuery';
+export { createPost, searchPosts } from './api/postsApi';
 export { resolveMediaUrl } from './lib/resolveMediaUrl';
 export { CommentThread } from './ui/CommentThread';
 export type {
@@ -14,6 +20,9 @@ export type {
   PostMedia,
   VisibilityType,
   TimeslotType,
+  TagType,
+  PostSortType,
+  SearchPostsParams,
   CreatePostParams,
   CreatePostAttachment,
 } from './api/postsApi';

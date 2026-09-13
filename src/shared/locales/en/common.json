@@ -173,7 +173,9 @@
     "visibilityPublic": "Everyone",
     "visibilityFriends": "Friends",
     "visibilityPrivate": "Only me",
-    "visibilityPrivateCompact": "Me"
+    "visibilityPrivateCompact": "Me",
+    "tagSectionTitle": "Tags",
+    "tagSectionMax": "up to {{max}}"
   },
   "postEdit": {
     "title": "Edit post",
@@ -276,7 +278,13 @@
     "done": "Done",
     "assetCount": "{{count}} files · auto-compressed",
     "hintPrivate": "· Comments and reactions are off for private posts",
-    "hintCompress": "· Photos and videos are compressed automatically on upload"
+    "hintCompress": "· Photos and videos are compressed automatically on upload",
+    "addMedia": "Add",
+    "changeMedia": "Change",
+    "discardTitle": "Discard this record?",
+    "discardMessage": "The selected photo and text will be lost.",
+    "discardCancel": "Keep writing",
+    "discardConfirm": "Discard"
   },
   "feed": {
     "title": "Feed",
@@ -303,7 +311,18 @@
   "searchPage": {
     "placeholder": "Search by username or name",
     "emptyFeed": "Nothing to show yet{{newline}}Try following someone",
-    "emptyResult": "No results for ‘{{keyword}}’"
+    "emptyResult": "No results for ‘{{keyword}}’",
+    "filterTitle": "Filters",
+    "filterTimeslot": "Time of day",
+    "filterReset": "Reset",
+    "filterApply": "Apply",
+    "sortAccuracy": "Relevance",
+    "sortLatest": "Newest",
+    "sortPopular": "Popular",
+    "recentTitle": "Recent searches",
+    "resultTitle": "Results for '{{keyword}}'",
+    "postPlaceholder": "Search records",
+    "emptyPostResult": "No records match '{{keyword}}'"
   },
   "socialPage": {
     "title": "Manage friends",

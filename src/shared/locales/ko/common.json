@@ -173,7 +173,9 @@
     "visibilityPublic": "전체",
     "visibilityFriends": "친구",
     "visibilityPrivate": "나만 보기",
-    "visibilityPrivateCompact": "나만"
+    "visibilityPrivateCompact": "나만",
+    "tagSectionTitle": "태그",
+    "tagSectionMax": "최대 {{max}}개"
   },
   "postEdit": {
     "title": "게시물 수정",
@@ -276,7 +278,13 @@
     "done": "완료",
     "assetCount": "{{count}}장 · 자동 압축됨",
     "hintPrivate": "· 나만 보기로 설정하면 댓글・반응이 꺼져요",
-    "hintCompress": "· 업로드 시 이미지・영상이 자동으로 압축돼요"
+    "hintCompress": "· 업로드 시 이미지・영상이 자동으로 압축돼요",
+    "addMedia": "추가",
+    "changeMedia": "변경",
+    "discardTitle": "작성을 그만둘까요?",
+    "discardMessage": "고른 사진과 쓴 글이 사라집니다.",
+    "discardCancel": "계속 쓰기",
+    "discardConfirm": "나가기"
   },
   "feed": {
     "title": "피드",
@@ -303,7 +311,18 @@
   "searchPage": {
     "placeholder": "아이디 · 이름으로 검색",
     "emptyFeed": "아직 표시할 기록이 없어요{{newline}}친구를 팔로우해보세요",
-    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요"
+    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요",
+    "filterTitle": "필터",
+    "filterTimeslot": "시간대",
+    "filterReset": "초기화",
+    "filterApply": "적용하기",
+    "sortAccuracy": "정확도 순",
+    "sortLatest": "최신 순",
+    "sortPopular": "인기 순",
+    "recentTitle": "최근 검색",
+    "resultTitle": "'{{keyword}}' 결과",
+    "postPlaceholder": "기록·순간 검색",
+    "emptyPostResult": "'{{keyword}}'와(과) 일치하는 기록이 없어요"
   },
   "socialPage": {
     "title": "친구 관리",

@@ -37,7 +37,9 @@ export function getTimeslotBadgeLabel(
   return null;
 }
 
-const TAG_LABEL_KEY: Record<TagType, string> = {
+// 컴포넌트에서는 이 맵을 useTranslation의 t와 함께 쓴다. 아래 getTagLabel처럼
+// i18next.t를 직접 부르면 언어를 바꿔도 다시 렌더되지 않는다.
+export const TAG_LABEL_KEY = {
   STUDY: 'tag.study',
   GAME: 'tag.game',
   ANIMAL: 'tag.animal',
@@ -48,14 +50,13 @@ const TAG_LABEL_KEY: Record<TagType, string> = {
   DAILY: 'tag.daily',
   HOBBY: 'tag.hobby',
   ETC: 'tag.etc',
-};
+} as const satisfies Record<TagType, string>;
 
 export function getTagLabel(tag: TagType): string {
-  return i18next.t(TAG_LABEL_KEY[tag] as any);
+  return i18next.t(TAG_LABEL_KEY[tag]);
 }
 
-// postId는 UUIDv7이라 앞 48비트가 생성 시각(밀리초)이다.
-// recordedDate가 LocalDate로 내려와 시각 정보가 없어서, 작성 시각은 여기서 얻는다.
+// postId는 UUIDv7이라 앞 48비트가 생성 시각이다.
 export function getPostCreatedAt(postId: string): Date | null {
   const hex = postId.replace(/-/g, '').slice(0, 12);
   if (hex.length < 12) return null;
@@ -101,8 +102,6 @@ function formatTime(date: Date): string {
   }).format(date);
 }
 
-// 카드 헤더의 "오늘 오전 8:24".
-// 날짜는 사용자가 고른 기록 날짜(recordedDate), 시각은 작성 시각(postId)에서 온다.
 export function formatPostMeta(postId: string, recordedDate: string): string {
   const createdAt = getPostCreatedAt(postId);
   const day = formatDay(recordedDate);
