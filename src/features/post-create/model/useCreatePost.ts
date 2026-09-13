@@ -3,6 +3,7 @@ import { uploadMedia, type PickedMediaAsset } from '@/features/media-upload';
 import {
   createPost,
   type CreatePostAttachment,
+  type TagType,
   type TimeslotType,
   type VisibilityType,
 } from '@/entities/post';
@@ -13,6 +14,7 @@ export interface CreatePostInput {
   timeslotType: TimeslotType;
   recordedDate?: string;
   assets: PickedMediaAsset[];
+  tags?: TagType[];
 }
 
 export function useCreatePost() {
@@ -39,6 +41,7 @@ export function useCreatePost() {
         timeslotType: input.timeslotType,
         recordedDate: input.recordedDate,
         attachments,
+        tags: input.tags,
       });
     },
     onSuccess: () => {
