@@ -12,7 +12,9 @@ export interface PickedMediaAsset {
   durationMs?: number | null;
 }
 
-const MAX_ATTACHMENTS = 10;
+// 게시물 하나에 미디어 하나다. 오전 기록과 오후 기록은 각각 별도 게시물이다.
+// 백엔드는 10개까지 허용하지만 화면 정책이 더 좁다.
+const MAX_ATTACHMENTS = 1;
 
 export function useMediaPicker() {
   const [assets, setAssets] = useState<PickedMediaAsset[]>([]);
@@ -28,8 +30,8 @@ export function useMediaPicker() {
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
-      allowsMultipleSelection: true,
-      selectionLimit: MAX_ATTACHMENTS - assets.length,
+      allowsMultipleSelection: MAX_ATTACHMENTS > 1,
+      selectionLimit: MAX_ATTACHMENTS,
       videoMaxDuration: MAX_VIDEO_DURATION_SEC, // 갤러리 선택에는 강제되지 않는 경우가 많은 참고용 힌트.
       // 실제 강제 검증은 compressMedia의 prepareVideo에서 한다.
       quality: 1,
@@ -43,7 +45,9 @@ export function useMediaPicker() {
       fileName: asset.fileName ?? undefined,
       durationMs: asset.duration ?? undefined,
     }));
-    setAssets((prev) => [...prev, ...picked].slice(0, MAX_ATTACHMENTS));
+
+    // 상한을 넘으면 나중에 고른 것을 남긴다. 1장 정책에서는 이 경로가 "변경"이 된다.
+    setAssets((prev) => [...prev, ...picked].slice(-MAX_ATTACHMENTS));
   };
 
   const removeAsset = (uri: string) => {
