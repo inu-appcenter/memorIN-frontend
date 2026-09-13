@@ -21,30 +21,30 @@ const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
 
 // 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커/PushProvider가 따로 처리하며,
 // 그쪽은 이 화면 자체를 목적지로 삼는다.
-const ROUTE_BY_TYPE: Record<NotificationType, string> = {
+const ROUTE_BY_TYPE = {
   FOLLOW_REQUEST: '/social',
   FOLLOW_ACCEPTED: '/social',
   COMMENT: '/feed',
   LIKE: '/feed',
-};
+} as const satisfies Record<NotificationType, string>;
 
-const SUFFIX_KEY_BY_TYPE: Record<NotificationType, string> = {
+const SUFFIX_KEY_BY_TYPE = {
   FOLLOW_REQUEST: 'notification.followRequest',
   FOLLOW_ACCEPTED: 'notification.followAccepted',
   COMMENT: 'notification.comment',
   LIKE: 'notification.like',
-} as const;
+} as const satisfies Record<NotificationType, string>;
 
 type GroupKey = 'today' | 'yesterday' | 'week' | 'earlier';
 
 const GROUP_ORDER: GroupKey[] = ['today', 'yesterday', 'week', 'earlier'];
 
-const GROUP_LABEL_KEY: Record<GroupKey, string> = {
+const GROUP_LABEL_KEY = {
   today: 'notification.groupToday',
   yesterday: 'notification.groupYesterday',
   week: 'notification.groupWeek',
   earlier: 'notification.groupEarlier',
-} as const;
+} as const satisfies Record<GroupKey, string>;
 
 type ListRow =
   | { kind: 'header'; key: string; group: GroupKey }
@@ -172,7 +172,7 @@ export function NotificationsPage() {
       if (!notification.read) {
         readNotification.mutate(notification.id);
       }
-      router.navigate(ROUTE_BY_TYPE[notification.type] ?? '/feed');
+      router.navigate(ROUTE_BY_TYPE[notification.type]);
     },
     [readNotification, router]
   );
