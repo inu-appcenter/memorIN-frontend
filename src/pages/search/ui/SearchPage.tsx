@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
@@ -13,7 +14,6 @@ import FilterIcon from '@/shared/assets/icons/filter.svg';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 import {
   useSearchPostsQuery,
-  canSortByAccuracy,
   DEFAULT_POST_SEARCH_FILTERS,
   PostThumbnail,
   type PostSearchFilters,
@@ -22,7 +22,6 @@ import {
 } from '@/entities/post';
 import { TAG_LABEL_KEY } from '@/entities/post/model/postContent';
 import { PostFilterSheet, SortSelect } from '@/features/post-search';
-import { PostDetailModal } from '@/widgets/postDetailModal';
 
 type Chip =
   | { kind: 'timeslot'; key: string; label: string }
@@ -30,6 +29,7 @@ type Chip =
 
 export function SearchPage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { device } = useBreakpoints();
   const columns = columnsFor(device);
 
@@ -42,7 +42,6 @@ export function SearchPage() {
   const [draftKeyword, setDraftKeyword] = useState('');
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [filterVisible, setFilterVisible] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
     searchHistoryStorage.get().then(setRecentKeywords);
@@ -63,6 +62,11 @@ export function SearchPage() {
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data]
   );
+
+  // 정확도 점수는 키워드 등장 횟수로 매겨진다. 검색을 실행했다면 결과가 0건이어도
+  // 어떤 정렬이 가능한지는 계속 보여준다 — 검색할 때마다 항목 수가 바뀌면
+  // 방금 본 옵션이 왜 사라졌는지 알 수 없다.
+  const canUseAccuracySort = filters.keyword.trim().length > 0;
 
   const filterCount = filters.tags.length + (filters.timeslot ? 1 : 0);
 
@@ -125,10 +129,13 @@ export function SearchPage() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderItem = useCallback(
-    ({ item, index }: { item: PostSummary; index: number }) => (
-      <PostThumbnail post={item} onPress={() => setActiveIndex(index)} />
+    ({ item }: { item: PostSummary }) => (
+      <PostThumbnail
+        post={item}
+        onPress={() => router.push(`/post/${item.postId}`)}
+      />
     ),
-    []
+    [router]
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
@@ -249,7 +256,7 @@ export function SearchPage() {
         </Text>
         <SortSelect
           value={filters.sort}
-          allowAccuracy={canSortByAccuracy(filters)}
+          allowAccuracy={canUseAccuracySort}
           onChange={(sort) => setFilters((prev) => ({ ...prev, sort }))}
         />
       </View>
@@ -305,14 +312,6 @@ export function SearchPage() {
         onApply={(value) => setFilters((prev) => ({ ...prev, ...value }))}
         onClose={() => setFilterVisible(false)}
       />
-
-      {activeIndex !== null && (
-        <PostDetailModal
-          posts={posts}
-          startIndex={activeIndex}
-          onClose={() => setActiveIndex(null)}
-        />
-      )}
     </View>
   );
 }

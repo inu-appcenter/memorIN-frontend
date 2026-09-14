@@ -28,6 +28,9 @@ export function useDeletePost() {
         }
       );
       queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      // 탐색 결과(['posts','search'])와 상세(['posts','detail'])도 지워야
+      // 삭제한 게시물이 그리드에 남지 않는다.
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 }

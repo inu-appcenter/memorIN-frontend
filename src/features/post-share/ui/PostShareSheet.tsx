@@ -8,13 +8,13 @@ import { toast } from '@/shared/lib/toast';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { dummyChatRooms } from '@/shared/config/dummy';
-import type { PostSummary } from '@/entities/post/api/postsApi';
+import type { PostActionTarget } from '@/entities/post/api/postsApi';
 
 interface PostShareSheetProps {
   // 현재 화면에서는 쓰이지 않지만 시그니처를 유지한다. STOMP 연동 시
   // /app/chat.sharePost 페이로드의 postId로 그대로 들어갈 값이라, 지금 빼면
   // 호출부(PostCard, PostActionsMenu)를 전부 다시 고쳐야 한다.
-  post: PostSummary;
+  post: PostActionTarget;
   visible: boolean;
   onClose: () => void;
 }

@@ -19,15 +19,6 @@ const CONTENT_CLASS = 'w-full max-w-[720px] self-center';
 const MS_PER_MINUTE = 60 * 1000;
 const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
 
-// 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커/PushProvider가 따로 처리하며,
-// 그쪽은 이 화면 자체를 목적지로 삼는다.
-const ROUTE_BY_TYPE = {
-  FOLLOW_REQUEST: '/social',
-  FOLLOW_ACCEPTED: '/social',
-  COMMENT: '/feed',
-  LIKE: '/feed',
-} as const satisfies Record<NotificationType, string>;
-
 const SUFFIX_KEY_BY_TYPE = {
   FOLLOW_REQUEST: 'notification.followRequest',
   FOLLOW_ACCEPTED: 'notification.followAccepted',
@@ -49,6 +40,21 @@ const GROUP_LABEL_KEY = {
 type ListRow =
   | { kind: 'header'; key: string; group: GroupKey }
   | { kind: 'item'; key: string; notification: NotificationItem };
+
+// 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커/PushProvider가 따로 처리하며,
+// 그쪽은 이 화면 자체를 목적지로 삼는다.
+function routeOf(notification: NotificationItem): string {
+  switch (notification.type) {
+    case 'FOLLOW_REQUEST':
+    case 'FOLLOW_ACCEPTED':
+      return '/social';
+    case 'COMMENT':
+    case 'LIKE':
+      return notification.referenceId
+        ? `/post/${notification.referenceId}`
+        : '/feed';
+  }
+}
 
 function startOfDay(date: Date): number {
   return new Date(
@@ -172,7 +178,7 @@ export function NotificationsPage() {
       if (!notification.read) {
         readNotification.mutate(notification.id);
       }
-      router.navigate(ROUTE_BY_TYPE[notification.type]);
+      router.navigate(routeOf(notification));
     },
     [readNotification, router]
   );

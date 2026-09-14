@@ -192,6 +192,11 @@ export interface PostDetail {
   createdAt: string;
   updatedAt: string;
 }
+// 메뉴·수정·공유는 게시물의 일부 필드만 쓴다
+export type PostActionTarget = Pick<
+  PostSummary,
+  'postId' | 'authorId' | 'content' | 'visibility' | 'timeslot'
+>;
 
 export interface UpdatePostParams {
   content?: string;
@@ -251,7 +256,7 @@ export async function updatePost(
   return data.data;
 }
 
-// DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null.
+// DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null
 export async function deletePost(postId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
     `/api/posts/${postId}`
@@ -263,4 +268,21 @@ export async function deletePost(postId: string): Promise<void> {
       data.error?.message ?? i18next.t('error.postDelete')
     );
   }
+}
+
+// GET /api/posts/{postId} — 인증 필요.
+// 작성자 본인이 아니면 서버가 조회수를 1 올림
+export async function getPost(postId: string): Promise<PostDetail> {
+  const { data } = await client.get<ApiResponse<PostDetail>>(
+    `/api/posts/${postId}`
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.postLoad')
+    );
+  }
+
+  return data.data;
 }
