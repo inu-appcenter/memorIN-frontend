@@ -1,0 +1,61 @@
+# nginx:alpine 엔트리포인트가 기동 시 envsubst로 ${BACKEND_ORIGIN} 등을 치환해
+# /etc/nginx/conf.d/default.conf로 내보낸다. 이 치환은 셸 환경변수로 "설정된" 이름만
+# 건드리므로 $uri, $host 같은 nginx 내장 변수는 영향받지 않는다(nginx 공식 이미지의
+# 20-envsubst-on-templates.sh가 `env`에 나열된 이름만 envsubst 대상으로 넘긴다).
+#
+# 단일 호스트 + 경로 분기 구성이다 — /api, /auth, /ws만 backend로 보내고 나머지는
+# SPA 정적 파일로 서빙한다. 웹/API가 같은 origin이라 CORS 설정이 필요 없다.
+# MinIO(storage.<도메인>)는 여기서 프록시하지 않는다 — presigned URL이 경로까지
+# 서명하는 SigV4라 프록시를 거치면 서명이 깨진다(SignatureDoesNotMatch). 클라이언트가
+# MinIO 도메인으로 직접 접근한다.
+
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    # 배포 환경마다 달라지는 런타임 설정(VAPID 공개키 등)이라 캐시되면 안 된다.
+    location = /config.json {
+        add_header Cache-Control "no-store" always;
+        try_files /config.json =404;
+    }
+
+    # 백엔드 REST API. 컨트롤러 prefix가 /api/*, /auth 두 종류라 둘 다 묶는다.
+    location ~ ^/(api|auth)/ {
+        proxy_pass ${BACKEND_ORIGIN};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # STOMP over SockJS. 순수 웹소켓 업그레이드 외에 SockJS의 폴링/XHR 폴백 경로도
+    # 전부 /ws로 시작하므로 prefix 매치 하나로 충분하다.
+    location /ws {
+        proxy_pass ${BACKEND_ORIGIN};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # 순수 폴링 요청은 금방 끝나지만 웹소켓 연결은 오래 유지된다. 백엔드가 이미
+        # STOMP heartbeat를 켜 두었으니(WebSocketConfig) 프록시도 넉넉히 맞춘다.
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # 해시가 파일명에 들어가는 빌드 산출물은 길게 캐시해도 안전하다.
+    location /_expo/static/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # expo-router web.output "single" (SPA) — 없는 경로는 index.html로 폴백해
+    # 클라이언트 라우터가 처리하게 한다.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

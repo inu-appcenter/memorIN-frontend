@@ -5,10 +5,10 @@ import { toast } from '@/shared/lib/toast';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import {
   getExistingSubscription,
+  getVapidPublicKey,
   isWebPushSupported,
   subscribeToPush,
   toFlatSubscription,
-  VAPID_PUBLIC_KEY,
 } from '../lib/webPushSupport';
 import {
   getNativeDeviceToken,
@@ -46,7 +46,7 @@ export function usePushSubscription() {
         setState('unsupported');
         return;
       }
-      if (!VAPID_PUBLIC_KEY) {
+      if (!(await getVapidPublicKey())) {
         setState('unconfigured');
         return;
       }
