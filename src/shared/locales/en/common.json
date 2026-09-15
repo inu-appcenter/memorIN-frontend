@@ -127,14 +127,23 @@
     "sectionAppInfo": "App info",
     "fieldVersion": "Version",
     "emptyValue": "-",
-    "pushUnsupported": "이 기기에서 지원 안 함",
-    "pushDevBuildRequired": "개발 빌드에서만 사용 가능",
-    "pushUnconfigured": "설정 필요",
-    "pushDenied": "차단됨",
-    "pushOff": "꺼짐",
-    "pushOn": "켜짐",
-    "pushEnabled": "알림을 켰어요",
-    "pushDisabled": "알림을 껐어요"
+    "pushUnsupported": "Not supported on this device",
+    "pushDevBuildRequired": "Available in development builds only",
+    "pushUnconfigured": "Setup required",
+    "pushDenied": "Blocked",
+    "pushOff": "Off",
+    "pushOn": "On",
+    "pushEnabled": "Notifications are on",
+    "pushDisabled": "Notifications are off",
+    "sectionProfile": "Profile",
+    "sectionNotification": "Notifications",
+    "sectionSupport": "Support",
+    "sectionEtc": "Other",
+    "rowAccount": "Account",
+    "rowMyRecords": "My records",
+    "rowFriends": "Friends",
+    "rowNotification": "Notification settings",
+    "rowNotice": "Notices & policies"
   },
   "auth": {
     "signInFailed": "Sign-in failed",
@@ -373,5 +382,35 @@
     "timeMinutesAgo": "{{count}}m ago",
     "timeHoursAgo": "{{count}}h ago",
     "timeDaysAgo": "{{count}}d ago"
+  },
+  "notificationSettings": {
+    "title": "Notification settings",
+    "allPush": "All push notifications",
+    "like": "Likes",
+    "comment": "Comments",
+    "followRequest": "Follow requests",
+    "message": "Messages",
+    "followerRecord": "Follower record updates"
+  },
+  "account": {
+    "title": "Account",
+    "changePhoto": "Change photo",
+    "nickname": "Nickname",
+    "displayName": "Name",
+    "department": "Department",
+    "studentId": "Student ID",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "changePassword": "Change password",
+    "unsupportedNote": "Nickname, department, student ID and profile photo are coming soon. Editing will open shortly."
+  },
+  "passwordChange": {
+    "title": "Change password",
+    "current": "Current password",
+    "next": "New password",
+    "confirm": "Confirm new password",
+    "mismatch": "New passwords don't match",
+    "submit": "Change"
   }
 }

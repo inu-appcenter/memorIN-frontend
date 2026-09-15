@@ -15,7 +15,7 @@ import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { DashedBox } from '@/shared/ui/dashedBox';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import PlusIcon from '@/shared/assets/icons/plus.svg';
 import { useMediaPicker } from '@/features/media-upload';
 import {
@@ -25,6 +25,7 @@ import {
   usePostForm,
   useCreatePost,
 } from '@/features/post-create';
+import { PostVideoThumbnail } from '@/entities/post/ui/PostVideoThumbnail';
 
 const CAPTION_MIN_HEIGHT = 96;
 const CAPTION_MAX_HEIGHT = 160;
@@ -135,7 +136,7 @@ export function UploadPage() {
     <View className="flex-1 bg-page">
       <View className="h-[56px] flex-row items-center gap-sm border-b border-border px-lg">
         <Pressable onPress={handleBack} hitSlop={8}>
-          <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+          <BackArrowIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
         <Text variant="heading">{t('uploadPage.title')}</Text>
       </View>
@@ -153,14 +154,22 @@ export function UploadPage() {
 
         {cover ? (
           <View
-            className="relative w-full overflow-hidden rounded-lg"
+            className="relative w-full overflow-hidden rounded-lg bg-surface"
             style={{ aspectRatio: MEDIA_ASPECT_RATIO }}
           >
-            <Image
-              source={{ uri: cover.uri }}
-              className="h-full w-full bg-surface"
-              resizeMode="cover"
-            />
+            {/* 동영상은 Image로 그려지지 않아 정지 프레임을 따로 뽑는다 */}
+            {cover.type === 'video' ? (
+              <PostVideoThumbnail
+                uri={cover.uri}
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <Image
+                source={{ uri: cover.uri }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            )}
             <Pressable
               onPress={pickAssets}
               disabled={isPending}

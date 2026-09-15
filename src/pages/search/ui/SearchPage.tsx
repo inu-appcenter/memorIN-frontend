@@ -11,7 +11,7 @@ import { columnsFor } from '@/shared/lib/gridColumns';
 import { searchHistoryStorage } from '@/shared/lib/searchHistoryStorage';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import FilterIcon from '@/shared/assets/icons/filter.svg';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import {
   useSearchPostsQuery,
   DEFAULT_POST_SEARCH_FILTERS,
@@ -145,7 +145,7 @@ export function SearchPage() {
       <View className="flex-1 bg-page">
         <View className="flex-row items-center gap-md border-b border-border px-lg py-lg">
           <Pressable onPress={() => setIsSearching(false)} hitSlop={8}>
-            <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+            <BackArrowIcon width={20} height={20} color={COLORS.text} />
           </Pressable>
           <View className="h-[44px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-lg">
             <TextInput

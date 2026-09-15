@@ -13,7 +13,7 @@ import { dummyChatRooms, type DummyChatRoom } from '@/shared/config/dummy';
 import { ChatRoomListItem } from '@/entities/chatRoom';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import ChatPlusIcon from '@/shared/assets/icons/chatPlus.svg';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import { NewChatMenu } from './NewChatMenu';
 
 // 방 이름과 참여자 이름을 모두 검색 대상으로 삼는다.
@@ -88,7 +88,7 @@ export function ChatRoomList({
       {searchMode ? (
         <View className="h-[62px] flex-row items-center gap-md px-lg">
           <Pressable onPress={closeSearch} hitSlop={8}>
-            <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+            <BackArrowIcon width={20} height={20} color={COLORS.text} />
           </Pressable>
           <View className="h-[40px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-md">
             <TextInput

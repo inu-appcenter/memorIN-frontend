@@ -30,6 +30,8 @@ export function useCreatePost() {
             type: asset.type,
             mimeType: asset.mimeType,
             durationMs: asset.durationMs,
+            width: asset.width,
+            height: asset.height,
           },
           fileName
         );

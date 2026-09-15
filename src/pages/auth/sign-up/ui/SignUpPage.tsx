@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@/shared/ui/text';
-import { Field } from '../../ui/Field';
+import { Field } from '../../../../shared/ui/Field';
 import { useSignUp } from '@/features/auth/model/useSignUp';
 import {
   signUpSchema,

@@ -12,7 +12,7 @@ import {
   type NotificationItem,
   type NotificationType,
 } from '@/entities/notification';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 
 const CONTENT_CLASS = 'w-full max-w-[720px] self-center';
 
@@ -222,7 +222,7 @@ export function NotificationsPage() {
           }
           hitSlop={8}
         >
-          <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+          <BackArrowIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
         <Text variant="heading">{t('notification.title')}</Text>
       </View>

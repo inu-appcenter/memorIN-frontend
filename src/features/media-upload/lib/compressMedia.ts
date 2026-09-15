@@ -10,6 +10,10 @@ const MAX_UPLOAD_SIZE_BYTES = 52428800;
 // 갤러리 선택(launchImageLibraryAsync) 파일 검증
 export const MAX_VIDEO_DURATION_SEC = 15;
 
+// Video.compress에 넘기는 값과 크기 계산이 어긋나면 서버에 잘못된 비율이 올라간다.
+// 한 상수를 양쪽에서 쓴다.
+const VIDEO_MAX_SIZE_PX = 1080;
+
 export interface CompressedMedia {
   uri: string;
   contentType: string;
@@ -23,6 +27,8 @@ interface MediaAsset {
   type: 'image' | 'video';
   mimeType?: string;
   durationMs?: number | null;
+  width?: number | null;
+  height?: number | null;
 }
 
 export async function compressMedia(
@@ -79,8 +85,28 @@ async function compressImage(
   };
 }
 
+// Video.compress의 maxSize는 긴 변 기준이다. 비율을 유지한 채 긴 변만 줄이므로
+// 같은 계산으로 결과 크기를 미리 구할 수 있다.
+function scaleToMaxSize(
+  width: number | null | undefined,
+  height: number | null | undefined,
+  maxSize: number
+): { width: number | null; height: number | null } {
+  if (!width || !height) return { width: null, height: null };
+  const longest = Math.max(width, height);
+  if (longest <= maxSize) return { width, height };
+  const ratio = maxSize / longest;
+  return {
+    width: Math.round(width * ratio),
+    height: Math.round(height * ratio),
+  };
+}
+
 // 동영상 압축: 네이티브(Android/iOS)에서는 react-native-compressor로 실제 하드웨어 압축을 수행한다.
 // 웹은 이 라이브러리가 지원되지 않아 길이/용량 가드레일만 적용하고 원본을 그대로 사용한다.
+//
+// 크기는 압축 결과에서 읽을 방법이 없어 선택 시점(ImagePicker)의 값으로 계산한다.
+// 이 값이 없으면 피드가 원본 비율을 못 써서 고정 높이로 떨어진다.
 async function prepareVideo(
   asset: MediaAsset,
   originalSize: number
@@ -98,27 +124,29 @@ async function prepareVideo(
   }
 
   if (Platform.OS === 'web') {
+    // 원본을 그대로 올리므로 크기도 원본 그대로다.
     return {
       uri: asset.uri,
       contentType: asset.mimeType ?? 'video/mp4',
       contentLength: originalSize,
-      width: null,
-      height: null,
+      width: asset.width ?? null,
+      height: asset.height ?? null,
     };
   }
 
   const compressedUri = await Video.compress(asset.uri, {
     compressionMethod: 'manual',
     stripAudio: true,
-    maxSize: 1080,
+    maxSize: VIDEO_MAX_SIZE_PX,
   });
   const contentLength = await getFileSize(compressedUri);
+  const scaled = scaleToMaxSize(asset.width, asset.height, VIDEO_MAX_SIZE_PX);
   return {
     uri: compressedUri,
     contentType: 'video/mp4',
     contentLength,
-    width: null,
-    height: null,
+    width: scaled.width,
+    height: scaled.height,
   };
 }
 

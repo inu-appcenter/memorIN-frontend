@@ -19,7 +19,7 @@ import {
 } from '@/entities/post';
 import { FollowButton } from '@/features/follow-button';
 import { PostDetailModal } from '@/widgets/postDetailModal';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import { useTranslation } from 'react-i18next';
 
 interface UserProfilePageProps {
@@ -235,7 +235,7 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
           }
           hitSlop={8}
         >
-          <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+          <BackArrowIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
         <Text variant="heading">{t('profile.title')}</Text>
       </View>

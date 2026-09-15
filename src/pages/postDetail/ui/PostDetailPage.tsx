@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
@@ -151,7 +151,7 @@ export function PostDetailPage({ postId }: PostDetailPageProps) {
     <View className="flex-1 bg-page">
       <View className="h-[56px] flex-row items-center gap-md border-b border-border px-lg">
         <Pressable onPress={goBack} hitSlop={8}>
-          <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+          <BackArrowIcon width={20} height={20} color={COLORS.text} />
         </Pressable>
         <Text variant="heading">{t('postDetail.title')}</Text>
       </View>

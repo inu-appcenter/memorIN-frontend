@@ -10,11 +10,19 @@ export interface PickedMediaAsset {
   mimeType?: string;
   fileName?: string;
   durationMs?: number | null;
+  // 동영상은 압축 단계에서 크기를 알 수 없어 여기서 받은 값을 끝까지 들고 간다.
+  width?: number | null;
+  height?: number | null;
 }
 
 // 게시물 하나에 미디어 하나다. 오전 기록과 오후 기록은 각각 별도 게시물이다.
 // 백엔드는 10개까지 허용하지만 화면 정책이 더 좁다.
 const MAX_ATTACHMENTS = 1;
+
+// 웹에서는 동영상 크기를 0으로 주는 경우가 있어 유효한 값만 남긴다.
+function positiveOrNull(value: number | undefined): number | null {
+  return typeof value === 'number' && value > 0 ? value : null;
+}
 
 export function useMediaPicker() {
   const [assets, setAssets] = useState<PickedMediaAsset[]>([]);
@@ -44,6 +52,8 @@ export function useMediaPicker() {
       mimeType: asset.mimeType,
       fileName: asset.fileName ?? undefined,
       durationMs: asset.duration ?? undefined,
+      width: positiveOrNull(asset.width),
+      height: positiveOrNull(asset.height),
     }));
 
     // 상한을 넘으면 나중에 고른 것을 남긴다. 1장 정책에서는 이 경로가 "변경"이 된다.

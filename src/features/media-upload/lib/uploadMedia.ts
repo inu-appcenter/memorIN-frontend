@@ -16,6 +16,8 @@ export async function uploadMedia(
     type: 'image' | 'video';
     mimeType?: string;
     durationMs?: number | null;
+    width?: number | null;
+    height?: number | null;
   },
   fileName: string
 ): Promise<UploadedAttachment> {

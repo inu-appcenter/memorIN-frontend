@@ -15,7 +15,7 @@ import {
   type UserFollowSummary,
   type FollowRequestItem,
 } from '@/entities/user';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import { showNotReady } from '@/shared/lib/showNotReady';
 import { useTranslation } from 'react-i18next';
@@ -178,7 +178,7 @@ export function SocialPage() {
                 }
                 hitSlop={8}
               >
-                <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+                <BackArrowIcon width={20} height={20} color={COLORS.text} />
               </Pressable>
 
               <Text variant="heading">{t('socialPage.title')}</Text>
