@@ -2,10 +2,13 @@ name: CI
 
 # main으로 가는 PR을 검증한다.
 # 목적은 "타입 오류가 있는 코드가 main에 머지되는 것"을 막는 것이다.
+# main에 직접 push(=PR 머지)되면 image job이 추가로 돌아 GHCR에 이미지를 올린다.
 on:
   pull_request:
     branches: [main]
     types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -24,10 +27,12 @@ jobs:
       - name: 체크아웃
         uses: actions/checkout@v7
 
-      - name: Node 20 설정 (의존성 캐시 포함)
+      # Dockerfile 빌더 스테이지와 동일한 버전을 써서 "CI는 통과했는데 이미지 빌드는
+      # 실패"하는 버전 불일치를 없앤다.
+      - name: Node 24 설정 (의존성 캐시 포함)
         uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
 
       - name: 의존성 설치
@@ -45,6 +50,9 @@ jobs:
   pr-title:
     name: PR 제목 컨벤션 검사
     runs-on: ubuntu-latest
+    # push 이벤트에는 github.event.pull_request가 없어 빈 문자열이 되고 항상 실패한다.
+    # PR에서만 의미 있는 검사이므로 PR 이벤트에서만 돈다.
+    if: github.event_name == 'pull_request'
 
     steps:
       - name: '형식 확인 (type: 설명)'
@@ -58,3 +66,47 @@ jobs:
             exit 1
           fi
           echo "OK: $TITLE"
+
+  image:
+    name: 이미지 빌드 및 GHCR 푸시
+    # typecheck를 통과한 커밋만 이미지가 된다.
+    needs: [typecheck]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v7
+
+      - name: Docker Buildx 설정
+        uses: docker/setup-buildx-action@v4
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 이미지 메타데이터 (태그·라벨)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/memorin-frontend
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+            type=semver,pattern={{version}}
+
+      - name: 빌드 및 푸시
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
