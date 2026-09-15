@@ -4,6 +4,19 @@ import i18next from '@/shared/lib/i18n';
 export type VisibilityType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 export type TimeslotType = 'AM' | 'PM';
 
+export type TagType =
+  | 'STUDY'
+  | 'GAME'
+  | 'ANIMAL'
+  | 'TRAVEL'
+  | 'EXERCISE'
+  | 'FOOD'
+  | 'MUSIC'
+  | 'DAILY'
+  | 'HOBBY'
+  | 'ETC';
+
+export type PostSortType = 'LATEST' | 'VIEW_COUNT_DESC' | 'ACCURACY_DESC';
 export interface PostMedia {
   objectKey: string;
   url: string | null;
@@ -22,6 +35,8 @@ export interface PostSummary {
   recordedDate: string;
   viewCount: number;
   attachments: PostMedia[];
+  // 백엔드 PostSummaryResponse는 요청 필드명(tags)과 달리 tagTypes로 내려준다.
+  tagTypes: TagType[];
 }
 
 export interface FeedPage {
@@ -132,8 +147,9 @@ export interface CreatePostParams {
   timeslotType: TimeslotType;
   recordedDate?: string;
   attachments?: CreatePostAttachment[];
+  // 요청은 tags, 응답(PostSummaryResponse)은 tagTypes로 이름이 다른 상태
+  tags?: TagType[];
 }
-
 export interface CreatePostResponse {
   postId: string;
   authorId: string;
@@ -176,6 +192,11 @@ export interface PostDetail {
   createdAt: string;
   updatedAt: string;
 }
+// 메뉴·수정·공유는 게시물의 일부 필드만 쓴다
+export type PostActionTarget = Pick<
+  PostSummary,
+  'postId' | 'authorId' | 'content' | 'visibility' | 'timeslot'
+>;
 
 export interface UpdatePostParams {
   content?: string;
@@ -185,6 +206,36 @@ export interface UpdatePostParams {
   attachments?: CreatePostAttachment[];
 }
 
+export interface SearchPostsParams {
+  keyword?: string;
+  tags?: TagType[];
+  timeslot?: TimeslotType;
+  sort?: PostSortType;
+  cursor?: string;
+  size?: number;
+}
+
+// GET /api/posts/search — 인증 필요.
+//
+// 이 엔드포인트만 ApiResponse 봉투 없이 PostListResponse를 그대로 반환한다.
+export async function searchPosts(
+  params: SearchPostsParams = {}
+): Promise<FeedPage> {
+  const { data } = await client.get<FeedPage>('/api/posts/search', {
+    params: {
+      keyword: params.keyword,
+      tags: params.tags?.length ? params.tags : undefined,
+      timeslot: params.timeslot,
+      sort: params.sort,
+      cursor: params.cursor,
+      size: params.size,
+    },
+    // axios 기본값은 tags[]=STUDY라 인덱스 표기를 끈다.
+    paramsSerializer: { indexes: null },
+  });
+
+  return data;
+}
 // PATCH /api/posts/{postId} — 인증 필요, 작성자만 가능
 export async function updatePost(
   postId: string,
@@ -205,7 +256,7 @@ export async function updatePost(
   return data.data;
 }
 
-// DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null.
+// DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null
 export async function deletePost(postId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
     `/api/posts/${postId}`
@@ -217,4 +268,21 @@ export async function deletePost(postId: string): Promise<void> {
       data.error?.message ?? i18next.t('error.postDelete')
     );
   }
+}
+
+// GET /api/posts/{postId} — 인증 필요.
+// 작성자 본인이 아니면 서버가 조회수를 1 올림
+export async function getPost(postId: string): Promise<PostDetail> {
+  const { data } = await client.get<ApiResponse<PostDetail>>(
+    `/api/posts/${postId}`
+  );
+
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.postLoad')
+    );
+  }
+
+  return data.data;
 }

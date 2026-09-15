@@ -19,14 +19,19 @@ export const COLORS = {
   iconDefault: '#C9F8FB',
   tertiary: '#5F6470',
   neutral600: '#22252B', // primitive/neutral/600
+  neutral700: '#333740', // primitive/neutral/700
+  blue500: '#184BC7', // primitive/blue/500
 
   // 임시: 정식 다크 테마 확정 전까지 임시로 사용
   surfaceDarkBg: '#22252B',
+  surfaceDarkOverlay: 'rgba(34, 37, 43, 0.6)',
   surfaceDarkBorder: 'rgba(255,255,255,0.15)',
   surfaceDarkTextPrimary: '#FFFFFF',
   surfaceDarkTextSecondary: 'rgba(255,255,255,0.7)',
   surfaceDarkTextMuted: 'rgba(255,255,255,0.5)',
   surfaceDarkAvatarBg: 'rgba(255,255,255,0.15)',
+  // 미디어 없이 글만 있는 기록의 캘린더 셀 배경
+  recordTextOnly: '#2B1A1F',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

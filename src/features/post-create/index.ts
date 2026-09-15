@@ -3,3 +3,4 @@ export type { CreatePostInput } from './model/useCreatePost';
 export { usePostForm } from './model/usePostForm';
 export { TimeslotSelect } from './ui/TimeslotSelect';
 export { VisibilitySelect } from './ui/VisibilitySelect';
+export { TagSelect, MAX_TAGS } from './ui/TagSelect';

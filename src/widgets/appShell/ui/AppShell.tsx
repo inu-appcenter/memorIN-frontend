@@ -8,12 +8,14 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 
 import {
+  ALL_NAV_ITEMS,
+  getBottomTabLabel,
   getTabLabel,
   PATH,
   SIDE_NAV_ITEMS,
   TABLISTS,
+  type BottomTabItem,
   type SideNavItem,
-  type TabItem,
 } from '@/shared/config/tabList';
 
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
@@ -24,6 +26,7 @@ import HomeIcon from '@/shared/assets/icons/home.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
 import LogIcon from '@/shared/assets/icons/log.svg';
 import ChatIcon from '@/shared/assets/icons/chat.svg';
+import UserIcon from '@/shared/assets/icons/user.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
@@ -38,11 +41,12 @@ const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   search: SearchIcon,
   log: LogIcon,
   chat: ChatIcon,
+  profile: UserIcon,
   settings: OptionIcon,
 };
 
 function getActiveTab(pathname: string): SideNavItem | undefined {
-  return SIDE_NAV_ITEMS.find((item) => pathname.startsWith(PATH[item]));
+  return ALL_NAV_ITEMS.find((item) => pathname.startsWith(PATH[item]));
 }
 
 function Brand({ compact = false }: { compact?: boolean }) {
@@ -177,7 +181,7 @@ function BottomNav() {
   const leftTabs = TABLISTS.slice(0, 2);
   const rightTabs = TABLISTS.slice(2);
 
-  const renderItem = (tab: TabItem) => {
+  const renderItem = (tab: BottomTabItem) => {
     const Icon = NAV_ICON[tab];
     const active = activeTab === tab;
 
@@ -194,7 +198,7 @@ function BottomNav() {
         />
 
         <Text variant="caption" className={active ? 'text-link' : 'text-muted'}>
-          {getTabLabel(tab)}
+          {getBottomTabLabel(tab)}
         </Text>
       </Pressable>
     );

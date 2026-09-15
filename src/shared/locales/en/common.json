@@ -28,17 +28,35 @@
     "monthPostsLoad": "Couldn't load this month's records",
     "followReject": "Couldn't decline the follow request",
     "pushRegister": "Couldn't enable notifications",
-    "pushUnregister": "Couldn't disable notifications"
+    "pushUnregister": "Couldn't disable notifications",
+    "notificationsLoad": "Could not load notifications.",
+    "notificationRead": "Could not mark the notification as read."
   },
   "post": {
     "timeslotAm": "AM",
     "timeslotPm": "PM",
+    "timeslotAmBadge": "Morning record",
+    "timeslotPmBadge": "Afternoon record",
+    "dayToday": "Today",
+    "dayYesterday": "Yesterday",
     "emptyContent": "No content",
     "deleteTitle": "Delete post",
     "deleteConfirm": "Delete this post?",
     "deleteFailTitle": "Delete failed",
     "deleteFailMessage": "Delete failed: {{message}}",
     "playVideo": "Play"
+  },
+  "tag": {
+    "study": "Study",
+    "game": "Game",
+    "animal": "Animal",
+    "travel": "Travel",
+    "exercise": "Exercise",
+    "food": "Food",
+    "music": "Music",
+    "daily": "Daily",
+    "hobby": "Hobby",
+    "etc": "Etc"
   },
   "action": {
     "cancel": "Cancel",
@@ -73,7 +91,9 @@
     "search": "Explore",
     "log": "Log",
     "chat": "Chat",
-    "settings": "Settings"
+    "settings": "Settings",
+    "profile": "Me",
+    "home": "Home"
   },
   "calendar": {
     "weekday": {
@@ -85,7 +105,8 @@
       "fri": "Fri",
       "sat": "Sat"
     },
-    "dateHeading": "{{weekday}}, {{month}}/{{day}}"
+    "dateHeading": "{{weekday}}, {{month}}/{{day}}",
+    "monthOption": "{{month}}"
   },
   "reply": {
     "placeholder": "Add a comment..."
@@ -106,14 +127,23 @@
     "sectionAppInfo": "App info",
     "fieldVersion": "Version",
     "emptyValue": "-",
-    "pushUnsupported": "이 기기에서 지원 안 함",
-    "pushDevBuildRequired": "개발 빌드에서만 사용 가능",
-    "pushUnconfigured": "설정 필요",
-    "pushDenied": "차단됨",
-    "pushOff": "꺼짐",
-    "pushOn": "켜짐",
-    "pushEnabled": "알림을 켰어요",
-    "pushDisabled": "알림을 껐어요"
+    "pushUnsupported": "Not supported on this device",
+    "pushDevBuildRequired": "Available in development builds only",
+    "pushUnconfigured": "Setup required",
+    "pushDenied": "Blocked",
+    "pushOff": "Off",
+    "pushOn": "On",
+    "pushEnabled": "Notifications are on",
+    "pushDisabled": "Notifications are off",
+    "sectionProfile": "Profile",
+    "sectionNotification": "Notifications",
+    "sectionSupport": "Support",
+    "sectionEtc": "Other",
+    "rowAccount": "Account",
+    "rowMyRecords": "My records",
+    "rowFriends": "Friends",
+    "rowNotification": "Notification settings",
+    "rowNotice": "Notices & policies"
   },
   "auth": {
     "signInFailed": "Sign-in failed",
@@ -155,7 +185,9 @@
     "visibilityPublic": "Everyone",
     "visibilityFriends": "Friends",
     "visibilityPrivate": "Only me",
-    "visibilityPrivateCompact": "Me"
+    "visibilityPrivateCompact": "Me",
+    "tagSectionTitle": "Tags",
+    "tagSectionMax": "up to {{max}}"
   },
   "postEdit": {
     "title": "Edit post",
@@ -187,7 +219,8 @@
     "commentFailTitle": "Couldn't post comment",
     "commentFailMessage": "Couldn't post comment: {{message}}",
     "daySummary": "{{count}}/2 records logged (AM · PM)",
-    "viewAsStory": "View as story ›"
+    "viewAsStory": "View as story ›",
+    "viewRecord": "View record ›"
   },
   "feedPanel": {
     "myAccount": "My account",
@@ -258,7 +291,13 @@
     "done": "Done",
     "assetCount": "{{count}} files · auto-compressed",
     "hintPrivate": "· Comments and reactions are off for private posts",
-    "hintCompress": "· Photos and videos are compressed automatically on upload"
+    "hintCompress": "· Photos and videos are compressed automatically on upload",
+    "addMedia": "Add",
+    "changeMedia": "Change",
+    "discardTitle": "Discard this record?",
+    "discardMessage": "The selected photo and text will be lost.",
+    "discardCancel": "Keep writing",
+    "discardConfirm": "Discard"
   },
   "feed": {
     "title": "Feed",
@@ -285,7 +324,18 @@
   "searchPage": {
     "placeholder": "Search by username or name",
     "emptyFeed": "Nothing to show yet{{newline}}Try following someone",
-    "emptyResult": "No results for ‘{{keyword}}’"
+    "emptyResult": "No results for ‘{{keyword}}’",
+    "filterTitle": "Filters",
+    "filterTimeslot": "Time of day",
+    "filterReset": "Reset",
+    "filterApply": "Apply",
+    "sortAccuracy": "Relevance",
+    "sortLatest": "Newest",
+    "sortPopular": "Popular",
+    "recentTitle": "Recent searches",
+    "resultTitle": "Results for '{{keyword}}'",
+    "postPlaceholder": "Search records",
+    "emptyPostResult": "No records match '{{keyword}}'"
   },
   "socialPage": {
     "title": "Manage friends",
@@ -316,5 +366,51 @@
   "sharedPost": {
     "viewRecord": "View record ›",
     "meta": "{{name}} · {{month}}/{{day}}"
+  },
+  "notification": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "groupToday": "Today",
+    "groupYesterday": "Yesterday",
+    "groupWeek": "Last 7 days",
+    "groupEarlier": "Earlier",
+    "followRequest": " requested to follow you.",
+    "followAccepted": " accepted your follow request.",
+    "comment": " commented on your record.",
+    "like": " liked your record.",
+    "timeJustNow": "just now",
+    "timeMinutesAgo": "{{count}}m ago",
+    "timeHoursAgo": "{{count}}h ago",
+    "timeDaysAgo": "{{count}}d ago"
+  },
+  "notificationSettings": {
+    "title": "Notification settings",
+    "allPush": "All push notifications",
+    "like": "Likes",
+    "comment": "Comments",
+    "followRequest": "Follow requests",
+    "message": "Messages",
+    "followerRecord": "Follower record updates"
+  },
+  "account": {
+    "title": "Account",
+    "changePhoto": "Change photo",
+    "nickname": "Nickname",
+    "displayName": "Name",
+    "department": "Department",
+    "studentId": "Student ID",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "changePassword": "Change password",
+    "unsupportedNote": "Nickname, department, student ID and profile photo are coming soon. Editing will open shortly."
+  },
+  "passwordChange": {
+    "title": "Change password",
+    "current": "Current password",
+    "next": "New password",
+    "confirm": "Confirm new password",
+    "mismatch": "New passwords don't match",
+    "submit": "Change"
   }
 }

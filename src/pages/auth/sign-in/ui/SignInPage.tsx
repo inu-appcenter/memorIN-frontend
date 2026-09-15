@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
-import { Field } from '@/pages/auth/ui/Field';
+import { Field } from '@/shared/ui/Field';
 import { useSignIn } from '@/features/auth/model/useSignIn';
 import {
   signInSchema,

@@ -1,67 +1,52 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
-import { useDebouncedValue } from '@/shared/lib/useDebouncedValue';
+import { cn } from '@/shared/lib/utils';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { columnsFor } from '@/shared/lib/gridColumns';
-import { useAuthStore } from '@/entities/session/model/useAuthStore';
+import { searchHistoryStorage } from '@/shared/lib/searchHistoryStorage';
 import SearchIcon from '@/shared/assets/icons/search.svg';
+import FilterIcon from '@/shared/assets/icons/filter.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import {
-  useUserSearchQuery,
-  useFollowListQuery,
-  type UserSearchResult,
-} from '@/entities/user';
-import {
-  useRecommendedFeedQuery,
+  useSearchPostsQuery,
+  DEFAULT_POST_SEARCH_FILTERS,
   PostThumbnail,
+  type PostSearchFilters,
   type PostSummary,
+  type TagType,
 } from '@/entities/post';
-import { FollowButton } from '@/features/follow-button';
-import { PostDetailModal } from '@/widgets/postDetailModal';
-import { useTranslation } from 'react-i18next';
+import { TAG_LABEL_KEY } from '@/entities/post/model/postContent';
+import { PostFilterSheet, SortSelect } from '@/features/post-search';
 
-function UserRow({
-  user,
-  isFollowing,
-  followStateKnown,
-}: {
-  user: UserSearchResult;
-  isFollowing: boolean;
-  followStateKnown: boolean;
-}) {
-  return (
-    <View className="flex-row items-center justify-between px-lg py-md">
-      <Link href={`/user/${user.id}`} asChild>
-        <Pressable className="flex-1 flex-row items-center gap-md">
-          <View className="h-[44px] w-[44px] rounded-full border border-border bg-subtle" />
-          <View className="flex-1">
-            <Text className="font-bold">{user.displayName}</Text>
-            <Text className="text-muted" numberOfLines={1}>
-              @{user.username}
-              {user.bio ? ` · ${user.bio}` : ''}
-            </Text>
-          </View>
-        </Pressable>
-      </Link>
-      {followStateKnown && (
-        <FollowButton
-          targetUserId={user.id}
-          size="small"
-          initialState={isFollowing ? 'following' : 'none'}
-        />
-      )}
-    </View>
-  );
-}
+type Chip =
+  | { kind: 'timeslot'; key: string; label: string }
+  | { kind: 'tag'; key: string; label: string; tag: TagType };
 
 export function SearchPage() {
+  const { t } = useTranslation();
+  const router = useRouter();
   const { device } = useBreakpoints();
   const columns = columnsFor(device);
-  const [keyword, setKeyword] = useState('');
-  const debouncedKeyword = useDebouncedValue(keyword, 300);
+
+  const [filters, setFilters] = useState<PostSearchFilters>(
+    DEFAULT_POST_SEARCH_FILTERS
+  );
+  // 검색어 입력은 전용 모드에서만 받는다. 그리드 위 검색바는 그 모드로 들어가는
+  // 버튼일 뿐이라 값을 직접 편집하지 않는다.
+  const [isSearching, setIsSearching] = useState(false);
+  const [draftKeyword, setDraftKeyword] = useState('');
+  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
+  const [filterVisible, setFilterVisible] = useState(false);
+
+  useEffect(() => {
+    searchHistoryStorage.get().then(setRecentKeywords);
+  }, []);
+
   const {
     data,
     isLoading,
@@ -70,171 +55,244 @@ export function SearchPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useUserSearchQuery(debouncedKeyword);
+    refetch,
+  } = useSearchPostsQuery(filters);
 
-  const hasQuery = debouncedKeyword.trim().length > 0;
-  const results = data?.pages.flatMap((page) => page.items) ?? [];
-
-  // 검색 결과(UserSearchResponse)엔 팔로우 상태가 안 내려오기 때문에, 내
-  // 팔로잉 목록을 따로 불러와 교차 확인해서 "팔로우"/"팔로잉"을 정확히 표시한다.
-  // (ACCEPTED 상태만 잡을 수 있고, 내가 보낸 PENDING 요청은 여전히 구분 못 함 —
-  // FollowButton 주석의 기존 한계와 동일)
-  const myId = useAuthStore((s) => s.user?.id);
-  const myFollowingsQuery = useFollowListQuery(myId, 'followings');
-  const followingIds = useMemo(
-    () =>
-      new Set(
-        myFollowingsQuery.data?.pages.flatMap((page) =>
-          page.items.map((u) => u.id)
-        ) ?? []
-      ),
-    [myFollowingsQuery.data]
+  const posts = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data]
   );
-  const followStateKnown = !myFollowingsQuery.isLoading;
+
+  // 정확도 점수는 키워드 등장 횟수로 매겨진다. 검색을 실행했다면 결과가 0건이어도
+  // 어떤 정렬이 가능한지는 계속 보여준다 — 검색할 때마다 항목 수가 바뀌면
+  // 방금 본 옵션이 왜 사라졌는지 알 수 없다.
+  const canUseAccuracySort = filters.keyword.trim().length > 0;
+
+  const filterCount = filters.tags.length + (filters.timeslot ? 1 : 0);
+
+  const chips = useMemo<Chip[]>(() => {
+    const result: Chip[] = [];
+    if (filters.timeslot) {
+      result.push({
+        kind: 'timeslot',
+        key: 'timeslot',
+        label: t(
+          filters.timeslot === 'AM' ? 'post.timeslotAm' : 'post.timeslotPm'
+        ),
+      });
+    }
+    for (const tag of filters.tags) {
+      result.push({
+        kind: 'tag',
+        key: `tag-${tag}`,
+        label: t(TAG_LABEL_KEY[tag]),
+        tag,
+      });
+    }
+    return result;
+  }, [filters.timeslot, filters.tags, t]);
+
+  const removeChip = useCallback((chip: Chip) => {
+    setFilters((prev) =>
+      chip.kind === 'timeslot'
+        ? { ...prev, timeslot: null }
+        : { ...prev, tags: prev.tags.filter((tag) => tag !== chip.tag) }
+    );
+  }, []);
+
+  const openSearch = useCallback(() => {
+    setDraftKeyword(filters.keyword);
+    setIsSearching(true);
+  }, [filters.keyword]);
+
+  const submitSearch = useCallback(async () => {
+    const trimmed = draftKeyword.trim();
+    setFilters((prev) => ({ ...prev, keyword: trimmed }));
+    setIsSearching(false);
+    if (trimmed) {
+      setRecentKeywords(await searchHistoryStorage.add(trimmed));
+    }
+  }, [draftKeyword]);
+
+  const pickRecent = useCallback(async (keyword: string) => {
+    setFilters((prev) => ({ ...prev, keyword }));
+    setIsSearching(false);
+    setRecentKeywords(await searchHistoryStorage.add(keyword));
+  }, []);
+
+  const removeRecent = useCallback(async (keyword: string) => {
+    setRecentKeywords(await searchHistoryStorage.remove(keyword));
+  }, []);
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderItem = useCallback(
-    ({ item }: { item: UserSearchResult }) => (
-      <UserRow
-        user={item}
-        isFollowing={followingIds.has(item.id)}
-        followStateKnown={followStateKnown}
+    ({ item }: { item: PostSummary }) => (
+      <PostThumbnail
+        post={item}
+        onPress={() => router.push(`/post/${item.postId}`)}
       />
     ),
-    [followingIds, followStateKnown]
+    [router]
   );
 
-  const keyExtractor = useCallback((user: UserSearchResult) => user.id, []);
+  const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
 
-  // 검색어가 없을 때 채우는 탐색 그리드 — 추천 피드를 쓴다.
-  const {
-    data: exploreData,
-    isLoading: exploreLoading,
-    isError: exploreIsError,
-    error: exploreError,
-    hasNextPage: exploreHasNextPage,
-    isFetchingNextPage: exploreIsFetchingNextPage,
-    fetchNextPage: exploreFetchNextPage,
-  } = useRecommendedFeedQuery();
+  if (isSearching) {
+    return (
+      <View className="flex-1 bg-page">
+        <View className="flex-row items-center gap-md border-b border-border px-lg py-lg">
+          <Pressable onPress={() => setIsSearching(false)} hitSlop={8}>
+            <BackArrowIcon width={20} height={20} color={COLORS.text} />
+          </Pressable>
+          <View className="h-[44px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-lg">
+            <TextInput
+              value={draftKeyword}
+              onChangeText={setDraftKeyword}
+              onSubmitEditing={submitSearch}
+              placeholder={t('searchPage.postPlaceholder')}
+              placeholderTextColor={COLORS.textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+              returnKeyType="search"
+              className="flex-1 text-primary"
+            />
+            {draftKeyword.length > 0 && (
+              <Pressable onPress={() => setDraftKeyword('')} hitSlop={8}>
+                <Text className="text-muted">✕</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
 
-  const explorePosts = exploreData?.pages.flatMap((page) => page.items) ?? [];
-  const hasNoExplorePosts = explorePosts.length === 0;
+        <View className="gap-md p-lg">
+          <Text variant="label" className="text-muted">
+            {t('searchPage.recentTitle')}
+          </Text>
+          <View className="flex-row flex-wrap gap-sm">
+            {recentKeywords.map((keyword) => (
+              <View
+                key={keyword}
+                className="flex-row items-center gap-sm rounded-full bg-surface px-lg py-sm"
+              >
+                <Pressable onPress={() => pickRecent(keyword)} hitSlop={4}>
+                  <Text className="text-primary">{keyword}</Text>
+                </Pressable>
+                <Pressable onPress={() => removeRecent(keyword)} hitSlop={8}>
+                  <Text className="text-muted">✕</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
 
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const handleExploreEndReached = useCallback(() => {
-    if (exploreHasNextPage && !exploreIsFetchingNextPage) {
-      exploreFetchNextPage();
-    }
-  }, [exploreHasNextPage, exploreIsFetchingNextPage, exploreFetchNextPage]);
-
-  const renderExploreItem = useCallback(
-    ({ item, index }: { item: PostSummary; index: number }) => (
-      <PostThumbnail post={item} onPress={() => setActiveIndex(index)} />
-    ),
-    []
-  );
-
-  const keyExtractorExplore = useCallback(
-    (post: PostSummary) => post.postId,
-    []
-  );
-
-  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-page">
-      <View className="flex-row items-center gap-md border-b border-border px-lg py-lg">
-        <View className="h-[44px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-lg">
+      <View className="flex-row items-center gap-md px-lg pb-md pt-lg">
+        <Pressable
+          onPress={openSearch}
+          className="h-[44px] flex-1 flex-row items-center gap-sm rounded-md bg-surface px-lg"
+        >
           <SearchIcon width={22} height={22} color={COLORS.textMuted} />
-          <TextInput
-            value={keyword}
-            onChangeText={setKeyword}
-            placeholder={t('searchPage.placeholder')}
-            placeholderTextColor={COLORS.textMuted}
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="search"
-            className="flex-1 text-primary"
+          <Text className={filters.keyword ? 'text-primary' : 'text-muted'}>
+            {filters.keyword || t('searchPage.postPlaceholder')}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setFilterVisible(true)}
+          hitSlop={8}
+          className={cn(
+            'relative h-[40px] w-[40px] items-center justify-center rounded-md border',
+            filterCount > 0
+              ? 'border-brand bg-brand-subtle'
+              : 'border-border bg-page'
+          )}
+        >
+          <FilterIcon
+            width={20}
+            height={20}
+            color={filterCount > 0 ? COLORS.brand : COLORS.textSecondary}
           />
-        </View>
-        <Link href="/social" asChild>
-          <Pressable
-            hitSlop={8}
-            className="h-[34px] w-[34px] items-center justify-center rounded-full border border-border bg-subtle"
-          />
-        </Link>
+          {filterCount > 0 && (
+            <View className="absolute -right-[6px] -top-[6px] h-[18px] w-[18px] items-center justify-center rounded-full bg-brand">
+              <Text variant="caption" className="text-on-brand">
+                {filterCount}
+              </Text>
+            </View>
+          )}
+        </Pressable>
       </View>
 
-      {!hasQuery && (
-        <FlashList
-          data={explorePosts}
-          keyExtractor={keyExtractorExplore}
-          numColumns={columns}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
-          onEndReached={handleExploreEndReached}
-          onEndReachedThreshold={0.5}
-          renderItem={renderExploreItem}
-          ListEmptyComponent={
-            !exploreLoading && !exploreIsError ? (
-              <View className="items-center py-3xl">
-                <Text className="text-center text-muted">
-                  {t('searchPage.emptyFeed', { newline: '\n' })}
-                </Text>
-              </View>
-            ) : null
-          }
-          ListHeaderComponent={
-            <>
-              {exploreLoading && hasNoExplorePosts && (
-                <View className="items-center py-xl">
-                  <ActivityIndicator color={COLORS.brand} />
-                </View>
-              )}
-              {exploreIsError && hasNoExplorePosts && (
-                <View className="items-center py-xl">
-                  <Text className="text-error">
-                    {(exploreError as Error).message}
-                  </Text>
-                </View>
-              )}
-            </>
-          }
-          ListFooterComponent={
-            exploreIsFetchingNextPage ? (
-              <View className="items-center py-lg">
-                <ActivityIndicator color={COLORS.brand} />
-              </View>
-            ) : null
-          }
-        />
+      {chips.length > 0 && (
+        <View className="flex-row flex-wrap gap-sm px-lg pb-md">
+          {chips.map((chip) => (
+            <Pressable
+              key={chip.key}
+              onPress={() => removeChip(chip)}
+              className="flex-row items-center gap-sm rounded-full bg-brand-subtle px-md py-xs"
+            >
+              <Text variant="label" className="text-link">
+                {chip.label}
+              </Text>
+              <Text variant="label" className="text-link">
+                ✕
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       )}
 
-      {hasQuery && isLoading && (
+      <View className="flex-row items-center justify-between border-b border-border px-lg pb-md">
+        <Text variant="label" className="text-muted">
+          {filters.keyword
+            ? t('searchPage.resultTitle', { keyword: filters.keyword })
+            : ''}
+        </Text>
+        <SortSelect
+          value={filters.sort}
+          allowAccuracy={canUseAccuracySort}
+          onChange={(sort) => setFilters((prev) => ({ ...prev, sort }))}
+        />
+      </View>
+
+      {isLoading && (
         <View className="items-center py-3xl">
           <ActivityIndicator color={COLORS.brand} />
         </View>
       )}
 
-      {hasQuery && isError && (
+      {isError && (
         <View className="items-center gap-sm py-3xl">
           <Text className="text-error">{(error as Error).message}</Text>
+          <Pressable onPress={() => refetch()}>
+            <Text className="font-bold text-link">{t('feed.retry')}</Text>
+          </Pressable>
         </View>
       )}
 
-      {hasQuery && !isLoading && !isError && (
+      {!isLoading && !isError && (
         <FlashList
-          data={results}
+          data={posts}
           keyExtractor={keyExtractor}
-          renderItem={renderItem}
+          numColumns={columns}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
+          renderItem={renderItem}
           ListEmptyComponent={
             <View className="items-center py-3xl">
-              <Text className="text-muted">
-                {t('searchPage.emptyResult', { keyword: debouncedKeyword })}
+              <Text className="text-center text-muted">
+                {filters.keyword
+                  ? t('searchPage.emptyPostResult', {
+                      keyword: filters.keyword,
+                    })
+                  : t('searchPage.emptyFeed', { newline: '\n' })}
               </Text>
             </View>
           }
@@ -248,13 +306,12 @@ export function SearchPage() {
         />
       )}
 
-      {activeIndex !== null && (
-        <PostDetailModal
-          posts={explorePosts}
-          startIndex={activeIndex}
-          onClose={() => setActiveIndex(null)}
-        />
-      )}
+      <PostFilterSheet
+        visible={filterVisible}
+        value={{ timeslot: filters.timeslot, tags: filters.tags }}
+        onApply={(value) => setFilters((prev) => ({ ...prev, ...value }))}
+        onClose={() => setFilterVisible(false)}
+      />
     </View>
   );
 }

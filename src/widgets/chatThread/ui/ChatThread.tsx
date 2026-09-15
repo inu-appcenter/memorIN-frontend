@@ -8,7 +8,7 @@ import {
   type DummyMessage,
   type DummyChatRoom,
 } from '@/shared/config/dummy';
-import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
+import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import { ChatInputBar } from './ChatInputBar';
 
 interface ChatThreadProps {
@@ -40,7 +40,7 @@ export function ChatThread({ room, onPressBack }: ChatThreadProps) {
         <View className="flex-row items-center gap-md">
           {onPressBack && (
             <Pressable onPress={onPressBack} hitSlop={8}>
-              <ArrowLeftIcon width={20} height={20} color={COLORS.text} />
+              <BackArrowIcon width={20} height={20} color={COLORS.text} />
             </Pressable>
           )}
           <Text className="font-bold">{room.name}</Text>

@@ -28,17 +28,35 @@
     "monthPostsLoad": "이번 달 기록을 불러오지 못했습니다",
     "followReject": "팔로우 요청을 거절하지 못했습니다",
     "pushRegister": "알림을 켜지 못했어요",
-    "pushUnregister": "알림을 끄지 못했어요"
+    "pushUnregister": "알림을 끄지 못했어요",
+    "notificationsLoad": "알림을 불러오지 못했어요.",
+    "notificationRead": "알림 읽음 처리에 실패했어요."
   },
   "post": {
     "timeslotAm": "오전",
     "timeslotPm": "오후",
+    "timeslotAmBadge": "오전 기록",
+    "timeslotPmBadge": "오후 기록",
+    "dayToday": "오늘",
+    "dayYesterday": "어제",
     "emptyContent": "내용 없음",
     "deleteTitle": "게시물 삭제",
     "deleteConfirm": "이 게시물을 삭제할까요?",
     "deleteFailTitle": "삭제 실패",
     "deleteFailMessage": "삭제 실패: {{message}}",
     "playVideo": "재생"
+  },
+  "tag": {
+    "study": "공부",
+    "game": "게임",
+    "animal": "동물",
+    "travel": "여행",
+    "exercise": "운동",
+    "food": "음식",
+    "music": "음악",
+    "daily": "일상",
+    "hobby": "취미",
+    "etc": "기타"
   },
   "action": {
     "cancel": "취소",
@@ -73,7 +91,9 @@
     "search": "탐색",
     "log": "기록",
     "chat": "채팅",
-    "settings": "설정"
+    "settings": "설정",
+    "profile": "마이",
+    "home": "홈"
   },
   "calendar": {
     "weekday": {
@@ -85,7 +105,8 @@
       "fri": "금",
       "sat": "토"
     },
-    "dateHeading": "{{month}}월 {{day}}일 {{weekday}}요일"
+    "dateHeading": "{{month}}월 {{day}}일 {{weekday}}요일",
+    "monthOption": "{{month}}월"
   },
   "reply": {
     "placeholder": "댓글 달기..."
@@ -113,7 +134,16 @@
     "pushOff": "꺼짐",
     "pushOn": "켜짐",
     "pushEnabled": "알림을 켰어요",
-    "pushDisabled": "알림을 껐어요"
+    "pushDisabled": "알림을 껐어요",
+    "sectionProfile": "프로필",
+    "sectionNotification": "알림 설정",
+    "sectionSupport": "고객 지원",
+    "sectionEtc": "기타",
+    "rowAccount": "계정 설정",
+    "rowMyRecords": "내 기록 관리",
+    "rowFriends": "친구 관리",
+    "rowNotification": "알림 설정",
+    "rowNotice": "공지사항 및 정책"
   },
   "auth": {
     "signInFailed": "로그인 실패",
@@ -155,7 +185,9 @@
     "visibilityPublic": "전체",
     "visibilityFriends": "친구",
     "visibilityPrivate": "나만 보기",
-    "visibilityPrivateCompact": "나만"
+    "visibilityPrivateCompact": "나만",
+    "tagSectionTitle": "태그",
+    "tagSectionMax": "최대 {{max}}개"
   },
   "postEdit": {
     "title": "게시물 수정",
@@ -187,7 +219,8 @@
     "commentFailTitle": "댓글 작성 실패",
     "commentFailMessage": "댓글 작성 실패: {{message}}",
     "daySummary": "오전 · 오후 {{count}}/2 기록 완료",
-    "viewAsStory": "스토리로 보기 ›"
+    "viewAsStory": "스토리로 보기 ›",
+    "viewRecord": "기록 보기 ›"
   },
   "feedPanel": {
     "myAccount": "내 계정",
@@ -258,7 +291,13 @@
     "done": "완료",
     "assetCount": "{{count}}장 · 자동 압축됨",
     "hintPrivate": "· 나만 보기로 설정하면 댓글・반응이 꺼져요",
-    "hintCompress": "· 업로드 시 이미지・영상이 자동으로 압축돼요"
+    "hintCompress": "· 업로드 시 이미지・영상이 자동으로 압축돼요",
+    "addMedia": "추가",
+    "changeMedia": "변경",
+    "discardTitle": "작성을 그만둘까요?",
+    "discardMessage": "고른 사진과 쓴 글이 사라집니다.",
+    "discardCancel": "계속 쓰기",
+    "discardConfirm": "나가기"
   },
   "feed": {
     "title": "피드",
@@ -285,7 +324,18 @@
   "searchPage": {
     "placeholder": "아이디 · 이름으로 검색",
     "emptyFeed": "아직 표시할 기록이 없어요{{newline}}친구를 팔로우해보세요",
-    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요"
+    "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요",
+    "filterTitle": "필터",
+    "filterTimeslot": "시간대",
+    "filterReset": "초기화",
+    "filterApply": "적용하기",
+    "sortAccuracy": "정확도 순",
+    "sortLatest": "최신 순",
+    "sortPopular": "인기 순",
+    "recentTitle": "최근 검색",
+    "resultTitle": "'{{keyword}}' 결과",
+    "postPlaceholder": "기록·순간 검색",
+    "emptyPostResult": "'{{keyword}}'와(과) 일치하는 기록이 없어요"
   },
   "socialPage": {
     "title": "친구 관리",
@@ -316,5 +366,51 @@
   "sharedPost": {
     "viewRecord": "기록 보기 ›",
     "meta": "{{name}} · {{month}}월 {{day}}일"
+  },
+  "notification": {
+    "title": "알림",
+    "empty": "아직 받은 알림이 없어요.",
+    "groupToday": "오늘",
+    "groupYesterday": "어제",
+    "groupWeek": "최근 7일",
+    "groupEarlier": "그 이전",
+    "followRequest": "님이 팔로우를 요청했어요.",
+    "followAccepted": "님이 팔로우를 승인했어요.",
+    "comment": "님이 회원님의 기록에 댓글을 남겼어요.",
+    "like": "님이 회원님의 기록을 좋아해요.",
+    "timeJustNow": "방금",
+    "timeMinutesAgo": "{{count}}분 전",
+    "timeHoursAgo": "{{count}}시간 전",
+    "timeDaysAgo": "{{count}}일 전"
+  },
+  "notificationSettings": {
+    "title": "알림 설정",
+    "allPush": "모든 푸시 알림",
+    "like": "좋아요",
+    "comment": "댓글",
+    "followRequest": "팔로우 요청",
+    "message": "메시지 알림",
+    "followerRecord": "팔로워 기록 업데이트"
+  },
+  "account": {
+    "title": "계정 설정",
+    "changePhoto": "사진 변경",
+    "nickname": "별명",
+    "displayName": "사용자 이름",
+    "department": "학과",
+    "studentId": "학번",
+    "username": "아이디",
+    "email": "이메일",
+    "password": "비밀번호",
+    "changePassword": "비밀번호 변경",
+    "unsupportedNote": "별명·학과·학번과 프로필 사진은 준비 중이에요. 값 수정도 곧 열려요."
+  },
+  "passwordChange": {
+    "title": "비밀번호 변경",
+    "current": "기존 비밀번호 입력",
+    "next": "새 비밀번호",
+    "confirm": "새 비밀번호 확인",
+    "mismatch": "새 비밀번호가 서로 달라요",
+    "submit": "변경하기"
   }
 }

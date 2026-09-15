@@ -3,13 +3,13 @@ import { Alert, Platform, Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { Sheet } from '@/shared/ui/sheet';
 import { useDeletePost } from '@/entities/post/model/useDeletePost';
-import type { PostSummary } from '@/entities/post/api/postsApi';
+import type { PostActionTarget } from '@/entities/post/api/postsApi';
 import { PostShareSheet } from '@/features/post-share';
 import { EditPostSheet } from './EditPostSheet';
 import { useTranslation } from 'react-i18next';
 
 interface PostActionsMenuProps {
-  post: PostSummary;
+  post: PostActionTarget;
   isOwnPost: boolean; // 수정/삭제는 본인 게시물에서만 노출. 공유는 항상 노출.
   variant?: 'dark' | 'light'; // dark = 스토리 뷰어 오버레이 위, light = 일반 화면
   onDeleted?: () => void; // 스토리 뷰어처럼 삭제 후 화면 자체를 닫아야 하는 경우

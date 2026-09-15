@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import type { TimeslotType, VisibilityType } from '@/entities/post';
+import type { TagType, TimeslotType, VisibilityType } from '@/entities/post';
 
 export function usePostForm() {
   const [caption, setCaption] = useState('');
   const [timeslot, setTimeslot] = useState<TimeslotType>('AM');
   const [visibility, setVisibility] = useState<VisibilityType>('PUBLIC');
+  const [tags, setTags] = useState<TagType[]>([]);
 
   return {
     caption,
@@ -13,5 +14,7 @@ export function usePostForm() {
     setTimeslot,
     visibility,
     setVisibility,
+    tags,
+    setTags,
   };
 }
