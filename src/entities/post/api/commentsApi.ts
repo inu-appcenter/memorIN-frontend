@@ -16,14 +16,34 @@ export interface PostComment {
   emojis: EmojiSummary[]; // 이 댓글에 달린 이모지 집계. 없으면 빈 배열
 }
 
+export interface CommentPage {
+  items: PostComment[];
+  nextCursor: string | null;
+  hasNext: boolean;
+}
+
+export interface GetCommentThreadParams {
+  cursor?: string;
+  size?: number;
+}
+
 export interface CreateCommentParams {
   body: string;
   parentId?: string;
 }
 
-export async function getCommentThread(postId: string): Promise<PostComment[]> {
-  const { data } = await client.get<ApiResponse<PostComment[]>>(
-    `/api/posts/${postId}/comments`
+// GET /api/posts/{postId}/comments
+//
+// 페이징 단위는 최상위 댓글이다. 한 페이지에 실린 최상위 댓글의 대댓글은 개수와
+// 무관하게 전부 같이 오므로 items.length가 size보다 클 수 있다. 다음 페이지 판단은
+// items.length가 아니라 hasNext로 하고, nextCursor는 마지막 최상위 댓글의 id다.
+export async function getCommentThread(
+  postId: string,
+  params: GetCommentThreadParams = {}
+): Promise<CommentPage> {
+  const { data } = await client.get<ApiResponse<CommentPage>>(
+    `/api/posts/${postId}/comments`,
+    { params: { cursor: params.cursor, size: params.size } }
   );
   if (!data.success || !data.data) {
     throw new ApiError(

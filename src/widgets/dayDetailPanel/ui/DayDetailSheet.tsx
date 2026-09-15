@@ -19,6 +19,7 @@ interface DayDetailSheetProps {
   date: Date;
   onChangeDate: (date: Date) => void;
   onOpenStory: (posts: PostSummary[], startIndex: number) => void;
+  onOpenPost?: (postId: string) => void;
 }
 
 // 이만큼 가로로 움직이면 제스처가 활성화된다(그 전까지는 스크롤/탭이 정상 동작).
@@ -54,6 +55,7 @@ export function DayDetailSheet({
   date,
   onChangeDate,
   onOpenStory,
+  onOpenPost,
 }: DayDetailSheetProps) {
   const { width } = useWindowDimensions();
   const translateX = useSharedValue(0);
@@ -119,7 +121,11 @@ export function DayDetailSheet({
         <ScrollView showsVerticalScrollIndicator={false}>
           <GestureDetector gesture={panGesture}>
             <Animated.View style={animatedStyle}>
-              <DayDetailContent date={date} onOpenStory={onOpenStory} />
+              <DayDetailContent
+                date={date}
+                onOpenStory={onOpenStory}
+                onOpenPost={onOpenPost}
+              />
             </Animated.View>
           </GestureDetector>
         </ScrollView>

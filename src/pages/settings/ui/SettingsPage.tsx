@@ -21,6 +21,7 @@ import {
 } from '@/shared/lib/i18n';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
+import { useLogout } from '@/features/auth/model/useLogout';
 import { usePushSubscription, type PushState } from '@/features/push';
 import ArrowLeftIcon from '@/shared/assets/icons/arrow-left.svg';
 
@@ -141,8 +142,10 @@ export function SettingsPage() {
   const { data: profile, isLoading } = useMyProfile();
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
   const push = usePushSubscription();
+  const logout = useLogout();
 
-  const appVersion = Constants.expoConfig?.version ?? t('settings.emptyValue' as any);
+  const appVersion =
+    Constants.expoConfig?.version ?? t('settings.emptyValue' as any);
 
   const languageLabel: Record<SupportedLanguage, string> = {
     ko: t('settings.languageKorean' as any),
@@ -205,6 +208,17 @@ export function SettingsPage() {
             </>
           )}
 
+          {/* 폰 마이페이지 시안에 로그아웃 버튼이 없어 여기가 유일한 진입점이다 */}
+          <Pressable
+            onPress={() => logout.mutate()}
+            disabled={logout.isPending}
+            className="min-h-[56px] justify-center px-xl py-lg active:bg-subtle"
+          >
+            <Text className={logout.isPending ? 'text-muted' : 'text-error'}>
+              {logout.isPending ? t('profile.loggingOut') : t('profile.logout')}
+            </Text>
+          </Pressable>
+
           <SectionTitle label={t('settings.sectionGeneral' as any)} />
           <SettingRow
             label={t('settings.fieldLanguage' as any)}
@@ -223,7 +237,10 @@ export function SettingsPage() {
           />
 
           <SectionTitle label={t('settings.sectionAppInfo' as any)} />
-          <SettingRow label={t('settings.fieldVersion' as any)} value={appVersion} />
+          <SettingRow
+            label={t('settings.fieldVersion' as any)}
+            value={appVersion}
+          />
         </ScrollView>
       </View>
 

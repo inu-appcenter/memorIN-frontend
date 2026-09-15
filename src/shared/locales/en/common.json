@@ -91,7 +91,9 @@
     "search": "Explore",
     "log": "Log",
     "chat": "Chat",
-    "settings": "Settings"
+    "settings": "Settings",
+    "profile": "Me",
+    "home": "Home"
   },
   "calendar": {
     "weekday": {
@@ -103,7 +105,8 @@
       "fri": "Fri",
       "sat": "Sat"
     },
-    "dateHeading": "{{weekday}}, {{month}}/{{day}}"
+    "dateHeading": "{{weekday}}, {{month}}/{{day}}",
+    "monthOption": "{{month}}"
   },
   "reply": {
     "placeholder": "Add a comment..."
@@ -207,7 +210,8 @@
     "commentFailTitle": "Couldn't post comment",
     "commentFailMessage": "Couldn't post comment: {{message}}",
     "daySummary": "{{count}}/2 records logged (AM · PM)",
-    "viewAsStory": "View as story ›"
+    "viewAsStory": "View as story ›",
+    "viewRecord": "View record ›"
   },
   "feedPanel": {
     "myAccount": "My account",

@@ -15,6 +15,8 @@ export function useCommentThread(
     queryFn: () => getCommentThread(postId as string),
     enabled: Boolean(postId),
     refetchInterval: options?.refetchInterval,
+    // 호출부는 평면 배열을 기대해왔다. 더보기 UI가 붙기 전까지는 첫 페이지만 쓴다.
+    select: (page) => page.items,
   });
 }
 

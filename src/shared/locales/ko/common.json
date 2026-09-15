@@ -91,7 +91,9 @@
     "search": "탐색",
     "log": "기록",
     "chat": "채팅",
-    "settings": "설정"
+    "settings": "설정",
+    "profile": "마이",
+    "home": "홈"
   },
   "calendar": {
     "weekday": {
@@ -103,7 +105,8 @@
       "fri": "금",
       "sat": "토"
     },
-    "dateHeading": "{{month}}월 {{day}}일 {{weekday}}요일"
+    "dateHeading": "{{month}}월 {{day}}일 {{weekday}}요일",
+    "monthOption": "{{month}}월"
   },
   "reply": {
     "placeholder": "댓글 달기..."
@@ -207,7 +210,8 @@
     "commentFailTitle": "댓글 작성 실패",
     "commentFailMessage": "댓글 작성 실패: {{message}}",
     "daySummary": "오전 · 오후 {{count}}/2 기록 완료",
-    "viewAsStory": "스토리로 보기 ›"
+    "viewAsStory": "스토리로 보기 ›",
+    "viewRecord": "기록 보기 ›"
   },
   "feedPanel": {
     "myAccount": "내 계정",

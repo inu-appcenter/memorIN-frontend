@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
@@ -14,9 +14,12 @@ import { useLogout } from '@/features/auth/model/useLogout';
 import { useFeedQuery, PostThumbnail, type PostSummary } from '@/entities/post';
 import { useFriendsQuery } from '@/entities/user';
 import { PostDetailModal } from '@/widgets/postDetailModal';
+import { CalendarSection } from '@/widgets/calendarSection';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
 import { useTranslation } from 'react-i18next';
+
+const PHONE_AVATAR_SIZE = 96;
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
@@ -51,7 +54,7 @@ function ProfileHeader({
   const friendCountLabel =
     friendCount !== undefined ? String(friendCount) : '—';
 
-  const stacked = device === 'tablet' || device === 'phone';
+  const stacked = device === 'tablet';
 
   const EditButton = (
     <Pressable
@@ -97,7 +100,7 @@ function ProfileHeader({
     </Pressable>
   );
 
-  const avatarSize = device === 'desktop' ? 88 : device === 'tablet' ? 68 : 64;
+  const avatarSize = device === 'desktop' ? 88 : 68;
   const Avatar = (
     <View
       className="rounded-full border border-border bg-subtle"
@@ -145,52 +148,74 @@ function ProfileHeader({
     );
   }
 
-  if (device === 'tablet') {
-    return (
-      <View className="gap-lg px-xl py-xl">
-        <View className="flex-row gap-lg">
-          {Avatar}
-          <View className="justify-between" style={{ minHeight: avatarSize }}>
-            <View>
-              <Text variant="heading" className="font-bold text-primary">
-                {username}
-              </Text>
-              <Text className="text-muted">{displayName}</Text>
-            </View>
-            {StatsRow}
-          </View>
-        </View>
-        <View className="flex-row gap-md">
-          {EditButton}
-          {SocialButton}
-          {LogoutButton}
-        </View>
-      </View>
-    );
-  }
-
-  // phone
+  // tablet
   return (
-    <View className="gap-lg px-lg py-xl">
-      <View className="flex-row items-center gap-lg">
+    <View className="gap-lg px-xl py-xl">
+      <View className="flex-row gap-lg">
         {Avatar}
-        <View className="gap-xs">
-          <Text variant="heading" className="font-bold text-primary">
-            {username}
-          </Text>
-          <Text className="text-muted">{displayName}</Text>
-          <Text className="text-muted">
-            {t('profile.statSummary', {
-              postCount: postCountLabel,
-              friendCount: friendCountLabel,
-            })}
-          </Text>
+        <View className="justify-between" style={{ minHeight: avatarSize }}>
+          <View>
+            <Text variant="heading" className="font-bold text-primary">
+              {username}
+            </Text>
+            <Text className="text-muted">{displayName}</Text>
+          </View>
+          {StatsRow}
         </View>
       </View>
       <View className="flex-row gap-md">
         {EditButton}
         {SocialButton}
         {LogoutButton}
+      </View>
+    </View>
+  );
+}
+
+// 폰 시안 — 아바타 옆에 아이디·이름·소속, 그 아래 기록·친구 수가 한 줄로 붙는다.
+// 수정·친구 관리·로그아웃 버튼은 시안에 없고 설정으로 들어간다.
+function PhoneProfileSummary({
+  username,
+  displayName,
+  bio,
+  postCountLabel,
+  friendCountLabel,
+}: {
+  username: string;
+  displayName: string;
+  bio: string | null;
+  postCountLabel: string;
+  friendCountLabel: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <View className="flex-row items-center gap-xl px-lg py-xl">
+      <View
+        className="rounded-full border border-border bg-subtle"
+        style={{ width: PHONE_AVATAR_SIZE, height: PHONE_AVATAR_SIZE }}
+      />
+      <View className="flex-1 gap-sm">
+        <Text variant="title" className="font-bold text-primary">
+          {username}
+        </Text>
+        <View className="flex-row items-baseline gap-sm">
+          <Text className="text-secondary">{displayName}</Text>
+          {/* 시안의 '디자인학부 23' 자리. 백엔드에 학과·학번 필드가 없어 bio를 쓴다. */}
+          {bio ? (
+            <Text variant="label" className="text-muted">
+              {bio}
+            </Text>
+          ) : null}
+        </View>
+        <View className="flex-row gap-xl">
+          <Text className="font-bold text-primary">
+            {t('profile.statRecords')} {postCountLabel}
+          </Text>
+          <Text className="font-bold text-primary">
+            {t('profile.statFriends')} {friendCountLabel}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -203,6 +228,7 @@ export function ProfilePage() {
   const myId = useAuthStore((s) => s.user?.id);
   const { data: profile, isLoading } = useMyProfile();
   const friendsQuery = useFriendsQuery(myId);
+  const { t } = useTranslation();
 
   const {
     data,
@@ -219,6 +245,9 @@ export function ProfilePage() {
   // 게시물이 하나라도 이미 로드돼 있으면 로딩/에러 표시는 절대 띄우지 않는다.
   // (배경 리패치 중 feedLoading/isError가 잠깐 true여도 빈 padding 박스가 남는 문제 방지)
   const hasNoPosts = posts.length === 0;
+  const friendCountLabel = friendsQuery.isLoading
+    ? '—'
+    : String(friendsQuery.friends.length);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -234,25 +263,53 @@ export function ProfilePage() {
   );
 
   const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
-  const { t } = useTranslation();
+
+  const Header = (
+    <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
+      <Text variant="heading">{t('profile.title')}</Text>
+      <View className="flex-row items-center gap-lg">
+        {device === 'phone' && (
+          <Pressable onPress={() => router.push('/notifications')} hitSlop={8}>
+            <BellIcon width={20} height={22} color={COLORS.text} />
+          </Pressable>
+        )}
+        {/* 설정 — 폰에서의 진입점 */}
+        <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
+          <OptionIcon width={22} height={22} color={COLORS.text} />
+        </Pressable>
+      </View>
+    </View>
+  );
+
+  if (device === 'phone') {
+    return (
+      <View className="flex-1 bg-page">
+        {Header}
+        {isLoading ? (
+          <View className="items-center py-3xl">
+            <ActivityIndicator color={COLORS.brand} />
+          </View>
+        ) : (
+          <ScrollView className="flex-1">
+            <PhoneProfileSummary
+              username={profile?.username ?? ''}
+              displayName={profile?.displayName ?? ''}
+              bio={profile?.bio ?? null}
+              postCountLabel={postCountLabel}
+              friendCountLabel={friendCountLabel}
+            />
+            <View className="border-t border-border">
+              <CalendarSection />
+            </View>
+          </ScrollView>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-page">
-      <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
-        <Text variant="heading">{t('profile.title')}</Text>
-        <View className="flex-row items-center gap-lg">
-          {/* 알림 */}
-          {device === 'phone' && (
-            <Pressable onPress={showNotReady} hitSlop={8}>
-              <BellIcon width={20} height={22} color={COLORS.brand} />
-            </Pressable>
-          )}
-          {/* 설정 — 폰에서의 진입점 */}
-          <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
-            <OptionIcon width={22} height={22} color={COLORS.tertiary} />
-          </Pressable>
-        </View>
-      </View>
+      {Header}
 
       {isLoading ? (
         <View className="items-center py-3xl">

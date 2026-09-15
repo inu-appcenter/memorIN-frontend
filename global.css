@@ -101,6 +101,8 @@ input::-webkit-strong-password-auto-fill-button {
     --surface-dark-text-secondary: rgba(255, 255, 255, 0.7);
     --surface-dark-text-muted: rgba(255, 255, 255, 0.5);
     --surface-dark-avatar-bg: rgba(255, 255, 255, 0.15);
+    /* 미디어 없이 글만 있는 기록의 캘린더 셀 배경 */
+    --record-text-only: #2b1a1f;
   }
   /* Pressable 안의 Text가 웹에서 드래그 선택되는 것을 막는다.
    입력 요소는 선택이 필요하므로 제외한다. */
