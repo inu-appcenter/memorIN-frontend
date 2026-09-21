@@ -67,14 +67,25 @@ client.interceptors.request.use((config) => {
 });
 
 // 토큰 재발급 API 호출
+// client가 아니라 순수 axios를 쓰는 이유: 재발급 요청까지 응답 인터셉터를 타면
+// 401이 났을 때 재발급이 자기 자신을 다시 부르는 무한 루프가 된다.
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<{ accessToken: string; refreshToken: string }> {
-  const response = await axios.post<{
-    accessToken: string;
-    refreshToken: string;
-  }>(`${client.defaults.baseURL ?? ''}/auth/refresh`, { refreshToken });
-  return response.data;
+  const response = await axios.post<
+    ApiResponse<{ accessToken: string; refreshToken: string }>
+  >(`${client.defaults.baseURL ?? ''}/auth/refresh`, { refreshToken });
+
+  const body = response.data;
+
+  if (!body.success || !body.data) {
+    throw new ApiError(
+      body.error?.code ?? 'AUTH_003',
+      body.error?.message ?? i18next.t('error.sessionExpired')
+    );
+  }
+
+  return body.data;
 }
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
