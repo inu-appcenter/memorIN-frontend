@@ -32,7 +32,6 @@ export function SearchPage() {
   const router = useRouter();
   const { device } = useBreakpoints();
   const columns = columnsFor(device);
-
   const [filters, setFilters] = useState<PostSearchFilters>(
     DEFAULT_POST_SEARCH_FILTERS
   );
@@ -277,33 +276,35 @@ export function SearchPage() {
       )}
 
       {!isLoading && !isError && (
-        <FlashList
-          data={posts}
-          keyExtractor={keyExtractor}
-          numColumns={columns}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          renderItem={renderItem}
-          ListEmptyComponent={
-            <View className="items-center py-3xl">
-              <Text className="text-center text-muted">
-                {filters.keyword
-                  ? t('searchPage.emptyPostResult', {
-                      keyword: filters.keyword,
-                    })
-                  : t('searchPage.emptyFeed', { newline: '\n' })}
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View className="items-center py-lg">
-                <ActivityIndicator color={COLORS.brand} />
-              </View>
-            ) : null
-          }
-        />
+        <View className="flex-1">
+          <FlashList
+            data={posts}
+            keyExtractor={keyExtractor}
+            numColumns={columns}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            renderItem={renderItem}
+            // ListEmptyComponent={
+            //   <View className="items-center py-3xl">
+            //     <Text className="text-center text-muted">
+            //       {filters.keyword
+            //         ? t('searchPage.emptyPostResult', {
+            //             keyword: filters.keyword,
+            //           })
+            //         : t('searchPage.emptyFeed', { newline: '\n' })}
+            //     </Text>
+            //   </View>
+            // }
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <View className="items-center py-lg">
+                  <ActivityIndicator color={COLORS.brand} />
+                </View>
+              ) : null
+            }
+          />
+        </View>
       )}
 
       <PostFilterSheet
