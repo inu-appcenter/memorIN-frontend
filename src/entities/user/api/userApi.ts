@@ -107,10 +107,16 @@ export interface FollowRequestItem {
   bio: string | null;
 }
 
-// GET /api/follows/requests — 인증 필요. 내가 받은 PENDING 요청 목록(페이지네이션 없음, 배열 그대로).
-export async function getFollowRequests(): Promise<FollowRequestItem[]> {
-  const { data } = await client.get<ApiResponse<FollowRequestItem[]>>(
-    '/api/follows/requests'
+export type FollowRequestPage = CursorPage<FollowRequestItem>;
+
+// GET /api/follows/requests?cursor=&size= — 인증 필요, 커서 페이지네이션.
+// 내가 받은 PENDING 요청만 내려온다. size 기본 20, 최대 50.
+export async function getFollowRequests(
+  params: GetPageParams = {}
+): Promise<FollowRequestPage> {
+  const { data } = await client.get<ApiResponse<FollowRequestPage>>(
+    '/api/follows/requests',
+    { params }
   );
 
   if (!data.success || !data.data) {
