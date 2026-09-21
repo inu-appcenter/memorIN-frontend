@@ -65,7 +65,8 @@
   "comment": {
     "loading": "Loading...",
     "empty": "No comments yet. Be the first!",
-    "count": "Comments {{count}}",
+    "count": "{{count}} comments",
+    "countMore": "{{count}}+ comments",
     "deleted": "Deleted comment",
     "unknownAuthor": "Unknown",
     "timeJustNow": "Just now",
@@ -84,7 +85,8 @@
     "deleteTitle": "Delete comment",
     "deleteConfirm": "Delete this comment?",
     "editSave": "Save",
-    "editSaving": "Saving..."
+    "editSaving": "Saving...",
+    "moreComments": "Show more comments"
   },
   "tabs": {
     "feed": "Feed",

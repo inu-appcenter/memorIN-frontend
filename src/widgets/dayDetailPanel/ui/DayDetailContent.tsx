@@ -43,7 +43,11 @@ function formatClock(date: Date | null): string {
 // 게시물 하나의 좋아요/댓글 미리보기(개수 + 최근 2개). 입력은 DayDetailPanel 하단 공용 ReplyBar가 담당한다.
 function SlotCommentsPreview({ postId }: { postId: string }) {
   const { t } = useTranslation();
-  const { data: comments, isLoading } = useCommentThread(postId);
+  const {
+    data: comments,
+    isLoading,
+    hasNextPage: hasMoreComments,
+  } = useCommentThread(postId);
   const { liked, count: likeCount, toggle: toggleLike } = usePostLikes(postId); // PostCard와 같은 스토어라 피드 쪽 좋아요 상태와 자동으로 연동됨
   // 최근 댓글이 잘 보이도록 뒤에서 2개 — 백엔드가 오래된 순으로 내려주므로 새 댓글은 배열 끝에 붙는다
   const recentComments = comments?.slice(-2);
@@ -66,8 +70,11 @@ function SlotCommentsPreview({ postId }: { postId: string }) {
             {likeCount}
           </Text>
         </Pressable>
+        {/* 총 개수 API가 없어 불러온 만큼만 셀 수 있다. 남은 페이지가 있으면 "+"를 붙인다. */}
         <Text variant="body-small" className="text-secondary">
-          {t('comment.count', { count: comments?.length ?? 0 })}
+          {hasMoreComments
+            ? t('comment.countMore', { count: comments?.length ?? 0 })
+            : t('comment.count', { count: comments?.length ?? 0 })}
         </Text>
       </View>
       {!isLoading &&
@@ -113,7 +120,9 @@ function DayRecordCard({
     count: likeCount,
     toggle: toggleLike,
   } = usePostLikes(post?.postId ?? '');
-  const { data: comments } = useCommentThread(post?.postId);
+  const { data: comments, hasNextPage: hasMoreComments } = useCommentThread(
+    post?.postId
+  );
 
   const title = t('calendarPage.slotRecord', { slot: getSlotLabel(slot) });
 
@@ -206,8 +215,11 @@ function DayRecordCard({
             </Pressable>
             <View className="flex-row items-center gap-xs">
               <FeedChatIcon width={16} height={16} color={COLORS.tertiary} />
+              {/* 총 개수 API가 없어 불러온 만큼만 셀 수 있다. 남은 페이지가 있으면 "+"를 붙인다. */}
               <Text variant="body-small" className="text-tertiary">
-                {t('comment.count', { count: comments?.length ?? 0 })}
+                {hasMoreComments
+                  ? t('comment.countMore', { count: comments?.length ?? 0 })
+                  : t('comment.count', { count: comments?.length ?? 0 })}
               </Text>
             </View>
           </View>

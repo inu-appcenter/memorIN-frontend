@@ -62,8 +62,14 @@ function PostInfo({
     count: likeCount,
     toggle: toggleLike,
   } = usePostLikes(post.postId);
-  const { data: comments } = useCommentThread(post.postId);
+  const { data: comments, hasNextPage: hasMoreComments } = useCommentThread(
+    post.postId
+  );
+  // 총 개수 API가 없어 불러온 만큼만 셀 수 있다. 남은 페이지가 있으면 "+"를 붙인다.
   const commentCount = comments?.length ?? 0;
+  const commentCountLabel = hasMoreComments
+    ? `${commentCount}+`
+    : `${commentCount}`;
 
   return (
     <View className="flex-1">
@@ -113,7 +119,7 @@ function PostInfo({
           </Pressable>
           <View className="flex-row items-center gap-xs">
             <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
-            <Text className="text-tertiary">{commentCount}</Text>
+            <Text className="text-tertiary">{commentCountLabel}</Text>
           </View>
         </View>
       </View>

@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   createComment,
   deleteComment,
@@ -6,17 +10,28 @@ import {
   updateComment,
 } from '../api/commentsApi';
 
+// 페이징 단위는 최상위 댓글이다. 한 페이지에 실린 최상위 댓글의 답글은 개수와
+// 무관하게 전부 같이 오므로, 다음 페이지 판단은 items.length가 아니라 hasNext로 한다.
+//
+// select로 페이지를 평탄화해 호출부는 지금까지처럼 PostComment[] 하나만 다룬다.
+// 쿼리 키도 그대로 둔다 — 아래 뮤테이션들의 무효화가 이 키를 보고 있다.
 export function useCommentThread(
   postId: string | undefined,
   options?: { refetchInterval?: number }
 ) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['comments', postId],
-    queryFn: () => getCommentThread(postId as string),
+    queryFn: ({ pageParam }) =>
+      getCommentThread(postId as string, {
+        cursor: pageParam as string | undefined,
+        // size: 2, // 검증용. 커밋 전 제거
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
     enabled: Boolean(postId),
     refetchInterval: options?.refetchInterval,
-    // 호출부는 평면 배열을 기대해왔다. 더보기 UI가 붙기 전까지는 첫 페이지만 쓴다.
-    select: (page) => page.items,
+    select: (data) => data.pages.flatMap((page) => page.items),
   });
 }
 

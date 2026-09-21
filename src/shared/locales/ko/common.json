@@ -66,6 +66,7 @@
     "loading": "불러오는 중...",
     "empty": "아직 댓글이 없어요. 첫 댓글을 남겨보세요!",
     "count": "댓글 {{count}}",
+    "countMore": "댓글 {{count}}+",
     "deleted": "삭제된 댓글",
     "unknownAuthor": "알 수 없음",
     "timeJustNow": "방금",
@@ -84,7 +85,8 @@
     "deleteTitle": "댓글 삭제",
     "deleteConfirm": "이 댓글을 삭제할까요?",
     "editSave": "저장",
-    "editSaving": "저장 중..."
+    "editSaving": "저장 중...",
+    "moreComments": "댓글 더 보기"
   },
   "tabs": {
     "feed": "피드",
