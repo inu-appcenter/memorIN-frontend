@@ -275,7 +275,17 @@ export function SearchPage() {
         </View>
       )}
 
-      {!isLoading && !isError && (
+      {!isLoading && !isError && posts.length === 0 && (
+        <View className="flex-1 items-center py-3xl">
+          <Text className="text-center text-muted">
+            {filters.keyword
+              ? t('searchPage.emptyPostResult', { keyword: filters.keyword })
+              : t('searchPage.emptyFeed', { newline: '\n' })}
+          </Text>
+        </View>
+      )}
+
+      {!isLoading && !isError && posts.length > 0 && (
         <View className="flex-1">
           <FlashList
             data={posts}
@@ -285,17 +295,6 @@ export function SearchPage() {
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
             renderItem={renderItem}
-            // ListEmptyComponent={
-            //   <View className="items-center py-3xl">
-            //     <Text className="text-center text-muted">
-            //       {filters.keyword
-            //         ? t('searchPage.emptyPostResult', {
-            //             keyword: filters.keyword,
-            //           })
-            //         : t('searchPage.emptyFeed', { newline: '\n' })}
-            //     </Text>
-            //   </View>
-            // }
             ListFooterComponent={
               isFetchingNextPage ? (
                 <View className="items-center py-lg">
