@@ -14,5 +14,6 @@ export type {
   UserFollowSummary,
   UserFollowPage,
   FollowRequestItem,
+  FollowRequestPage,
   UserPublicProfile,
 } from './api/userApi';
