@@ -339,14 +339,17 @@
   },
   "socialPage": {
     "title": "친구 관리",
-    "searchPlaceholder": "아이디로 친구 검색",
+    "searchPlaceholder": "아이디 또는 이름으로 검색",
     "emptyResult": "‘{{keyword}}’에 대한 검색 결과가 없어요",
     "emptyFriends": "아직 친구가 없어요",
     "remove": "삭제",
     "accept": "수락",
     "reject": "거절",
     "requestsHeading": "받은 친구 요청 {{count}}",
-    "friendsHeading": "내 친구 {{count}}"
+    "friendsHeading": "내 친구 {{count}}",
+    "searchResultsHeading": "검색 결과",
+    "friendBadge": "친구",
+    "moreRequests": "요청 더 보기"
   },
   "recordPicker": {
     "title": "기록 공유",

@@ -339,14 +339,17 @@
   },
   "socialPage": {
     "title": "Manage friends",
-    "searchPlaceholder": "Search friends by username",
+    "searchPlaceholder": "Search by username or name",
     "emptyResult": "No results for ‘{{keyword}}’",
     "emptyFriends": "No friends yet",
     "remove": "Remove",
     "accept": "Accept",
     "reject": "Decline",
     "requestsHeading": "Friend requests {{count}}",
-    "friendsHeading": "My friends {{count}}"
+    "friendsHeading": "My friends {{count}}",
+    "searchResultsHeading": "Search results",
+    "friendBadge": "Friend",
+    "moreRequests": "Show more requests"
   },
   "recordPicker": {
     "title": "Share records",
