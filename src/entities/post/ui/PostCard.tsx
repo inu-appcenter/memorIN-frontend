@@ -134,8 +134,15 @@ function PostCardComponent({
     count: likeCount,
     toggle: toggleLike,
   } = usePostLikes(post.postId);
-  const { data: comments } = useCommentThread(post.postId);
+  const { data: comments, hasNextPage: hasMoreComments } = useCommentThread(
+    post.postId
+  );
+  // 총 개수 API가 없어 불러온 만큼만 셀 수 있다. 남은 페이지가 있으면 "+"를 붙여
+  // 확정값이 아님을 드러낸다 — CommentThread 헤더와 같은 규칙.
   const commentCount = comments?.length ?? 0;
+  const commentCountLabel = hasMoreComments
+    ? `${commentCount}+`
+    : `${commentCount}`;
 
   const showCommentsSheet = isCommentsActive && device !== 'desktop';
   const tags = post.tagTypes ?? [];
@@ -258,7 +265,7 @@ function PostCardComponent({
               className="flex-row items-center gap-xs"
             >
               <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
-              <Text className="text-tertiary">{commentCount}</Text>
+              <Text className="text-tertiary">{commentCountLabel}</Text>
             </Pressable>
             <Pressable onPress={() => setShareVisible(true)} hitSlop={8}>
               <ShareIcon width={20} height={20} />
