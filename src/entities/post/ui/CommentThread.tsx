@@ -314,7 +314,13 @@ export function CommentThread({
   const colors = getSurfaceColors(variant);
   const myId = useAuthStore((s) => s.user?.id);
 
-  const { data: comments, isLoading } = useCommentThread(postId, {
+  const {
+    data: comments,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useCommentThread(postId, {
     refetchInterval: polling ? POLLING_INTERVAL_MS : undefined,
   });
   const createComment = useCreateComment(postId);
@@ -373,12 +379,18 @@ export function CommentThread({
     replyTarget?.authorDisplayName ??
     t('comment.unknownAuthor');
 
+  const commentCount = comments?.length ?? 0;
+
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <View className="h-[48px] flex-row items-center justify-between px-lg">
         <Text variant="label" style={{ color: colors.textPrimary }}>
-          {/* 대댓글까지 포함한 전체 개수 — PostCard·DayDetailContent와 같은 기준 */}
-          {t('comment.count', { count: comments?.length ?? 0 })}
+          {/* 대댓글까지 포함한 개수 — PostCard·DayDetailContent와 같은 기준.
+              총 개수 API가 없어 불러온 만큼만 셀 수 있어서, 남은 페이지가 있으면
+              "+"를 붙여 확정값이 아님을 드러낸다(ProfilePage의 기록 수와 같은 규칙). */}
+          {hasNextPage
+            ? t('comment.countMore', { count: commentCount })
+            : t('comment.count', { count: commentCount })}
         </Text>
         {onClose && (
           <Pressable onPress={onClose} hitSlop={8}>
@@ -450,6 +462,23 @@ export function CommentThread({
             </View>
           );
         })}
+
+        {/* 최상위 댓글 기준 페이징. 답글은 부모가 속한 페이지에 함께 실려 오므로
+            items.length가 아니라 hasNext로 다음 페이지를 판단한다. */}
+        {hasNextPage && (
+          <Pressable
+            onPress={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            hitSlop={4}
+            className="items-center py-md"
+          >
+            <Text variant="caption" style={{ color: colors.textMuted }}>
+              {isFetchingNextPage
+                ? t('comment.loading')
+                : t('comment.moreComments')}
+            </Text>
+          </Pressable>
+        )}
       </ScrollView>
 
       <View style={{ borderTopWidth: 1, borderTopColor: colors.border }}>
