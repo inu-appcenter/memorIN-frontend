@@ -25,7 +25,8 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "favicon": "./assets/memorIN_ios.png"
     },
     "plugins": [
       "expo-video",
