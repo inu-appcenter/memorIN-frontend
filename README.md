@@ -186,4 +186,9 @@ cd backend
 
 ## 📄 라이선스
 
-추후 결정 예정입니다.
+이 저장소의 코드는 [MIT License](LICENSE)를 따릅니다.
+
+Copyright (c) 2026 INU AppCenter
+
+- 폰트 Pretendard는 SIL Open Font License 1.1을 따릅니다 ([OFL.txt](src/shared/assets/fonts/OFL.txt)).
+- 사용 중인 서드파티 라이브러리는 각자의 라이선스를 따릅니다.
