@@ -2,7 +2,7 @@ import { client, ApiError, type ApiResponse } from '@/shared/api/client';
 import i18next from '@/shared/lib/i18n';
 
 export type NotificationType =
-  'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'COMMENT' | 'LIKE';
+  'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'COMMENT' | 'LIKE' | 'MESSAGE';
 
 export interface NotificationItem {
   id: string;
@@ -14,6 +14,7 @@ export interface NotificationItem {
   // 모르는 타입이 오면 이 값을 그대로 보여준다.
   title: string;
   message: string;
+  // 타입마다 가리키는 대상이 다르다. COMMENT·LIKE는 postId, MESSAGE는 roomId.
   referenceId: string | null;
   read: boolean;
   createdAt: string;
