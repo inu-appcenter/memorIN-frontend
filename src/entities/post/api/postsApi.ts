@@ -216,25 +216,33 @@ export interface SearchPostsParams {
 }
 
 // GET /api/posts/search — 인증 필요.
-//
-// 이 엔드포인트만 ApiResponse 봉투 없이 PostListResponse를 그대로 반환한다.
 export async function searchPosts(
   params: SearchPostsParams = {}
 ): Promise<FeedPage> {
-  const { data } = await client.get<FeedPage>('/api/posts/search', {
-    params: {
-      keyword: params.keyword,
-      tags: params.tags?.length ? params.tags : undefined,
-      timeslot: params.timeslot,
-      sort: params.sort,
-      cursor: params.cursor,
-      size: params.size,
-    },
-    // axios 기본값은 tags[]=STUDY라 인덱스 표기를 끈다.
-    paramsSerializer: { indexes: null },
-  });
+  const { data } = await client.get<ApiResponse<FeedPage>>(
+    '/api/posts/search',
+    {
+      params: {
+        keyword: params.keyword,
+        tags: params.tags?.length ? params.tags : undefined,
+        timeslot: params.timeslot,
+        sort: params.sort,
+        cursor: params.cursor,
+        size: params.size,
+      },
+      // axios 기본값은 tags[]=STUDY라 인덱스 표기를 끈다.
+      paramsSerializer: { indexes: null },
+    }
+  );
 
-  return data;
+  if (!data.success || !data.data) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.postSearch')
+    );
+  }
+
+  return data.data;
 }
 // PATCH /api/posts/{postId} — 인증 필요, 작성자만 가능
 export async function updatePost(
