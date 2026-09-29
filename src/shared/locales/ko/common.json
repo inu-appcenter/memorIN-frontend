@@ -94,8 +94,10 @@
     "log": "기록",
     "chat": "채팅",
     "settings": "설정",
-    "profile": "마이",
-    "home": "홈"
+    "profile": "마이페이지",
+    "notifications": "알림",
+    "home": "홈",
+    "me": "마이"
   },
   "calendar": {
     "weekday": {
@@ -142,7 +144,6 @@
     "sectionSupport": "고객 지원",
     "sectionEtc": "기타",
     "rowAccount": "계정 설정",
-    "rowMyRecords": "내 기록 관리",
     "rowFriends": "친구 관리",
     "rowNotification": "알림 설정",
     "rowNotice": "공지사항 및 정책"

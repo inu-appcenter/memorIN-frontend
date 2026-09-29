@@ -9,6 +9,7 @@ import { Text } from '@/shared/ui/text';
 
 import {
   ALL_NAV_ITEMS,
+  DESKTOP_NAV_ITEMS,
   getBottomTabLabel,
   getTabLabel,
   PATH,
@@ -27,6 +28,7 @@ import SearchIcon from '@/shared/assets/icons/search.svg';
 import LogIcon from '@/shared/assets/icons/log.svg';
 import ChatIcon from '@/shared/assets/icons/chat.svg';
 import UserIcon from '@/shared/assets/icons/user.svg';
+import BellIcon from '@/shared/assets/icons/bell.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
 import MemorINLogo from '@/shared/assets/icons/memorIN_logo.svg';
 import MemorINtext from '@/shared/assets/icons/memorIN_text.svg';
@@ -43,6 +45,7 @@ const NAV_ICON: Record<SideNavItem, FC<SvgProps>> = {
   chat: ChatIcon,
   profile: UserIcon,
   settings: OptionIcon,
+  notifications: BellIcon,
 };
 
 function getActiveTab(pathname: string): SideNavItem | undefined {
@@ -135,9 +138,11 @@ function NavItem({
 function SideNav({
   compact,
   showUpload,
+  items,
 }: {
   compact: boolean;
   showUpload: boolean;
+  items: SideNavItem[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -159,7 +164,7 @@ function SideNav({
       )}
 
       <View className="mt-3xl gap-md">
-        {SIDE_NAV_ITEMS.map((item) => (
+        {items.map((item) => (
           <NavItem
             key={item}
             tab={item}
@@ -272,6 +277,7 @@ export function AppShell({ children }: PropsWithChildren) {
             key="side-nav"
             compact={device === 'tablet'}
             showUpload={device === 'tablet'}
+            items={device === 'desktop' ? DESKTOP_NAV_ITEMS : SIDE_NAV_ITEMS}
           />
         )}
 
