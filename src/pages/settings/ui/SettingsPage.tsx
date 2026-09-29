@@ -18,7 +18,6 @@ import {
 import { useLogout } from '@/features/auth/model/useLogout';
 import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
 import UserIcon from '@/shared/assets/icons/user.svg';
-import MailIcon from '@/shared/assets/icons/mail.svg';
 import UsersIcon from '@/shared/assets/icons/users.svg';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 import InfoIcon from '@/shared/assets/icons/info.svg';
@@ -167,12 +166,6 @@ export function SettingsPage() {
             label={t('settings.rowAccount')}
             onPress={() => router.push('/account')}
           />
-          {/* 시안이 헤더만 있는 빈 화면이라 무엇을 넣을지 정해진 뒤 만든다 */}
-          <NavRow
-            icon={MailIcon}
-            label={t('settings.rowMyRecords')}
-            onPress={showNotReady}
-          />
           <NavRow
             icon={UsersIcon}
             label={t('settings.rowFriends')}
@@ -193,7 +186,7 @@ export function SettingsPage() {
             onPress={showNotReady}
           />
 
-          {/* 시안에는 없지만 없애면 기능이 사라지는 항목들 */}
+          {/* 시안에는 없지만 없애면 기능이 사라지는 항목들 (언어 설정, 앱 버전, 로그아웃) */}
           <SectionTitle label={t('settings.sectionEtc')} />
           <Pressable
             onPress={() => setLanguageSheetVisible(true)}

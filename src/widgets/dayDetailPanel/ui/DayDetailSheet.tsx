@@ -1,5 +1,11 @@
 import { useMemo } from 'react';
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   ReduceMotion,
@@ -10,7 +16,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Sheet } from '@/shared/ui/sheet';
 import { addDays } from '@/shared/lib/calendarDate';
+import { COLORS } from '@/shared/lib/theme';
+import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { DayDetailContent } from './DayDetailContent';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import type { PostSummary } from '@/entities/post/api/postsApi';
 
 interface DayDetailSheetProps {
@@ -22,13 +31,12 @@ interface DayDetailSheetProps {
   onOpenPost?: (postId: string) => void;
 }
 
-// 이만큼 가로로 움직이면 제스처가 활성화된다(그 전까지는 스크롤/탭이 정상 동작).
+// 제스처가 활성화될 가로 움직임 기준값.
 const ACTIVATE_OFFSET_X_PX = 10;
-// 세로로 이만큼 움직이면 제스처를 포기하고 세로 스크롤에 양보한다.
+// 세로로 아래 설정값만큼 움직이면 제스처를 포기하고 세로 스크롤에 양보한다.
 const FAIL_OFFSET_Y_PX = 15;
 
-// 날짜를 넘길 거리는 화면 폭에 비례한다. 좁은 화면에서 고정값을 쓰면
-// 상대적으로 너무 멀게 느껴진다.
+// 날짜를 넘길 거리는 화면 폭에 비례한다. (좁은 화면에서 고정값을 쓰면 너무 멀게 느껴질 수 있음)
 const COMMIT_DISTANCE_RATIO = 0.12;
 const COMMIT_DISTANCE_MIN_PX = 28;
 const COMMIT_DISTANCE_MAX_PX = 80;
@@ -42,8 +50,19 @@ const ENTER_OFFSET_PX = 48;
 const ENTER_DURATION_MS = 200;
 const SPRING_BACK_DURATION_MS = 150;
 
-// 테블릿/폰 전용 — 캘린더 셀 선택 시 바텀시트로 날짜 상세 표시.
-// 시트가 열린 상태에서 좌우로 스와이프하면 하루씩 앞뒤로 이동한다.
+// 넓은 화면 모달 크기.
+const MODAL_WIDTH = 520;
+// 높이는 창 높이에 비례해 잡는다.
+const MODAL_MAX_HEIGHT = 820;
+const MODAL_MAX_HEIGHT_RATIO = 0.85;
+const CLOSE_RIGHT_INSET_PX = 28;
+// heading 토큰의 행 높이
+const HEADING_LINE_HEIGHT_PX = 26;
+const HEADING_LINE_HEIGHT_DESKTOP_PX = 29;
+
+// 캘린더 셀 선택 시 날짜 상세 표시.
+// 폰은 바텀시트, 태블릿·데스크탑은 중앙 모달이다.
+// 좌우로 스와이프하면 하루씩 앞뒤로 이동한다.
 //
 // PanResponder 대신 gesture-handler를 쓴다. 세로 ScrollView 안에서 가로
 // 스와이프를 잡으려면 (1) 안드로이드 네이티브 스크롤의 터치 가로채기,
@@ -57,7 +76,12 @@ export function DayDetailSheet({
   onOpenStory,
   onOpenPost,
 }: DayDetailSheetProps) {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const { device } = useBreakpoints();
+  const modalMaxHeight = Math.min(
+    MODAL_MAX_HEIGHT,
+    height * MODAL_MAX_HEIGHT_RATIO
+  );
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
 
@@ -67,10 +91,6 @@ export function DayDetailSheet({
   );
 
   const panGesture = useMemo(() => {
-    // direction: 1이면 다음 날, -1이면 이전 날.
-    // 날짜를 먼저 바꾸고 새 내용이 반대편에서 들어오게 한다. 나가는
-    // 애니메이션과 상태 변경을 맞물리게 하면 동기화가 복잡해지는데,
-    // 들어오는 연출만으로도 방향은 충분히 전달된다.
     const commit = (direction: 1 | -1) => {
       onChangeDate(addDays(date, direction));
       translateX.value = direction * ENTER_OFFSET_PX;
@@ -111,25 +131,72 @@ export function DayDetailSheet({
     opacity: opacity.value,
   }));
 
+  const content = (
+    <View className="select-none" style={{ flexShrink: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={animatedStyle}>
+            <DayDetailContent
+              date={date}
+              onOpenStory={onOpenStory}
+              onOpenPost={onOpenPost}
+            />
+          </Animated.View>
+        </GestureDetector>
+      </ScrollView>
+    </View>
+  );
+
+  if (device !== 'phone') {
+    if (!visible) return null;
+    return (
+      <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+        <View className="flex-1 items-center justify-center p-xl">
+          {/* 배경 클릭으로도 닫힌다 */}
+          <Pressable
+            onPress={onClose}
+            className="bg-black/60"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+          <View
+            className="w-full overflow-hidden rounded-lg border border-border bg-page p-lg"
+            style={{ maxWidth: MODAL_WIDTH, maxHeight: modalMaxHeight }}
+          >
+            {content}
+            {/* 폰 시트는 배경 탭과 드래그 핸들로 닫지만, 모달에는 그런 단서가
+                없어 명시적인 닫기 버튼을 둔다. 날짜 제목 줄 오른쪽 끝에 겹쳐
+                놓는다 — 흐름에 넣으면 제목 위로 빈 줄이 하나 더 생긴다.
+                content보다 뒤에 두는 건 RN Web에서 형제 View가 각각 독립된
+                스택 컨텍스트라 z-index로는 위로 못 올라오기 때문이다. */}
+            <Pressable
+              onPress={onClose}
+              hitSlop={8}
+              className="absolute top-lg items-center justify-center"
+              style={{
+                right: CLOSE_RIGHT_INSET_PX,
+                height:
+                  device === 'desktop'
+                    ? HEADING_LINE_HEIGHT_DESKTOP_PX
+                    : HEADING_LINE_HEIGHT_PX,
+              }}
+            >
+              <CrossIcon width={15} height={15} color={COLORS.textSecondary} />
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <Sheet visible={visible} onClose={onClose}>
-      {/* flexShrink: 1이 없으면 이 래퍼가 내용 높이만큼 늘어나 시트의
-          maxHeight를 넘고, 안쪽 ScrollView가 스크롤되지 않는다.
-          select-none은 웹에서 드래그가 텍스트 선택으로 해석돼 제스처를
-          방해하는 걸 막는다(RN ViewStyle 타입에 userSelect가 없어 클래스로 준다). */}
-      <View className="select-none" style={{ flexShrink: 1 }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <GestureDetector gesture={panGesture}>
-            <Animated.View style={animatedStyle}>
-              <DayDetailContent
-                date={date}
-                onOpenStory={onOpenStory}
-                onOpenPost={onOpenPost}
-              />
-            </Animated.View>
-          </GestureDetector>
-        </ScrollView>
-      </View>
+      {content}
     </Sheet>
   );
 }

@@ -320,7 +320,7 @@ function WideDayDetail({
               )}
             >
               <View
-                className="mb-sm h-[110px] w-full items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-surface"
+                className="mb-sm h-[200px] w-full items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-surface"
                 style={{ position: 'relative' }}
               >
                 {mediaUrl && isVideo ? (

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
@@ -15,11 +14,9 @@ import { PostVideoThumbnail } from '@/entities/post/ui/PostVideoThumbnail';
 import type { PostSummary, TimeslotType } from '@/entities/post/api/postsApi';
 import { useMonthPosts } from '../model/useMonthPosts';
 import { MonthPickerSheet } from './MonthPickerSheet';
-import BellIcon from '@/shared/assets/icons/bell.svg';
 import ChevronDownIcon from '@/shared/assets/icons/chevron-down.svg';
 import DayIcon from '@/shared/assets/icons/day.svg';
 import NightIcon from '@/shared/assets/icons/night.svg';
-import { showNotReady } from '@/shared/lib/showNotReady';
 
 const WEEKDAY_INDEXES = [0, 1, 2, 3, 4, 5, 6];
 
@@ -35,8 +32,6 @@ interface CalendarGridProps {
   onChangeMonth: (delta: number) => void;
 }
 
-// 오전은 노랑·해, 오후는 파랑·달. 노브는 오후일 때 오른쪽으로 간다.
-// 시안과 방향이 반대면 isKnobRight 한 줄만 뒤집으면 된다.
 function TimeslotSwitch({
   value,
   onChange,
@@ -81,15 +76,13 @@ function TimeslotSwitch({
   );
 }
 
-// 폰 시안 — 셀 테두리를 없애고 기록이 있는 날은 썸네일이 칸을 꽉 채운다.
-// 미디어 없이 글만 있는 기록은 짙은 사각형으로, 빈 날은 숫자만 남는다.
-function PhoneCalendarGrid({
+export function CalendarGrid({
   visibleMonth,
   selectedDate,
   onSelectDate,
   onChangeMonth,
 }: CalendarGridProps) {
-  const { t } = useTranslation();
+  const { device } = useBreakpoints();
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
 
@@ -121,6 +114,12 @@ function PhoneCalendarGrid({
     onChangeMonth((nextYear - year) * 12 + (nextMonth - month));
   };
 
+  const cellGap = device === 'phone' ? 'gap-xs' : 'gap-sm';
+  // 넓은 화면에서 aspect-square를 쓰면 칸 폭이 그대로 높이가 돼(1080/7 ≈ 150px)
+  // 한 달이 900px을 넘긴다. 높이를 고정해 한 화면에 들어오게 한다.
+  const cellSize =
+    device === 'phone' ? 'aspect-square w-full' : 'h-[96px] w-full';
+
   return (
     <View className="p-lg">
       <View className="mb-lg flex-row items-center justify-between">
@@ -138,7 +137,7 @@ function PhoneCalendarGrid({
         <TimeslotSwitch value={timeslot} onChange={setTimeslot} />
       </View>
 
-      <View className="mb-sm flex-row gap-xs">
+      <View className={cn('mb-sm flex-row', cellGap)}>
         {WEEKDAY_INDEXES.map((dayIndex) => (
           <Text
             key={dayIndex}
@@ -153,9 +152,9 @@ function PhoneCalendarGrid({
         ))}
       </View>
 
-      <View className="gap-xs">
+      <View className={cellGap}>
         {weeks.map((week, weekIndex) => (
-          <View key={weekIndex} className="flex-row gap-xs">
+          <View key={weekIndex} className={cn('flex-row', cellGap)}>
             {week.map((day) => {
               const selected = isSameDate(day.date, selectedDate);
               const post = postByDate.get(day.dateKey);
@@ -175,7 +174,8 @@ function PhoneCalendarGrid({
                 >
                   <View
                     className={cn(
-                      'aspect-square w-full items-center justify-center overflow-hidden rounded-md',
+                      cellSize,
+                      'items-center justify-center overflow-hidden rounded-md',
                       selected && 'border-2 border-brand'
                     )}
                   >
@@ -228,135 +228,5 @@ function PhoneCalendarGrid({
         onPick={handlePickMonth}
       />
     </View>
-  );
-}
-
-// 테블릿·데스크탑 — 해당 시안이 나오기 전까지 기존 모습을 유지한다.
-function WideCalendarGrid({
-  visibleMonth,
-  selectedDate,
-  onSelectDate,
-  onChangeMonth,
-}: CalendarGridProps) {
-  const { t } = useTranslation();
-  const year = visibleMonth.getFullYear();
-  const month = visibleMonth.getMonth();
-
-  const days = useMemo(() => buildMonthGrid(year, month), [year, month]);
-  // 7일씩 주 단위로 묶어서 행(row)을 명시적으로 만든다.
-  // basis-%(퍼센트) + gap을 같은 flex-wrap 행에 섞으면 좁은 너비에서
-  // 간격이 100%를 넘겨 마지막 칸이 다음 줄로 밀려나는 문제가 있었다.
-  const weeks = useMemo(() => {
-    const rows: (typeof days)[] = [];
-    for (let i = 0; i < days.length; i += 7) {
-      rows.push(days.slice(i, i + 7));
-    }
-    return rows;
-  }, [days]);
-
-  const { data: posts } = useMonthPosts(year, month);
-  const recordedDates = useMemo(
-    () => new Set((posts ?? []).map((post) => post.recordedDate)),
-    [posts]
-  );
-
-  return (
-    <View className="flex-1 p-lg">
-      <View className="mb-lg flex-row items-center justify-between">
-        <View className="flex-row items-center gap-md">
-          <Text variant="title">{t('calendarPage.title')}</Text>
-          <View className="flex-row items-center gap-sm">
-            <Pressable onPress={() => onChangeMonth(-1)} hitSlop={8}>
-              <Text variant="subheading" className="text-secondary">
-                ‹
-              </Text>
-            </Pressable>
-            <Text variant="body-strong" className="text-secondary">
-              {year}.{String(month + 1).padStart(2, '0')}
-            </Text>
-            <Pressable onPress={() => onChangeMonth(1)} hitSlop={8}>
-              <Text variant="subheading" className="text-secondary">
-                ›
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-        {/* 알림 아이콘 */}
-        <View className="flex-row items-center justify-between px-xl py-lg">
-          <Pressable onPress={showNotReady} hitSlop={8}>
-            <BellIcon width={20} height={22} />
-          </Pressable>
-        </View>
-      </View>
-      <View className="mb-sm flex-row gap-sm">
-        {WEEKDAY_INDEXES.map((dayIndex) => (
-          <Text
-            key={dayIndex}
-            variant="caption"
-            className={cn(
-              'flex-1 text-center text-muted',
-              dayIndex === 0 && 'text-error'
-            )}
-          >
-            {getWeekdayLabel(dayIndex)}
-          </Text>
-        ))}
-      </View>
-      <View className="gap-sm">
-        {weeks.map((week, weekIndex) => (
-          <View key={weekIndex} className="flex-row gap-sm">
-            {week.map((day) => {
-              const selected = isSameDate(day.date, selectedDate);
-              const hasRecord = recordedDates.has(day.dateKey);
-              return (
-                <Pressable
-                  key={day.dateKey}
-                  onPress={() => onSelectDate(day.date)}
-                  className={cn(
-                    'h-[68px] flex-1 rounded-md border p-xs',
-                    selected
-                      ? 'border-brand bg-brand'
-                      : 'border-border bg-page',
-                    !day.isCurrentMonth && 'opacity-40'
-                  )}
-                >
-                  <Text
-                    variant="body-small"
-                    className={
-                      selected
-                        ? 'text-on-brand'
-                        : day.isSunday
-                          ? 'text-error'
-                          : 'text-primary'
-                    }
-                  >
-                    {day.date.getDate()}
-                  </Text>
-                  <View className="flex-1 items-start justify-end">
-                    {hasRecord && (
-                      <Text
-                        variant="caption"
-                        className={selected ? 'text-on-brand' : 'text-accent'}
-                      >
-                        •••
-                      </Text>
-                    )}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-export function CalendarGrid(props: CalendarGridProps) {
-  const { device } = useBreakpoints();
-  return device === 'phone' ? (
-    <PhoneCalendarGrid {...props} />
-  ) : (
-    <WideCalendarGrid {...props} />
   );
 }
