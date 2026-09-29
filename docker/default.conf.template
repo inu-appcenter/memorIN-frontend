@@ -4,10 +4,16 @@
 # 20-envsubst-on-templates.sh가 `env`에 나열된 이름만 envsubst 대상으로 넘긴다).
 #
 # 단일 호스트 + 경로 분기 구성이다 — /api, /auth, /ws만 backend로 보내고 나머지는
-# SPA 정적 파일로 서빙한다. 웹/API가 같은 origin이라 CORS 설정이 필요 없다.
-# MinIO(storage.<도메인>)는 여기서 프록시하지 않는다 — presigned URL이 경로까지
-# 서명하는 SigV4라 프록시를 거치면 서명이 깨진다(SignatureDoesNotMatch). 클라이언트가
-# MinIO 도메인으로 직접 접근한다.
+# SPA 정적 파일로 서빙한다. 웹과 API가 같은 도메인이어도 backend의 CORS 검사는 받는다.
+# TLS는 앞단 리버스 프록시가 끝내고 이 서버는 80에서 http로 받으므로, 아래
+# X-Forwarded-Proto에는 $scheme인 http가 들어간다. backend는 이 값으로 자기 주소를
+# http://<웹 도메인>으로 보고, https인 브라우저 Origin을 다른 출처로 판단한다. 그래서
+# 운영 .env의 CORS_ALLOWED_ORIGINS에 웹 공개 주소가 없으면 Origin이 붙는 로그인 같은
+# POST 요청과 WebSocket 연결이 403으로 막힌다(memorIN-deploy README의 .env 필수값 참고).
+#
+# 스토리지는 여기서 프록시하지 않는다. presigned URL이 경로까지 서명하는 SigV4라
+# 프록시를 거치면 서명이 깨진다(SignatureDoesNotMatch). 클라이언트는 스토리지 전용
+# 호스트네임(backend MINIO_PUBLIC_ENDPOINT, memorIN-deploy README 참고)으로 직접 접근한다.
 
 server {
     listen 80;
