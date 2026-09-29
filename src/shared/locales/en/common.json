@@ -15,6 +15,7 @@
     "postCreate": "Couldn't create the post",
     "postUpdate": "Couldn't update the post",
     "postDelete": "Couldn't delete the post",
+    "postSearch": "Couldn't search posts",
     "profileLoad": "Couldn't load the profile",
     "userSearch": "Couldn't search users",
     "followersLoad": "Couldn't load followers",

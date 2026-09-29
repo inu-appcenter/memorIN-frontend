@@ -15,6 +15,7 @@
     "postCreate": "게시물을 작성하지 못했습니다",
     "postUpdate": "게시물을 수정하지 못했습니다",
     "postDelete": "게시물을 삭제하지 못했습니다",
+    "postSearch": "게시물을 검색하지 못했습니다",
     "profileLoad": "프로필을 불러오지 못했습니다",
     "userSearch": "사용자를 검색하지 못했습니다",
     "followersLoad": "팔로워 목록을 불러오지 못했습니다",
