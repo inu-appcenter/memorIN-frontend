@@ -1,6 +1,8 @@
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { DashedBox } from '@/shared/ui/dashedBox';
+import { COLORS } from '@/shared/lib/theme';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import type { PickedMediaAsset } from '../model/useMediaPicker';
 import { useTranslation } from 'react-i18next';
 
@@ -65,7 +67,7 @@ export function MediaPickerGrid({
                 disabled={disabled}
                 className="absolute right-xs top-xs h-[24px] w-[24px] items-center justify-center rounded-full bg-page transition-opacity hover:opacity-70"
               >
-                <Text className="text-error">×</Text>
+                <CrossIcon width={12} height={12} color={COLORS.error} />
               </Pressable>
             </View>
           ))}

@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Image, Modal, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
+import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import {
   extractPreviewText,
   getTimeslotLabel,
@@ -209,9 +211,7 @@ export function StoryViewer({ posts, startIndex, onClose }: StoryViewerProps) {
                   onDeleted={onClose}
                 />
                 <Pressable onPress={onClose} hitSlop={8}>
-                  <Text variant="heading" className="text-white">
-                    ×
-                  </Text>
+                  <CrossIcon width={15} height={15} color={COLORS.white} />
                 </Pressable>
               </View>
             </View>
