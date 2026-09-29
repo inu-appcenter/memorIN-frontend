@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import { dummyChatRooms, type DummyChatRoom } from '@/shared/config/dummy';
 import { ChatRoomListItem } from '@/entities/chatRoom';
 import SearchIcon from '@/shared/assets/icons/search.svg';
@@ -108,7 +109,7 @@ export function ChatRoomList({
                 hitSlop={8}
                 accessibilityLabel={t('chat.clearSearch')}
               >
-                <Text className="text-muted">✕</Text>
+                <CrossIcon width={15} height={15} color={COLORS.textMuted} />
               </Pressable>
             )}
           </View>

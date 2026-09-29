@@ -3,6 +3,7 @@ import { Modal, Pressable, useWindowDimensions, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import {
   extractPreviewText,
   formatRecordedLabel,
@@ -101,7 +102,7 @@ function PostInfoPanel({
           />
           {showClose && (
             <Pressable onPress={onClose} hitSlop={8}>
-              <Text className="text-secondary">✕</Text>
+              <CrossIcon width={15} height={15} color={COLORS.textSecondary} />
             </Pressable>
           )}
         </View>
@@ -181,7 +182,11 @@ export function PostDetailModal({
           <View className="h-[52px] flex-row items-center justify-between border-b border-border px-lg">
             <View className="flex-row items-center gap-md">
               <Pressable onPress={onClose} hitSlop={8}>
-                <Text className="text-secondary">✕</Text>
+                <CrossIcon
+                  width={15}
+                  height={15}
+                  color={COLORS.textSecondary}
+                />
               </Pressable>
               <Text variant="heading">{t('postDetail.title')}</Text>
             </View>

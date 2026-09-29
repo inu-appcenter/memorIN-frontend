@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import { cn } from '@/shared/lib/utils';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { columnsFor } from '@/shared/lib/gridColumns';
@@ -161,7 +162,7 @@ export function SearchPage() {
             />
             {draftKeyword.length > 0 && (
               <Pressable onPress={() => setDraftKeyword('')} hitSlop={8}>
-                <Text className="text-muted">✕</Text>
+                <CrossIcon width={15} height={15} color={COLORS.textMuted} />
               </Pressable>
             )}
           </View>
@@ -181,7 +182,7 @@ export function SearchPage() {
                   <Text className="text-primary">{keyword}</Text>
                 </Pressable>
                 <Pressable onPress={() => removeRecent(keyword)} hitSlop={8}>
-                  <Text className="text-muted">✕</Text>
+                  <CrossIcon width={15} height={15} color={COLORS.textMuted} />
                 </Pressable>
               </View>
             ))}
@@ -239,9 +240,7 @@ export function SearchPage() {
               <Text variant="label" className="text-link">
                 {chip.label}
               </Text>
-              <Text variant="label" className="text-link">
-                ✕
-              </Text>
+              <CrossIcon width={12} height={12} color={COLORS.brand} />
             </Pressable>
           ))}
         </View>

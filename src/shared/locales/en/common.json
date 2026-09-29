@@ -95,8 +95,10 @@
     "log": "Log",
     "chat": "Chat",
     "settings": "Settings",
-    "profile": "Me",
-    "home": "Home"
+    "profile": "My Page",
+    "notifications": "Notifications",
+    "home": "Home",
+    "me": "Me"
   },
   "calendar": {
     "weekday": {
@@ -143,7 +145,6 @@
     "sectionSupport": "Support",
     "sectionEtc": "Other",
     "rowAccount": "Account",
-    "rowMyRecords": "My records",
     "rowFriends": "Friends",
     "rowNotification": "Notification settings",
     "rowNotice": "Notices & policies"

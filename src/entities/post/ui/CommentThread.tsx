@@ -12,6 +12,7 @@ import { Text } from '@/shared/ui/text';
 import { Sheet } from '@/shared/ui/sheet';
 import { toast } from '@/shared/lib/toast';
 import { getSurfaceColors } from '@/shared/lib/theme';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import i18next from '@/shared/lib/i18n';
 import { ReplyBar } from '@/shared/ui/replyBar';
 import { ReactionBar } from '@/entities/reaction';
@@ -387,7 +388,7 @@ export function CommentThread({
         </Text>
         {onClose && (
           <Pressable onPress={onClose} hitSlop={8}>
-            <Text style={{ color: colors.textMuted }}>✕</Text>
+            <CrossIcon width={15} height={15} color={colors.textMuted} />
           </Pressable>
         )}
       </View>

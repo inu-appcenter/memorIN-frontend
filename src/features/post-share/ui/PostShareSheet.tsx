@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { Sheet } from '@/shared/ui/sheet';
@@ -8,6 +8,7 @@ import { toast } from '@/shared/lib/toast';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { dummyChatRooms } from '@/shared/config/dummy';
+import CrossIcon from '@/shared/assets/icons/cross.svg';
 import type { PostActionTarget } from '@/entities/post/api/postsApi';
 
 interface PostShareSheetProps {
@@ -19,14 +20,19 @@ interface PostShareSheetProps {
   onClose: () => void;
 }
 
-const DESKTOP_MODAL_WIDTH = 420;
-const DESKTOP_MODAL_MAX_HEIGHT = 560;
+const MODAL_WIDTH = 420;
+const MODAL_MAX_HEIGHT = 560;
+// 모달의 최소 높이 설정
+const ROOM_LIST_MIN_HEIGHT = 252;
+const CLOSE_RIGHT_INSET_PX = 28;
+const HEADING_LINE_HEIGHT_PX = 26;
+const HEADING_LINE_HEIGHT_DESKTOP_PX = 29;
 
 // 채팅방 다중 선택 후 게시물을 공유.
 // 백엔드 공유 API는 STOMP 전용(@MessageMapping "/chat.sharePost")이고 채팅방
 // 목록 API도 없어서, 실제 전송은 하지 않고 선택 상태만 로컬에서 관리한다.
 // 실 연동은 채팅방 목록 API가 나온 뒤 별도 이슈에서 진행한다.
-// 폰/태블릿은 하단 시트, 데스크탑은 중앙 모달로 분기한다.
+// 폰은 하단 시트, 태블릿·데스크탑은 모달로 띄운다.
 export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
   const { t } = useTranslation();
   const { device } = useBreakpoints();
@@ -69,7 +75,7 @@ export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
   };
 
   const content = (
-    <View className="gap-lg px-md">
+    <View className="flex-1 gap-lg px-md">
       <Text variant="heading">{t('share.title')}</Text>
 
       <View className="h-[44px] flex-row items-center rounded-md bg-surface px-lg">
@@ -85,43 +91,50 @@ export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
         />
       </View>
 
-      <View className="gap-xs">
-        {filteredRooms.map((room) => {
-          const selected = selectedIds.has(room.id);
-          return (
-            // 선택 상태는 우측 체크 하나로만 표현한다. 행 배경까지 바꾸면
-            // 같은 의미가 두 번 전달돼 시각적으로 과하다.
-            <Pressable
-              key={room.id}
-              onPress={() => toggleRoom(room.id)}
-              className="flex-row items-center gap-md rounded-md py-sm"
-            >
-              <View className="h-[44px] w-[44px] rounded-full bg-subtle" />
-              <View className="flex-1">
-                <Text className="font-bold">{room.name}</Text>
-                <Text className="text-muted" numberOfLines={1}>
-                  {room.lastMessage}
-                </Text>
-              </View>
-              <View
+      <ScrollView
+        style={{ flex: 1, minHeight: ROOM_LIST_MIN_HEIGHT }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="gap-xs">
+          {filteredRooms.map((room) => {
+            const selected = selectedIds.has(room.id);
+            return (
+              <Pressable
+                key={room.id}
+                onPress={() => toggleRoom(room.id)}
                 className={cn(
-                  'h-[22px] w-[22px] items-center justify-center rounded-full border',
-                  selected ? 'border-brand bg-brand' : 'border-border bg-page'
+                  'flex-row items-center gap-md rounded-md px-sm py-sm',
+                  selected && 'bg-brand-subtle'
                 )}
               >
-                {selected && <Text className="text-on-brand">✓</Text>}
-              </View>
-            </Pressable>
-          );
-        })}
-        {filteredRooms.length === 0 && (
-          <View className="items-center py-xl">
-            <Text className="text-muted">
-              {t('share.emptyResult', { keyword })}
-            </Text>
-          </View>
-        )}
-      </View>
+                <View className="h-[44px] w-[44px] rounded-full bg-subtle" />
+                <View className="flex-1">
+                  <Text className="font-bold">{room.name}</Text>
+                  <Text className="text-muted" numberOfLines={1}>
+                    {room.lastMessage}
+                  </Text>
+                </View>
+                <View
+                  className={cn(
+                    'h-[22px] w-[22px] items-center justify-center rounded-full border',
+                    selected ? 'border-brand bg-brand' : 'border-border bg-page'
+                  )}
+                >
+                  {selected && <Text className="text-on-brand">✓</Text>}
+                </View>
+              </Pressable>
+            );
+          })}
+          {filteredRooms.length === 0 && (
+            <View className="items-center py-xl">
+              <Text className="text-muted">
+                {t('share.emptyResult', { keyword })}
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
       <Pressable
         onPress={handleSend}
@@ -147,7 +160,7 @@ export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
     </View>
   );
 
-  if (device === 'desktop') {
+  if (device !== 'phone') {
     if (!visible) return null;
     return (
       <Modal
@@ -172,11 +185,28 @@ export function PostShareSheet({ visible, onClose }: PostShareSheetProps) {
           <View
             className="w-full overflow-hidden rounded-lg border border-border bg-page p-lg"
             style={{
-              maxWidth: DESKTOP_MODAL_WIDTH,
-              maxHeight: DESKTOP_MODAL_MAX_HEIGHT,
+              maxWidth: MODAL_WIDTH,
+              maxHeight: MODAL_MAX_HEIGHT,
             }}
           >
             {content}
+            {/* 폰 시트는 배경 탭과 드래그 핸들로 닫지만, 모달에서는 명시적인 닫기 버튼을 둔다. 
+                content보다 뒤에 두는 건 RN Web에서 형제 View가 각각 독립된 스택 컨텍스트라 z-index로는
+                위로 못 올라오기 때문이다. */}
+            <Pressable
+              onPress={handleClose}
+              hitSlop={8}
+              className="absolute top-lg items-center justify-center"
+              style={{
+                right: CLOSE_RIGHT_INSET_PX,
+                height:
+                  device === 'desktop'
+                    ? HEADING_LINE_HEIGHT_DESKTOP_PX
+                    : HEADING_LINE_HEIGHT_PX,
+              }}
+            >
+              <CrossIcon width={15} height={15} color={COLORS.textSecondary} />
+            </Pressable>
           </View>
         </View>
       </Modal>

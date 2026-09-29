@@ -1,25 +1,22 @@
-import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import { useBreakpoints, type Device } from '@/shared/lib/useBreakpoints';
-import { columnsFor } from '@/shared/lib/gridColumns';
 import { showNotReady } from '@/shared/lib/showNotReady';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { useMyProfile } from '@/entities/session/model/useMyProfile';
 import { useLogout } from '@/features/auth/model/useLogout';
-import { useFeedQuery, PostThumbnail, type PostSummary } from '@/entities/post';
+import { useFeedQuery } from '@/entities/post';
 import { useFriendsQuery } from '@/entities/user';
-import { PostDetailModal } from '@/widgets/postDetailModal';
 import { CalendarSection } from '@/widgets/calendarSection';
 import BellIcon from '@/shared/assets/icons/bell.svg';
 import OptionIcon from '@/shared/assets/icons/option.svg';
 import { useTranslation } from 'react-i18next';
 
 const PHONE_AVATAR_SIZE = 96;
+const DESKTOP_MAX_WIDTH = 1080;
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
@@ -201,7 +198,7 @@ function PhoneProfileSummary({
         </Text>
         <View className="flex-row items-baseline gap-sm">
           <Text className="text-secondary">{displayName}</Text>
-          {/* 시안의 '디자인학부 23' 자리. 백엔드에 학과·학번 필드가 없어 bio를 쓴다. */}
+          {/* 시안의 '학과 학번' 자리. 백엔드에 학과·학번 필드가 없어 bio를 쓴다. */}
           {bio ? (
             <Text variant="label" className="text-muted">
               {bio}
@@ -221,91 +218,46 @@ function PhoneProfileSummary({
   );
 }
 
+// 기기와 무관하게 프로필 요약 + 캘린더 한 묶음이다. 기록은 한 달치 고정 크기라
+// 가상화가 필요 없어 ScrollView로 충분하다. 날짜 상세 시트와 스토리뷰어는
+// CalendarSection 안에서 Modal로 뜨므로 이 스크롤에 갇히지 않는다.
 export function ProfilePage() {
   const router = useRouter();
   const { device } = useBreakpoints();
-  const columns = columnsFor(device);
   const myId = useAuthStore((s) => s.user?.id);
   const { data: profile, isLoading } = useMyProfile();
   const friendsQuery = useFriendsQuery(myId);
   const { t } = useTranslation();
 
-  const {
-    data,
-    isLoading: feedLoading,
-    isError,
-    error,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useFeedQuery();
-
+  // 그리드는 사라졌지만 기록 수는 여전히 필요해 피드 쿼리는 남긴다.
+  // 총 개수 API가 없어 불러온 만큼만 셀 수 있고, 남은 페이지가 있으면 "+"를 붙인다.
+  const { data, hasNextPage } = useFeedQuery();
   const posts = data?.pages.flatMap((page) => page.items) ?? [];
   const postCountLabel = hasNextPage ? `${posts.length}+` : `${posts.length}`;
-  // 게시물이 하나라도 이미 로드돼 있으면 로딩/에러 표시는 절대 띄우지 않는다.
-  // (배경 리패치 중 feedLoading/isError가 잠깐 true여도 빈 padding 박스가 남는 문제 방지)
-  const hasNoPosts = posts.length === 0;
+
   const friendCountLabel = friendsQuery.isLoading
     ? '—'
     : String(friendsQuery.friends.length);
 
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const renderItem = useCallback(
-    ({ item, index }: { item: PostSummary; index: number }) => (
-      <PostThumbnail post={item} onPress={() => setActiveIndex(index)} />
-    ),
-    []
-  );
-
-  const keyExtractor = useCallback((post: PostSummary) => post.postId, []);
+  const isPhone = device === 'phone';
+  const isDesktop = device === 'desktop';
 
   const Header = (
     <View className="flex-row items-center justify-between border-b border-border px-xl py-lg">
       <Text variant="heading">{t('profile.title')}</Text>
       <View className="flex-row items-center gap-lg">
-        {device === 'phone' && (
+        {isPhone && (
           <Pressable onPress={() => router.push('/notifications')} hitSlop={8}>
             <BellIcon width={20} height={22} color={COLORS.text} />
           </Pressable>
         )}
-        {/* 설정 — 폰에서의 진입점 */}
+        {/* 설정 */}
         <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
           <OptionIcon width={22} height={22} color={COLORS.text} />
         </Pressable>
       </View>
     </View>
   );
-
-  if (device === 'phone') {
-    return (
-      <View className="flex-1 bg-page">
-        {Header}
-        {isLoading ? (
-          <View className="items-center py-3xl">
-            <ActivityIndicator color={COLORS.brand} />
-          </View>
-        ) : (
-          <ScrollView className="flex-1">
-            <PhoneProfileSummary
-              username={profile?.username ?? ''}
-              displayName={profile?.displayName ?? ''}
-              bio={profile?.bio ?? null}
-              postCountLabel={postCountLabel}
-              friendCountLabel={friendCountLabel}
-            />
-            <View className="border-t border-border">
-              <CalendarSection />
-            </View>
-          </ScrollView>
-        )}
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 bg-page">
@@ -316,79 +268,43 @@ export function ProfilePage() {
           <ActivityIndicator color={COLORS.brand} />
         </View>
       ) : (
-        <View
+        <ScrollView
           className="flex-1"
-          style={device === 'desktop' ? { alignItems: 'center' } : undefined}
+          contentContainerStyle={
+            isDesktop ? { alignItems: 'center' } : undefined
+          }
         >
           <View
-            className="w-full flex-1"
-            style={device === 'desktop' ? { maxWidth: 1080 } : undefined}
+            className="w-full"
+            style={isDesktop ? { maxWidth: DESKTOP_MAX_WIDTH } : undefined}
           >
-            <FlashList
-              data={posts}
-              keyExtractor={keyExtractor}
-              numColumns={columns}
-              contentContainerStyle={{ paddingHorizontal: 16 }}
-              onEndReached={handleEndReached}
-              onEndReachedThreshold={0.5}
-              renderItem={renderItem}
-              ListHeaderComponent={
-                <>
-                  <ProfileHeader
-                    device={device}
-                    displayName={profile?.displayName ?? ''}
-                    username={profile?.username ?? ''}
-                    postCountLabel={postCountLabel}
-                    friendCount={
-                      friendsQuery.isLoading
-                        ? undefined
-                        : friendsQuery.friends.length
-                    }
-                  />
-                  <View className="border-t border-border px-xl py-2xl">
-                    <Text className="font-bold text-primary">
-                      {t('profile.myRecords')}
-                    </Text>
-                  </View>
-                  {feedLoading && hasNoPosts && (
-                    <View className="items-center py-xl">
-                      <ActivityIndicator color={COLORS.brand} />
-                    </View>
-                  )}
-                  {isError && hasNoPosts && (
-                    <View className="items-center py-xl">
-                      <Text className="text-error">
-                        {(error as Error).message}
-                      </Text>
-                    </View>
-                  )}
-                  {!feedLoading && !isError && hasNoPosts && (
-                    <View className="items-center py-xl">
-                      <Text className="text-muted">
-                        {t('profile.emptyRecords')}
-                      </Text>
-                    </View>
-                  )}
-                </>
-              }
-              ListFooterComponent={
-                isFetchingNextPage ? (
-                  <View className="items-center py-lg">
-                    <ActivityIndicator color={COLORS.brand} />
-                  </View>
-                ) : null
-              }
-            />
-          </View>
-        </View>
-      )}
+            {isPhone ? (
+              <PhoneProfileSummary
+                username={profile?.username ?? ''}
+                displayName={profile?.displayName ?? ''}
+                bio={profile?.bio ?? null}
+                postCountLabel={postCountLabel}
+                friendCountLabel={friendCountLabel}
+              />
+            ) : (
+              <ProfileHeader
+                device={device}
+                displayName={profile?.displayName ?? ''}
+                username={profile?.username ?? ''}
+                postCountLabel={postCountLabel}
+                friendCount={
+                  friendsQuery.isLoading
+                    ? undefined
+                    : friendsQuery.friends.length
+                }
+              />
+            )}
 
-      {activeIndex !== null && (
-        <PostDetailModal
-          posts={posts}
-          startIndex={activeIndex}
-          onClose={() => setActiveIndex(null)}
-        />
+            <View className="border-t border-border">
+              <CalendarSection />
+            </View>
+          </View>
+        </ScrollView>
       )}
     </View>
   );
