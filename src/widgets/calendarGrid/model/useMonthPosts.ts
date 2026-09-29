@@ -26,6 +26,12 @@ function toMonthRange(
 export function useMonthPosts(year: number, month: number) {
   return useQuery({
     queryKey: ['calendar', 'month-posts', year, month],
+    // 셀을 누르면 DayDetailSheet가 이 쿼리에 옵저버를 하나 더 붙이는데, 전역
+    // 기본값 refetchOnMount: 'always'가 그때마다 재조회를 건다. 백엔드는 미디어
+    // URL을 응답마다 새로 서명해 내려주므로(presigned, 만료 5분) 같은 사진이라도
+    // uri 문자열이 달라지고, 브라우저는 캐시를 못 써서 썸네일을 전부 다시 받는다.
+    // 기록 생성·수정·삭제는 ['calendar']를 무효화하니 갱신 경로는 그대로다.
+    refetchOnMount: false,
     queryFn: async () => {
       const { from, to } = toMonthRange(year, month);
       const posts: PostSummary[] = [];

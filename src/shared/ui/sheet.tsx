@@ -13,9 +13,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 interface SheetProps extends Omit<ModalProps, 'visible'> {
   visible: boolean;
   onClose: () => void;
@@ -26,6 +26,7 @@ interface SheetProps extends Omit<ModalProps, 'visible'> {
 const ANIMATION_DURATION_MS = 220;
 const CONTENT_OFFSCREEN_TRANSLATE_Y = 400;
 const DEFAULT_MAX_HEIGHT_RATIO = 0.8;
+const CORNER_RADIUS = 20;
 
 // 하단에서 올라오는 시트 — 테블릿/폰의 날짜 상세, 댓글 목록 등에서 재사용
 
@@ -107,15 +108,19 @@ export function Sheet({
                 maxHeight,
                 overflow: 'hidden',
                 backgroundColor: COLORS.background,
-                // 패딩을 className으로 주면 호출부가 넘긴 className과 병합될 때
-                // 적용 순서가 보장되지 않는다(p-0/pt-* 조합이 무시되는 경우가 있음).
-                // 시트 여백은 여기서 인라인으로 못박고, className은 높이 등 나머지만 받는다.
+                // 모서리와 여백을 className으로 주면 호출부가 넘긴 className과
+                // 병합될 때 적용 순서가 보장되지 않는다(p-0/pt-* 조합이 무시되거나,
+                // 호출부가 rounded-*를 넘기면 twMerge가 시트 모서리를 지운다).
+                // 시트의 상자 속성은 여기서 인라인으로 못박고, className은
+                // 높이 등 나머지만 받는다.
+                borderTopLeftRadius: CORNER_RADIUS,
+                borderTopRightRadius: CORNER_RADIUS,
                 paddingTop: 12,
                 paddingHorizontal: 16,
                 paddingBottom: 16,
               },
             ]}
-            className={cn('rounded-t-lg', className)}
+            className={className}
           >
             <View className="mb-md h-[4px] w-[40px] self-center rounded-full bg-border" />
             {children}
