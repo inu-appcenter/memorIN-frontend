@@ -4,7 +4,7 @@
  *
  * 백엔드 WebPushService가 보내는 페이로드:
  *   { title, body, type, referenceId, actorId }
- *   type = FOLLOW_REQUEST | FOLLOW_ACCEPTED | COMMENT | LIKE
+ *   type = FOLLOW_REQUEST | FOLLOW_ACCEPTED | COMMENT | LIKE | MESSAGE
  */
 
 const TAG_PREFIX = 'memorin-';
@@ -30,11 +30,14 @@ function parsePayload(event) {
 
 // src/features/push/lib/notificationRoute.ts에 같은 매핑이 있다.
 // 서비스워커는 번들러를 안 거쳐서 import가 안 된다. 바꿀 때 같이 바꾼다.
-function routeOf(type) {
+function routeOf(type, referenceId) {
   switch (type) {
     case 'FOLLOW_REQUEST':
     case 'FOLLOW_ACCEPTED':
       return '/social';
+    // MESSAGE의 referenceId는 roomId다.
+    case 'MESSAGE':
+      return referenceId ? '/chat/' + referenceId : '/chat';
     // 게시물 상세는 아직 단독 라우트가 아니라 피드 위에 뜨는 모달이다.
     // 알림 화면이 붙으면 '/notifications'로 바꾼다.
     case 'COMMENT':
@@ -55,7 +58,7 @@ self.addEventListener('push', (event) => {
       // 같은 종류가 여러 개 쌓이지 않게 묶는다. renotify는 tag가 있어야 동작한다.
       tag: TAG_PREFIX + (payload.type || 'general'),
       renotify: true,
-      data: { url: routeOf(payload.type) },
+      data: { url: routeOf(payload.type, payload.referenceId) },
     })
   );
 });

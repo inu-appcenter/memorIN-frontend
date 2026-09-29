@@ -384,6 +384,7 @@
     "followAccepted": "님이 팔로우를 승인했어요.",
     "comment": "님이 회원님의 기록에 댓글을 남겼어요.",
     "like": "님이 회원님의 기록을 좋아해요.",
+    "message": "님이 메시지를 보냈어요.",
     "timeJustNow": "방금",
     "timeMinutesAgo": "{{count}}분 전",
     "timeHoursAgo": "{{count}}시간 전",

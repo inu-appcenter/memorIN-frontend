@@ -37,6 +37,13 @@ if (Platform.OS !== 'web') {
   });
 }
 
+// 백엔드 푸시 페이로드에서 쓰는 필드. type은 NotificationType 문자열이고,
+// referenceId는 타입마다 가리키는 대상이 다르다(MESSAGE는 roomId).
+interface PushPayloadData {
+  type?: string;
+  referenceId?: string;
+}
+
 // 구독·토큰은 기기 단위인데 서버 저장은 사용자 단위다. A로 알림을 켜둔 채
 // 로그아웃하고 B로 들어오면 같은 구독이 A에게 묶인 채 남는다. 그래서 로그인
 // 시 현재 사용자로 다시 등록한다.
@@ -117,6 +124,9 @@ export function PushProvider({ children }: { children: ReactNode }) {
           break;
         // LIKE는 피드 전체를 다시 받아야 해서 비용 대비 얻는 게 적다.
         // 알림 화면이 붙으면 그쪽 쿼리만 무효화하도록 바꾼다.
+        //
+        // MESSAGE는 채팅 쿼리가 아직 없다(#86). 채팅이 붙으면
+        // ['chatRooms']·['messages'] 무효화를 여기에 추가한다.
         default:
           break;
       }
@@ -130,7 +140,7 @@ export function PushProvider({ children }: { children: ReactNode }) {
 
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
-        const data = notification.request.content.data as { type?: string };
+        const data = notification.request.content.data as PushPayloadData;
         invalidateFor(data?.type);
       }
     );
@@ -143,11 +153,10 @@ export function PushProvider({ children }: { children: ReactNode }) {
     if (Platform.OS === 'web') return;
 
     const handle = (response: Notifications.NotificationResponse) => {
-      const data = response.notification.request.content.data as {
-        type?: string;
-      };
+      const data = response.notification.request.content
+        .data as PushPayloadData;
       invalidateFor(data?.type);
-      router.navigate(routeOfNotification(data?.type));
+      router.navigate(routeOfNotification(data?.type, data?.referenceId));
     };
 
     // 앱이 완전히 종료된 상태에서 알림을 탭해 실행된 경우, 리스너가 붙기 전에

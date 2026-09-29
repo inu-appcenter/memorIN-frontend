@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/shared/ui/text';
 import { cn } from '@/shared/lib/utils';
+import { parseServerDate } from '@/shared/lib/serverDate';
 import { COLORS } from '@/shared/lib/theme';
 import {
   useNotifications,
@@ -24,6 +25,7 @@ const SUFFIX_KEY_BY_TYPE = {
   FOLLOW_ACCEPTED: 'notification.followAccepted',
   COMMENT: 'notification.comment',
   LIKE: 'notification.like',
+  MESSAGE: 'notification.message',
 } as const satisfies Record<NotificationType, string>;
 
 type GroupKey = 'today' | 'yesterday' | 'week' | 'earlier';
@@ -43,6 +45,9 @@ type ListRow =
 
 // 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커/PushProvider가 따로 처리하며,
 // 그쪽은 이 화면 자체를 목적지로 삼는다.
+//
+// default를 두지 않는다 — NotificationType에 값이 추가되면 컴파일러가
+// "리턴하지 않는 경로가 있다"고 여기를 짚어준다.
 function routeOf(notification: NotificationItem): string {
   switch (notification.type) {
     case 'FOLLOW_REQUEST':
@@ -53,6 +58,11 @@ function routeOf(notification: NotificationItem): string {
       return notification.referenceId
         ? `/post/${notification.referenceId}`
         : '/feed';
+    // MESSAGE의 referenceId는 roomId다(백엔드 NotificationService.saveMessages).
+    case 'MESSAGE':
+      return notification.referenceId
+        ? `/chat/${notification.referenceId}`
+        : '/chat';
   }
 }
 
@@ -65,7 +75,7 @@ function startOfDay(date: Date): number {
 }
 
 function groupOf(createdAt: string): GroupKey {
-  const created = new Date(createdAt);
+  const created = parseServerDate(createdAt);
   if (Number.isNaN(created.getTime())) return 'earlier';
 
   const diffDays = Math.round(
@@ -95,7 +105,7 @@ function NotificationRow({
   const suffixKey = SUFFIX_KEY_BY_TYPE[notification.type];
 
   const relativeTime = useMemo(() => {
-    const created = new Date(notification.createdAt).getTime();
+    const created = parseServerDate(notification.createdAt).getTime();
     if (Number.isNaN(created)) return '';
 
     const diffMs = Math.max(Date.now() - created, 0);

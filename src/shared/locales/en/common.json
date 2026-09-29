@@ -384,6 +384,7 @@
     "followAccepted": " accepted your follow request.",
     "comment": " commented on your record.",
     "like": " liked your record.",
+    "message": " sent you a message.",
     "timeJustNow": "just now",
     "timeMinutesAgo": "{{count}}m ago",
     "timeHoursAgo": "{{count}}h ago",
