@@ -11,9 +11,11 @@ COPY . .
 
 # web.output이 "single"(SPA)이라 이미지 하나로 모든 배포 환경(로컬/스테이징/운영)을
 # 커버할 수 있다 — API 주소는 단일 호스트 + 경로 분기(nginx가 /api, /auth, /ws를
-# 프록시) 구성을 전제로 비워 둔다. axios가 상대 경로를 쓰게 되어 same-origin이라
-# CORS 문제도 없다. 배포 환경마다 달라지는 값(VAPID 공개키)은 빌드가 아니라
-# 컨테이너 기동 시점에 /config.json으로 주입한다 (아래 40-runtime-config.sh).
+# 프록시) 구성을 전제로 비워 둔다. axios가 상대 경로를 써서 브라우저 입장에서는 같은
+# 출처지만, nginx가 X-Forwarded-Proto로 http를 넘겨 backend CORS 검사는 그대로 받으므로
+# 운영 .env의 CORS_ALLOWED_ORIGINS가 필수다(docker/default.conf.template 주석 참고).
+# 배포 환경마다 달라지는 값(VAPID 공개키)은 빌드가 아니라 컨테이너 기동 시점에
+# /config.json으로 주입한다 (아래 40-runtime-config.sh).
 ENV EXPO_PUBLIC_API_BASE_URL=""
 RUN npx expo export --platform web --output-dir dist
 
