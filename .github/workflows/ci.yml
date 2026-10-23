@@ -29,10 +29,13 @@ jobs:
 
       # Dockerfile 빌더 스테이지와 동일한 버전을 써서 "CI는 통과했는데 이미지 빌드는
       # 실패"하는 버전 불일치를 없앤다.
+      # check-latest: 러너에 캐시된 예전 24.x 대신 최신 24.x(보안 패치 포함)를 받는다.
+      # Dockerfile의 node:24-alpine도 최신 24.x를 가리키므로 두 쪽 버전이 맞는다.
       - name: Node 24 설정 (의존성 캐시 포함)
         uses: actions/setup-node@v5
         with:
           node-version: '24'
+          check-latest: true
           cache: npm
 
       - name: 의존성 설치
