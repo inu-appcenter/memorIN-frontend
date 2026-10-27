@@ -26,8 +26,8 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: [version-update:semver-major]
-      # Expo SDK가 버전을 맞춰 고정하는 패키지는 minor도 SDK 업그레이드 때
-      # `npx expo install --fix`로 함께 올린다. 따로 올리면 네이티브 모듈이 어긋난다.
+      # Expo SDK가 버전을 맞춰 고정하는 패키지는 SDK 업그레이드 때 `npx expo install --fix`로 함께 올린다.
+      # 따로 올리면 네이티브 모듈과 어긋난다. expo 계열은 patch만 받고, 나머지는 patch도 받지 않는다.
       - dependency-name: "expo"
         update-types: [version-update:semver-minor]
       - dependency-name: "expo-*"
@@ -35,15 +35,11 @@ updates:
       - dependency-name: "@expo/*"
         update-types: [version-update:semver-minor]
       - dependency-name: "react"
-        update-types: [version-update:semver-minor]
       - dependency-name: "react-dom"
-        update-types: [version-update:semver-minor]
       - dependency-name: "react-native"
-        update-types: [version-update:semver-minor]
       - dependency-name: "react-native-*"
-        update-types: [version-update:semver-minor]
       - dependency-name: "@react-native/*"
-        update-types: [version-update:semver-minor]
+      - dependency-name: "@shopify/flash-list"
 
   - package-ecosystem: docker
     directory: /
