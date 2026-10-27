@@ -1,7 +1,9 @@
-import { Stack, usePathname, useRouter } from 'expo-router';
+import { Redirect, Stack, usePathname, useRouter } from 'expo-router';
 import { View } from 'react-native';
+import { CHAT_ENABLED } from '@/shared/config/features';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { COLORS } from '@/shared/lib/theme';
+import { useSocketDemand } from '@/shared/lib/useSocketStore';
 import { ChatRoomList } from '@/widgets/chatRoomList';
 
 // 링크로 /chat/{roomId}에 바로 들어와도 목록이 스택 아래에 깔리도록 한다.
@@ -16,7 +18,21 @@ function useActiveRoomId(): string | undefined {
   return /^\/chat\/([^/]+)/.exec(pathname)?.[1];
 }
 
-export default function ChatLayout() {
+// 채팅이 꺼져 있으면 링크·채팅 알림으로 들어와도 피드로 보낸다. 알림 이동 경로
+// 세 곳(NotificationsPage, notificationRoute, sw.js)은 그대로 두고 여기서 막는다.
+export default function ChatRoute() {
+  if (!CHAT_ENABLED) return <Redirect href="/feed" />;
+  return <ChatLayout />;
+}
+
+function ChatLayout() {
+  // 채팅 화면에 있는 동안에만 소켓을 붙인다. 소켓이 열려 있으면 백엔드가 푸시를
+  // 보내지 않으므로(백엔드 #307) 앱 전역에서 연결하면 안 된다. 탭 레이아웃이
+  // Stack이라 다른 탭으로 가도 이 레이아웃은 아래에 마운트된 채 남는다. 그래서
+  // 마운트 여부가 아니라 현재 경로로 판단한다.
+  const pathname = usePathname();
+  useSocketDemand(pathname.startsWith('/chat'));
+
   const router = useRouter();
   const { device } = useBreakpoints();
   const isPhone = device === 'phone';
