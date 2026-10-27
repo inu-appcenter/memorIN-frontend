@@ -1,6 +1,7 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
+import { CHAT_ENABLED } from '@/shared/config/features';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
 import { activateSocket, deactivateSocket } from '@/shared/api/socketClient';
 import { useSocketStore, type SocketStatus } from '@/shared/lib/useSocketStore';
@@ -39,16 +40,53 @@ function SocketStatusBadge() {
   );
 }
 
-// 앱 전역에 STOMP 연결을 하나만 유지한다.
-//
-// 네이티브는 백그라운드로 가면 OS가 소켓을 얼리므로 명시적으로 끊고 복귀 시 다시 붙는다.
-// 끊긴 동안의 알림은 푸시가 담당한다.
-// 웹은 탭 전환에 반응하지 않음. (탭 전환마다 재연결하면 낭비)
-export function SocketProvider({ children }: { children: ReactNode }) {
-  const authStatus = useAuthStore((state) => state.status);
+// 앱이 사용자 눈앞에 있는지. 네이티브는 AppState, 웹은 문서 visibility로 본다.
+function useIsForeground(): boolean {
+  const [foreground, setForeground] = useState(() =>
+    Platform.OS === 'web'
+      ? typeof document === 'undefined' || document.visibilityState !== 'hidden'
+      : AppState.currentState === 'active'
+  );
 
   useEffect(() => {
-    if (authStatus !== 'authenticated') {
+    if (Platform.OS === 'web') {
+      if (typeof document === 'undefined') return;
+      const handleChange = () =>
+        setForeground(document.visibilityState !== 'hidden');
+      document.addEventListener('visibilitychange', handleChange);
+      return () =>
+        document.removeEventListener('visibilitychange', handleChange);
+    }
+
+    const subscription = AppState.addEventListener('change', (nextState) =>
+      setForeground(nextState === 'active')
+    );
+    return () => subscription.remove();
+  }, []);
+
+  return foreground;
+}
+
+// STOMP 연결을 하나만 두고, 아래 조건이 모두 맞을 때만 붙인다.
+// - 채팅이 켜져 있다(CHAT_ENABLED)
+// - 로그인 상태다
+// - 소켓이 필요한 화면이 열려 있다(useSocketDemand — 지금은 채팅 화면)
+// - 앱이 포그라운드다
+//
+// 백엔드는 소켓이 하나라도 열려 있으면 푸시를 보내지 않는다(백엔드 #307). 소켓을
+// 열어 두는 범위가 곧 푸시가 막히는 범위라 필요한 순간에만 연다. 네이티브는
+// 백그라운드에서 OS가 소켓을 얼리고, 웹은 탭이 가려져도 소켓이 살아 있어 푸시만
+// 막는다. 둘 다 가려지면 끊고, 끊긴 동안의 알림은 푸시가 맡는다.
+export function SocketProvider({ children }: { children: ReactNode }) {
+  const authStatus = useAuthStore((state) => state.status);
+  const demand = useSocketStore((state) => state.demand);
+  const foreground = useIsForeground();
+
+  const shouldConnect =
+    CHAT_ENABLED && authStatus === 'authenticated' && demand > 0 && foreground;
+
+  useEffect(() => {
+    if (!shouldConnect) {
       deactivateSocket();
       return;
     }
@@ -58,29 +96,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     return () => {
       deactivateSocket();
     };
-  }, [authStatus]);
-
-  useEffect(() => {
-    if (Platform.OS === 'web') return;
-
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      // 로그아웃 상태에서 앱을 오갈 때 연결이 살아나면 안 됨.
-      if (useAuthStore.getState().status !== 'authenticated') return;
-
-      if (nextState === 'active') {
-        activateSocket();
-        return;
-      }
-      deactivateSocket();
-    });
-
-    return () => subscription.remove();
-  }, []);
+  }, [shouldConnect]);
 
   return (
     <>
       {children}
-      <SocketStatusBadge />
+      {CHAT_ENABLED && <SocketStatusBadge />}
     </>
   );
 }

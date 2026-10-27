@@ -1,4 +1,5 @@
 import i18next from '@/shared/lib/i18n';
+import { CHAT_ENABLED } from './features';
 
 export type TabItem = 'feed' | 'search' | 'log' | 'chat' | 'profile';
 
@@ -7,17 +8,20 @@ export type SideNavItem = TabItem | 'settings' | 'notifications';
 // 폰 하단 탭에 올라가는 것들. 기록은 마이페이지 안의 캘린더로 들어가 빠졌다.
 export type BottomTabItem = 'feed' | 'search' | 'chat' | 'profile';
 
+// 채팅을 꺼도 폰 하단 탭에서는 빼지 않는다. 가운데 업로드 버튼 양옆이 2:2로
+// 맞춰져 있어 하나를 빼면 좌우가 어긋난다. 대신 누르면 준비 중 안내를 띄운다
+// (AppShell의 BottomNav).
 export const TABLISTS: BottomTabItem[] = ['feed', 'search', 'chat', 'profile'];
 
 // 태블릿 좌측 레일 — 폰 하단 탭과 같은 구성이다. 기기마다 구조가 갈리면
 // 같은 서비스를 두 번 익혀야 한다.
 //
 // 설정은 마이페이지 우상단 기어로 들어간다. 기록은 마이페이지의 캘린더로
-// 들어가 별도 진입점을 두지 않는다.
+// 들어가 별도 진입점을 두지 않는다. 세로 목록이라 채팅을 빼도 어긋날 게 없다.
 export const SIDE_NAV_ITEMS: SideNavItem[] = [
   'feed',
   'search',
-  'chat',
+  ...(CHAT_ENABLED ? (['chat'] as const) : []),
   'profile',
 ];
 

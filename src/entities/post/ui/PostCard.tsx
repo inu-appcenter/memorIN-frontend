@@ -19,6 +19,7 @@ import { PostVideoCover } from './PostVideoCover';
 import { Sheet } from '@/shared/ui/sheet';
 import { CommentThread } from './CommentThread';
 import { COLORS } from '@/shared/lib/theme';
+import { CHAT_ENABLED } from '@/shared/config/features';
 import HeartIcon from '@/shared/assets/icons/heart.svg';
 import HeartFilled2Icon from '@/shared/assets/icons/heartFilled2.svg';
 import FeedChatIcon from '@/shared/assets/icons/feedChat.svg';
@@ -267,9 +268,12 @@ function PostCardComponent({
               <FeedChatIcon width={20} height={20} color={COLORS.tertiary} />
               <Text className="text-tertiary">{commentCountLabel}</Text>
             </Pressable>
-            <Pressable onPress={() => setShareVisible(true)} hitSlop={8}>
-              <ShareIcon width={20} height={20} />
-            </Pressable>
+            {/* 공유는 채팅방으로 보내는 기능이라 채팅과 함께 끈다 */}
+            {CHAT_ENABLED && (
+              <Pressable onPress={() => setShareVisible(true)} hitSlop={8}>
+                <ShareIcon width={20} height={20} />
+              </Pressable>
+            )}
           </View>
         </View>
       </View>
@@ -280,11 +284,13 @@ function PostCardComponent({
       >
         <CommentThread postId={post.postId} />
       </Sheet>
-      <PostShareSheet
-        post={post}
-        visible={shareVisible}
-        onClose={() => setShareVisible(false)}
-      />
+      {CHAT_ENABLED && (
+        <PostShareSheet
+          post={post}
+          visible={shareVisible}
+          onClose={() => setShareVisible(false)}
+        />
+      )}
     </>
   );
 }

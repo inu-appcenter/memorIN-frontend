@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Platform, Pressable, View } from 'react-native';
 import { Text } from '@/shared/ui/text';
 import { Sheet } from '@/shared/ui/sheet';
+import { CHAT_ENABLED } from '@/shared/config/features';
 import { useDeletePost } from '@/entities/post/model/useDeletePost';
 import type { PostActionTarget } from '@/entities/post/api/postsApi';
 import { PostShareSheet } from '@/features/post-share';
@@ -10,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 interface PostActionsMenuProps {
   post: PostActionTarget;
-  isOwnPost: boolean; // 수정/삭제는 본인 게시물에서만 노출. 공유는 항상 노출.
+  isOwnPost: boolean; // 수정/삭제는 본인 게시물에서만 노출. 공유는 채팅이 켜져 있을 때 항상 노출.
   variant?: 'dark' | 'light'; // dark = 스토리 뷰어 오버레이 위, light = 일반 화면
   onDeleted?: () => void; // 스토리 뷰어처럼 삭제 후 화면 자체를 닫아야 하는 경우
 }
@@ -65,6 +66,10 @@ export function PostActionsMenu({
     setShareVisible(true);
   };
 
+  // 공유는 채팅방으로 보내는 기능이라 채팅과 함께 끈다. 그러면 남의 기록에는
+  // 메뉴에 남는 항목이 없어 버튼째 숨긴다.
+  if (!CHAT_ENABLED && !isOwnPost) return null;
+
   return (
     <>
       <Pressable onPress={() => setMenuVisible(true)} hitSlop={8}>
@@ -73,11 +78,16 @@ export function PostActionsMenu({
 
       <Sheet visible={menuVisible} onClose={() => setMenuVisible(false)}>
         <View style={{ paddingHorizontal: 24, paddingVertical: 8, gap: 4 }}>
-          <Pressable onPress={handlePressShare} style={{ paddingVertical: 12 }}>
-            <Text variant="body" className="text-primary">
-              {t('postEdit.menuShare')}
-            </Text>
-          </Pressable>
+          {CHAT_ENABLED && (
+            <Pressable
+              onPress={handlePressShare}
+              style={{ paddingVertical: 12 }}
+            >
+              <Text variant="body" className="text-primary">
+                {t('postEdit.menuShare')}
+              </Text>
+            </Pressable>
+          )}
           {isOwnPost && (
             <Pressable
               onPress={handlePressEdit}
@@ -113,11 +123,13 @@ export function PostActionsMenu({
         />
       )}
 
-      <PostShareSheet
-        post={post}
-        visible={shareVisible}
-        onClose={() => setShareVisible(false)}
-      />
+      {CHAT_ENABLED && (
+        <PostShareSheet
+          post={post}
+          visible={shareVisible}
+          onClose={() => setShareVisible(false)}
+        />
+      )}
     </>
   );
 }

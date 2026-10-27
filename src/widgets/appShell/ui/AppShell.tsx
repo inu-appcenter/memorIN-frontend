@@ -19,9 +19,11 @@ import {
   type SideNavItem,
 } from '@/shared/config/tabList';
 
+import { CHAT_ENABLED } from '@/shared/config/features';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { cn } from '@/shared/lib/utils';
 import { COLORS } from '@/shared/lib/theme';
+import { showNotReady } from '@/shared/lib/showNotReady';
 
 import HomeIcon from '@/shared/assets/icons/home.svg';
 import SearchIcon from '@/shared/assets/icons/search.svg';
@@ -190,11 +192,20 @@ function BottomNav() {
     const Icon = NAV_ICON[tab];
     const active = activeTab === tab;
 
+    const handlePress = () => {
+      // 채팅이 꺼져 있어도 탭 자리는 남겨 둔다(tabList.ts의 TABLISTS 참고).
+      if (tab === 'chat' && !CHAT_ENABLED) {
+        showNotReady();
+        return;
+      }
+      router.navigate(PATH[tab]);
+    };
+
     return (
       <Pressable
         key={tab}
         className="flex-1 items-center justify-center gap-xs"
-        onPress={() => router.navigate(PATH[tab])}
+        onPress={handlePress}
       >
         <Icon
           width={20}
