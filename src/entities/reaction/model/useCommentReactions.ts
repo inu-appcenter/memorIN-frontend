@@ -1,14 +1,54 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
 import { toggleCommentEmojis, type EmojiSummary } from '../api/reactionApi';
-import { EMOJI_TYPE_TO_REACTION, REACTION_TO_EMOJI_TYPE } from './emojiTypeMap';
+import {
+  EMOJI_TYPE_TO_REACTION,
+  REACTION_TO_EMOJI_TYPE,
+  type EmojiType,
+} from './emojiTypeMap';
 import type { ReactionType } from './types';
 import { toast } from '@/shared/lib/toast';
 
-// entities/post의 PostComment 전체를 끌어오면 entities/reaction ↔ entities/post
+// entities/post의 PostComment·CommentPage를 끌어오면 entities/reaction ↔ entities/post
 // 순환 참조가 생긴다. 캐시 업데이트에 필요한 필드만 구조적으로 선언해서 쓴다.
 interface CommentWithEmojis {
   commentId: string;
   emojis: EmojiSummary[];
+}
+
+// useCommentThread(useInfiniteQuery)가 ['comments', postId]에 넣어 두는 캐시 모양.
+// select로 평탄화된 배열은 화면에만 보이고, 캐시 자체는 페이지 단위로 남는다.
+// 답글도 같은 페이지의 items에 parentId로 평평하게 실려 온다.
+type CommentThreadCache = InfiniteData<{ items: CommentWithEmojis[] }>;
+
+function toggleEmoji(
+  comment: CommentWithEmojis,
+  emojiType: EmojiType
+): CommentWithEmojis {
+  const existing = comment.emojis.find((e) => e.emojiType === emojiType);
+  const others = comment.emojis.filter((e) => e.emojiType !== emojiType);
+
+  if (existing?.reactedByMe) {
+    const nextCount = existing.count - 1;
+    return {
+      ...comment,
+      emojis:
+        nextCount > 0
+          ? [...others, { ...existing, count: nextCount, reactedByMe: false }]
+          : others,
+    };
+  }
+
+  return {
+    ...comment,
+    emojis: [
+      ...others,
+      { emojiType, count: (existing?.count ?? 0) + 1, reactedByMe: true },
+    ],
+  };
 }
 
 // 댓글 이모지는 댓글 스레드 응답(PostCommentResponse.emojis)에 이미 집계돼 내려오므로
@@ -36,42 +76,23 @@ export function useCommentReactionState(
       toggleCommentEmojis(commentId, REACTION_TO_EMOJI_TYPE[type]),
     onMutate: async (type: ReactionType) => {
       await queryClient.cancelQueries({ queryKey });
-      const previous = queryClient.getQueryData<CommentWithEmojis[]>(queryKey);
+      const previous = queryClient.getQueryData<CommentThreadCache>(queryKey);
       const emojiType = REACTION_TO_EMOJI_TYPE[type];
 
-      queryClient.setQueryData<CommentWithEmojis[]>(queryKey, (old) =>
-        old?.map((c) => {
-          if (c.commentId !== commentId) return c;
-
-          const existing = c.emojis.find((e) => e.emojiType === emojiType);
-          const others = c.emojis.filter((e) => e.emojiType !== emojiType);
-
-          if (existing?.reactedByMe) {
-            const nextCount = existing.count - 1;
-            return {
-              ...c,
-              emojis:
-                nextCount > 0
-                  ? [
-                      ...others,
-                      { ...existing, count: nextCount, reactedByMe: false },
-                    ]
-                  : others,
-            };
-          }
-
-          return {
-            ...c,
-            emojis: [
-              ...others,
-              {
-                emojiType,
-                count: (existing?.count ?? 0) + 1,
-                reactedByMe: true,
-              },
-            ],
-          };
-        })
+      queryClient.setQueryData<CommentThreadCache>(queryKey, (old) =>
+        old
+          ? {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                items: page.items.map((comment) =>
+                  comment.commentId === commentId
+                    ? toggleEmoji(comment, emojiType)
+                    : comment
+                ),
+              })),
+            }
+          : old
       );
 
       return { previous };
