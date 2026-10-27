@@ -1,0 +1,68 @@
+# 의존성 업데이트는 매주 월요일 한 번, 생태계마다 PR 하나로 묶어 받는다.
+# 보안 업데이트는 주기와 관계없이 바로 오지만, 이것도 PR 하나로 묶는다
+# (Settings → Advanced Security → Dependabot security updates가 켜져 있어야 한다).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 2
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+      npm-minor-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
+      # Expo SDK가 버전을 맞춰 고정하는 패키지는 minor도 SDK 업그레이드 때
+      # `npx expo install --fix`로 함께 올린다. 따로 올리면 네이티브 모듈이 어긋난다.
+      - dependency-name: "expo"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "expo-*"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "@expo/*"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "react"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "react-dom"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "react-native"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "react-native-*"
+        update-types: [version-update:semver-minor]
+      - dependency-name: "@react-native/*"
+        update-types: [version-update:semver-minor]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 1
+    groups:
+      docker:
+        patterns: ["*"]
+    ignore:
+      # Node 메이저는 CI(setup-node)와 함께 바꿔야 한다.
+      - dependency-name: "node"
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns: ["*"]
