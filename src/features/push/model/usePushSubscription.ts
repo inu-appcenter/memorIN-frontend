@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Linking, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import i18next from '@/shared/lib/i18n';
 import { toast } from '@/shared/lib/toast';
 import { useAuthStore } from '@/entities/session/model/useAuthStore';
@@ -20,6 +20,7 @@ import {
 } from '../lib/nativePush';
 import { pushPreference } from '../lib/pushPreference';
 import {
+  deleteFcmToken,
   deleteWebPushSubscription,
   saveFcmToken,
   saveWebPushSubscription,
@@ -74,10 +75,15 @@ export function usePushSubscription() {
       return;
     }
 
-    // 네이티브는 "서버에 등록했는지"를 앱이 알 수 없다. OS 권한이 유일한 단서다.
+    // 네이티브는 "서버에 등록했는지"를 앱이 알 수 없다. OS 권한과 사용자가
+    // 껐다는 표시로 판단한다.
     const permission = await getNativePermissionStatus();
     if (permission === 'denied') {
       setState('denied');
+      return;
+    }
+    if (userId && (await pushPreference.isOptedOut(userId))) {
+      setState('off');
       return;
     }
     setState(permission === 'granted' ? 'on' : 'off');
@@ -104,7 +110,6 @@ export function usePushSubscription() {
         if (!flat) throw new Error(i18next.t('error.pushRegister'));
 
         await saveWebPushSubscription(flat);
-        if (userId) await pushPreference.setOptedOut(userId, false);
       } else {
         const permission = await requestNativePermission();
         if (permission !== 'granted') {
@@ -117,6 +122,7 @@ export function usePushSubscription() {
 
         await saveFcmToken(token, nativeDeviceType());
       }
+      if (userId) await pushPreference.setOptedOut(userId, false);
 
       setState('on');
       toast.success(i18next.t('settings.pushEnabled'));
@@ -131,24 +137,23 @@ export function usePushSubscription() {
   }, [refresh, userId]);
 
   const disable = useCallback(async () => {
-    // 네이티브는 앱이 알림 권한을 되돌릴 수 없고, 백엔드에 FCM 토큰 삭제 API도
-    // 아직 없다. OS 설정으로 보내서 거기서 끄게 한다.
-    if (!isWeb) {
-      await Linking.openSettings();
-      return;
-    }
-
     setIsBusy(true);
     try {
-      const existing = await getExistingSubscription();
-      if (existing) {
-        // 서버를 먼저 지운다. 브라우저 구독만 없애면 서버에 유령 행이 남아
-        // 다음 발송이 한 번 실패해야 정리된다.
-        await deleteWebPushSubscription(existing.endpoint);
-        await existing.unsubscribe();
+      if (isWeb) {
+        const existing = await getExistingSubscription();
+        if (existing) {
+          // 서버를 먼저 지운다. 브라우저 구독만 없애면 서버에 유령 행이 남아
+          // 다음 발송이 한 번 실패해야 정리된다.
+          await deleteWebPushSubscription(existing.endpoint);
+          await existing.unsubscribe();
+        }
+      } else {
+        // 앱은 OS 알림 권한을 되돌릴 수 없다. 서버에서 이 기기 토큰만 지운다.
+        const token = await getNativeDeviceToken();
+        if (token) await deleteFcmToken(token);
       }
-      // 브라우저 권한은 granted로 남으므로, 이 표시가 없으면 다음 실행에서
-      // PushProvider가 구독을 다시 만들어 꺼둔 게 원복된다.
+      // 권한은 granted로 남으므로, 이 표시가 없으면 다음 실행에서
+      // PushProvider가 다시 등록해 꺼둔 게 원복된다.
       if (userId) await pushPreference.setOptedOut(userId, true);
 
       setState('off');
