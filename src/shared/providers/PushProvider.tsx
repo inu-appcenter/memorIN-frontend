@@ -44,13 +44,16 @@ interface PushPayloadData {
   referenceId?: string;
 }
 
+// 처리한 알림 응답. 프로바이더가 다시 마운트돼도 유지되도록 모듈에 둔다.
+let lastHandledResponseId: string | null = null;
+
 // 구독·토큰은 기기 단위인데 서버 저장은 사용자 단위다. A로 알림을 켜둔 채
 // 로그아웃하고 B로 들어오면 같은 구독이 A에게 묶인 채 남는다. 그래서 로그인
 // 시 현재 사용자로 다시 등록한다.
 //
-// 로그아웃 때 서버 삭제 API를 부르지 않는 이유: 그 시점엔 토큰이 이미 지워져
-// 401이 난다. 웹은 구독을 끊어두면 백엔드가 다음 발송에서 404/410을 받고
-// 알아서 지운다(WebPushService).
+// 서버 쪽 등록은 로그아웃 요청이 함께 지운다(useLogout → getCurrentPushTarget).
+// 여기서는 브라우저 구독만 끊는다. 로그아웃 뒤에는 인증이 없어 삭제 API를
+// 부를 수 없다.
 export function PushProvider({ children }: { children: ReactNode }) {
   const authStatus = useAuthStore((state) => state.status);
   const userId = useAuthStore((state) => state.user?.id);
@@ -91,6 +94,7 @@ export function PushProvider({ children }: { children: ReactNode }) {
       // 네이티브 — 토큰은 갱신될 수 있어 로그인마다 다시 올린다.
       if (!isNativePushSupported() || authStatus !== 'authenticated') return;
       if ((await getNativePermissionStatus()) !== 'granted') return;
+      if (userId && (await pushPreference.isOptedOut(userId))) return;
 
       const token = await getNativeDeviceToken();
       if (cancelled || !token) return;
@@ -153,6 +157,14 @@ export function PushProvider({ children }: { children: ReactNode }) {
     if (Platform.OS === 'web') return;
 
     const handle = (response: Notifications.NotificationResponse) => {
+      // 콜드 스타트에서는 같은 응답이 마지막 응답 조회와 리스너로 두 번 올 수 있다.
+      const id = response.notification.request.identifier;
+      if (id === lastHandledResponseId) return;
+      lastHandledResponseId = id;
+      // 마지막 응답은 지우기 전까지 남는다. 그대로 두면 이 effect가 다시 돌
+      // 때마다(로그인 후 등) 예전 알림의 화면으로 또 이동한다.
+      Notifications.clearLastNotificationResponse();
+
       const data = response.notification.request.content
         .data as PushPayloadData;
       invalidateFor(data?.type);

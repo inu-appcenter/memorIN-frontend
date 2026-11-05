@@ -14,7 +14,8 @@ export interface NotificationItem {
   // 모르는 타입이 오면 이 값을 그대로 보여준다.
   title: string;
   message: string;
-  // 타입마다 가리키는 대상이 다르다. COMMENT·LIKE는 postId, MESSAGE는 roomId.
+  // 타입마다 가리키는 대상이 다르다. LIKE는 postId, COMMENT는 댓글 id,
+  // MESSAGE는 roomId, 팔로우 계열은 팔로우 관계 id.
   referenceId: string | null;
   read: boolean;
   createdAt: string;

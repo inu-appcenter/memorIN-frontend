@@ -22,8 +22,8 @@ export async function saveWebPushSubscription(
 
 // DELETE에 본문을 실어야 해서 axios config의 data로 넘긴다.
 //
-// 로그아웃 때는 이걸 부르지 않는다 — 그 시점엔 토큰이 이미 지워져 401이 난다.
-// 대신 브라우저 구독만 해제하면, 백엔드가 다음 발송에서 404/410을 받고 행을 삭제함.
+// 로그아웃 때는 이걸 부르지 않는다. 로그아웃 요청 본문에 endpoint를 담으면
+// 서버가 함께 지운다(getCurrentPushTarget).
 export async function deleteWebPushSubscription(
   endpoint: string
 ): Promise<void> {
@@ -41,8 +41,6 @@ export async function deleteWebPushSubscription(
 }
 
 // POST /api/fcm/token
-// 대응하는 삭제 API가 아직 없다. 앱에서 알림을 꺼도 서버 토큰은 남음.
-// 실제로 발송이 멈추는 건 OS 권한을 끄고 FCM이 UNREGISTERED를 돌려준 뒤.
 export async function saveFcmToken(
   token: string,
   deviceType: NativeDeviceType
@@ -56,6 +54,21 @@ export async function saveFcmToken(
     throw new ApiError(
       data.error?.code ?? 'UNKNOWN',
       data.error?.message ?? i18next.t('error.pushRegister')
+    );
+  }
+}
+
+// DELETE /api/fcm/token — 현재 사용자에게 묶인 이 기기의 토큰만 지운다.
+// 로그아웃 때는 부르지 않는다. 로그아웃 요청 본문에 토큰을 담는다.
+export async function deleteFcmToken(token: string): Promise<void> {
+  const { data } = await client.delete<ApiResponse<null>>('/api/fcm/token', {
+    data: { token },
+  });
+
+  if (!data.success) {
+    throw new ApiError(
+      data.error?.code ?? 'UNKNOWN',
+      data.error?.message ?? i18next.t('error.pushUnregister')
     );
   }
 }

@@ -28,8 +28,8 @@ function parsePayload(event) {
   }
 }
 
-// src/features/push/lib/notificationRoute.ts에 같은 매핑이 있다.
-// 서비스워커는 번들러를 안 거쳐서 import가 안 된다. 바꿀 때 같이 바꾼다.
+// src/features/push/lib/notificationRoute.ts와 NotificationsPage에 같은 매핑이
+// 있다. 서비스워커는 번들러를 안 거쳐서 import가 안 된다. 바꿀 때 같이 바꾼다.
 function routeOf(type, referenceId) {
   switch (type) {
     case 'FOLLOW_REQUEST':
@@ -38,10 +38,13 @@ function routeOf(type, referenceId) {
     // MESSAGE의 referenceId는 roomId다.
     case 'MESSAGE':
       return referenceId ? '/chat/' + referenceId : '/chat';
-    // 게시물 상세는 아직 단독 라우트가 아니라 피드 위에 뜨는 모달이다.
-    // 알림 화면이 붙으면 '/notifications'로 바꾼다.
-    case 'COMMENT':
+    // LIKE의 referenceId는 postId다.
     case 'LIKE':
+      return referenceId ? '/post/' + referenceId : '/feed';
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없다. 백엔드가 postId를
+    // 주기 전까지 알림 목록으로 보낸다.
+    case 'COMMENT':
+      return '/notifications';
     default:
       return '/feed';
   }
