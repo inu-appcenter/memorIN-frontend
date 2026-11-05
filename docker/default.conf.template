@@ -36,21 +36,12 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # STOMP over SockJS. 순수 웹소켓 업그레이드 외에 SockJS의 폴링/XHR 폴백 경로도
-    # 전부 /ws로 시작하므로 prefix 매치 하나로 충분하다.
+    # STOMP over SockJS(/ws)는 memorIN-backend#304(STOMP 인증·구독·발행 우회)가 고쳐질 때까지 막는다.
+    # 앱이 소켓을 쓰지 않아도 /ws가 열려 있으면 누구나 직접 접속해 채팅을 받거나 위조할 수 있다.
+    # 첫 배포는 채팅을 숨기므로(src/shared/config/features.ts의 CHAT_ENABLED=false) 영향이 없다.
+    # 다시 열 때는 이 블록을 바꾼 커밋을 되돌려 backend 프록시 설정(Upgrade 헤더, 3600s 타임아웃)을 복구한다.
     location /ws {
-        proxy_pass ${BACKEND_ORIGIN};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        # 순수 폴링 요청은 금방 끝나지만 웹소켓 연결은 오래 유지된다. 백엔드가 이미
-        # STOMP heartbeat를 켜 두었으니(WebSocketConfig) 프록시도 넉넉히 맞춘다.
-        proxy_read_timeout 3600s;
-        proxy_send_timeout 3600s;
+        return 404;
     }
 
     # 해시가 파일명에 들어가는 빌드 산출물은 길게 캐시해도 안전하다.

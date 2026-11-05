@@ -40,11 +40,6 @@ yarn-error.*
 /ios
 /android
 
-# Claude Code
-.claude/
-CLAUDE.md
-AGENTS.md
-
 # local env files
 .env
 .env.*
