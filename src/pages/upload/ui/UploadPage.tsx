@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import {
   Alert,
@@ -37,6 +37,24 @@ const MAX_VIEWPORT_WIDTH = 1200;
 const MIN_CONTENT_WIDTH = 654;
 const MAX_CONTENT_WIDTH = 720;
 
+// 나가기 확인 문구. 업로드 중에는 쓰던 글뿐 아니라 진행 중인 업로드도 멈추므로 따로 묻는다.
+type LeaveMode = 'editing' | 'uploading';
+const LEAVE_DIALOG_KEYS = {
+  editing: {
+    title: 'uploadPage.discardTitle',
+    message: 'uploadPage.discardMessage',
+    keep: 'uploadPage.discardCancel',
+  },
+  uploading: {
+    title: 'uploadPage.cancelUploadTitle',
+    message: 'uploadPage.cancelUploadMessage',
+    keep: 'uploadPage.cancelUploadKeep',
+  },
+} as const satisfies Record<
+  LeaveMode,
+  { title: string; message: string; keep: string }
+>;
+
 function resolveContentWidth(viewportWidth: number): number {
   const progress =
     (viewportWidth - MIN_VIEWPORT_WIDTH) /
@@ -72,6 +90,10 @@ export function UploadPage() {
   } = usePostForm();
   const { mutate: submitPost, isPending } = useCreatePost();
 
+  // 진행 중인 업로드. 화면을 떠나면 끊어서 나간 뒤에 게시물이 생기지 않게 한다.
+  const uploadAbortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => uploadAbortRef.current?.abort(), []);
+
   const [contentHeight, setContentHeight] = useState(CAPTION_MIN_HEIGHT);
   const captionInputHeight = Math.min(
     Math.max(contentHeight, CAPTION_MIN_HEIGHT),
@@ -82,29 +104,32 @@ export function UploadPage() {
   const isDirty =
     assets.length > 0 || caption.trim().length > 0 || tags.length > 0;
 
+  const leave = () => {
+    uploadAbortRef.current?.abort();
+    router.back();
+  };
+
   const handleBack = () => {
-    if (!isDirty) {
+    if (!isDirty && !isPending) {
       router.back();
       return;
     }
 
+    const keys = LEAVE_DIALOG_KEYS[isPending ? 'uploading' : 'editing'];
+
     if (Platform.OS === 'web') {
-      if (
-        window.confirm(
-          `${t('uploadPage.discardTitle')}\n${t('uploadPage.discardMessage')}`
-        )
-      ) {
-        router.back();
+      if (window.confirm(`${t(keys.title)}\n${t(keys.message)}`)) {
+        leave();
       }
       return;
     }
 
-    Alert.alert(t('uploadPage.discardTitle'), t('uploadPage.discardMessage'), [
-      { text: t('uploadPage.discardCancel'), style: 'cancel' },
+    Alert.alert(t(keys.title), t(keys.message), [
+      { text: t(keys.keep), style: 'cancel' },
       {
         text: t('uploadPage.discardConfirm'),
         style: 'destructive',
-        onPress: () => router.back(),
+        onPress: leave,
       },
     ]);
   };
@@ -115,6 +140,8 @@ export function UploadPage() {
       toast.error(t('uploadPage.needMedia'));
       return;
     }
+    const controller = new AbortController();
+    uploadAbortRef.current = controller;
     submitPost(
       {
         content: JSON.stringify([{ text: caption }]),
@@ -122,16 +149,26 @@ export function UploadPage() {
         timeslotType: timeslot,
         assets,
         tags,
+        signal: controller.signal,
       },
       {
         onSuccess: () => router.replace('/feed'),
         // 실패 메시지(용량 초과, 업로드 실패 (403) 등)가 이미 완결된 문장이라 제목을 붙이지 않는다.
-        onError: (error) =>
+        onError: (error) => {
+          // 사용자가 나가서 끊은 경우다. axios는 취소도 NETWORK 오류로 바꾸므로
+          // 오류 종류가 아니라 signal로 판단한다.
+          if (controller.signal.aborted) return;
           toast.error(
             error instanceof Error && error.message
               ? error.message
               : t('postEdit.unknownError')
-          ),
+          );
+        },
+        onSettled: () => {
+          if (uploadAbortRef.current === controller) {
+            uploadAbortRef.current = null;
+          }
+        },
       }
     );
   };

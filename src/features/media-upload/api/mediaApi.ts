@@ -29,14 +29,18 @@ export interface PresignedUpload {
 
 // presignedUrl 요청 비동기함수
 // 이 엔드포인트는 ApiResponse 봉투를 안 씀 — 결과를 직접 반환
-export async function getPresignedUploadUrl(body: {
-  fileName: string;
-  contentType: string;
-  contentLength: number;
-}): Promise<PresignedUpload> {
+export async function getPresignedUploadUrl(
+  body: {
+    fileName: string;
+    contentType: string;
+    contentLength: number;
+  },
+  signal?: AbortSignal
+): Promise<PresignedUpload> {
   const res = await client.post<PresignedUpload>(
     '/api/media/presigned-upload-url',
-    body
+    body,
+    { signal }
   );
   return res.data;
 }

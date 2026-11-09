@@ -177,6 +177,7 @@
     "fileTooLarge": "파일 크기({{sizeMb}}MB)가 최대 업로드 용량(50MB)을 초과합니다.",
     "videoTooLong": "동영상 길이({{seconds}}초)가 최대 허용 길이({{max}}초)를 초과합니다.",
     "uploadFailed": "업로드 실패 ({{status}})",
+    "timeout": "업로드가 너무 오래 걸려 중단했어요. 네트워크 상태를 확인하고 다시 시도해 주세요.",
     "permissionMessage": "사진/동영상 접근 권한을 허용해주세요.",
     "pickerTitle": "사진 또는 영상 추가",
     "pickerSubtitle": "오늘의 순간을 담아보세요"
@@ -300,7 +301,10 @@
     "discardTitle": "작성을 그만둘까요?",
     "discardMessage": "고른 사진과 쓴 글이 사라집니다.",
     "discardCancel": "계속 쓰기",
-    "discardConfirm": "나가기"
+    "discardConfirm": "나가기",
+    "cancelUploadTitle": "업로드를 취소하고 나갈까요?",
+    "cancelUploadMessage": "올리던 기록은 게시되지 않고, 고른 사진과 쓴 글도 사라집니다.",
+    "cancelUploadKeep": "계속 올리기"
   },
   "feed": {
     "title": "피드",

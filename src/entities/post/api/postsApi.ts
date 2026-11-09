@@ -162,12 +162,16 @@ export interface CreatePostResponse {
 }
 
 // POST /api/posts — 인증 필요
+// signal로 요청을 끊어도 서버가 이미 받은 요청이면 게시물은 생긴다. 취소가 의미 있는
+// 것은 요청이 나가기 전까지다.
 export async function createPost(
-  params: CreatePostParams
+  params: CreatePostParams,
+  signal?: AbortSignal
 ): Promise<CreatePostResponse> {
   const { data } = await client.post<ApiResponse<CreatePostResponse>>(
     '/api/posts',
-    params
+    params,
+    { signal }
   );
 
   if (!data.success || !data.data) {
