@@ -156,6 +156,7 @@
     "emailInvalid": "올바른 이메일 형식이 아닙니다",
     "passwordRequired": "비밀번호를 입력하세요",
     "passwordMinLength": "비밀번호는 8자 이상이어야 합니다",
+    "passwordMaxLength": "비밀번호는 64자 이하여야 합니다",
     "passwordNeedsLetter": "영문자를 포함해야 합니다",
     "passwordNeedsNumber": "숫자를 포함해야 합니다",
     "passwordMismatch": "비밀번호가 일치하지 않습니다",
