@@ -20,15 +20,64 @@ server {
     server_name _;
     root /usr/share/nginx/html;
 
+    # 응답 헤더와 오류 페이지에 nginx 버전을 싣지 않는다.
+    server_tokens off;
+
+    # proxy_pass에 주소를 그대로 쓰면 nginx는 기동할 때 한 번만 DNS를 조회해 IP를 고정한다.
+    # backend 컨테이너가 다시 만들어지면 IP가 바뀌어 frontend를 재시작할 때까지 502가 나고,
+    # 기동 시점에 backend가 없으면 nginx가 아예 뜨지 못한다. 변수로 넘기면 요청 때마다
+    # 아래 resolver(Docker 내장 DNS)로 다시 조회하고, 결과는 valid 동안만 재사용한다.
+    # 변수로 넘길 때 BACKEND_ORIGIN에 경로가 붙어 있으면(예: http://backend:8080/) 요청
+    # 경로가 그 경로로 통째로 바뀌므로 스킴·호스트·포트만 넣는다.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $backend_origin ${BACKEND_ORIGIN};
+
+    gzip on;
+    # 프록시나 CDN이 압축본과 원본을 구분해 캐시하도록 Accept-Encoding으로 나눈다.
+    gzip_vary on;
+    gzip_comp_level 5;
+    # 작은 응답은 압축해도 헤더 비용 때문에 이득이 없다.
+    gzip_min_length 1024;
+    # text/html은 기본 포함이다. 이미지·영상은 이미 압축된 형식이라 넣지 않는다.
+    gzip_types text/css text/plain application/javascript application/json
+               application/manifest+json image/svg+xml font/ttf font/otf;
+
+    # nginx 기본 mime.types에는 otf·ttf가 없어 폰트가 application/octet-stream으로 나가고,
+    # 그러면 위 gzip_types의 font/otf·font/ttf에 걸리지 않아 압축되지 않는다. server 블록에
+    # types를 쓰면 http 블록의 표를 물려받지 않으므로 기본 표를 다시 불러온 뒤 두 확장자만 더한다.
+    include /etc/nginx/mime.types;
+    types {
+        font/otf otf;
+        font/ttf ttf;
+    }
+
     # 배포 환경마다 달라지는 런타임 설정(VAPID 공개키 등)이라 캐시되면 안 된다.
     location = /config.json {
+        include /etc/nginx/snippets/security-headers.conf;
         add_header Cache-Control "no-store" always;
         try_files /config.json =404;
     }
 
+    # 이번 빌드의 JS 파일 이름을 담은 진입점이다. 옛 index.html이 캐시에 남으면 배포 후에도
+    # 옛 화면이 뜨거나, 이미 사라진 JS를 불러 흰 화면이 된다. no-cache는 저장은 하되 쓸 때마다
+    # 서버에 바뀌었는지 묻게 한다(안 바뀌었으면 304라 비용이 작다). SPA 폴백(아래 location /)도
+    # 내부적으로 이 경로를 거치므로 /post/… 같은 화면 주소에도 같은 헤더가 붙는다.
+    location = /index.html {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache";
+    }
+
+    # 웹 푸시 서비스 워커. 브라우저는 HTTP 캐시를 거쳐 갱신을 확인할 수 있어서, 캐시되면
+    # 알림 이동 경로 같은 수정이 사용자에게 늦게 닿는다.
+    location = /sw.js {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
     # 백엔드 REST API. 컨트롤러 prefix가 /api/*, /auth 두 종류라 둘 다 묶는다.
     location ~ ^/(api|auth)/ {
-        proxy_pass ${BACKEND_ORIGIN};
+        proxy_pass $backend_origin;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -40,19 +89,32 @@ server {
     # 앱이 소켓을 쓰지 않아도 /ws가 열려 있으면 누구나 직접 접속해 채팅을 받거나 위조할 수 있다.
     # 첫 배포는 채팅을 숨기므로(src/shared/config/features.ts의 CHAT_ENABLED=false) 영향이 없다.
     # 다시 열 때는 이 블록을 바꾼 커밋을 되돌려 backend 프록시 설정(Upgrade 헤더, 3600s 타임아웃)을 복구한다.
+    # 그때 proxy_pass는 위 /api와 같이 변수 $backend_origin을 쓴다.
     location /ws {
         return 404;
     }
 
     # 해시가 파일명에 들어가는 빌드 산출물은 길게 캐시해도 안전하다.
+    # always를 붙이지 않는다. 붙이면 404에도 1년 캐시가 걸려, 배포 직후 잠깐 없던 파일이
+    # 브라우저나 CDN에 "없음"으로 굳는다.
     location /_expo/static/ {
-        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # 이미지·폰트. expo export가 파일 이름에 내용 해시를 붙인다(logo.<해시>.png).
+    # public/assets/에 해시 없는 파일을 두면 여기서 1년 캐시되므로 그런 파일은 다른 경로에 둔다.
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable";
         try_files $uri =404;
     }
 
     # expo-router web.output "single" (SPA) — 없는 경로는 index.html로 폴백해
     # 클라이언트 라우터가 처리하게 한다.
     location / {
+        include /etc/nginx/snippets/security-headers.conf;
         try_files $uri $uri/ /index.html;
     }
 }
