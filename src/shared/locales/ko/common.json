@@ -176,6 +176,7 @@
   "upload": {
     "fileTooLarge": "파일 크기({{sizeMb}}MB)가 최대 업로드 용량(50MB)을 초과합니다.",
     "videoTooLong": "동영상 길이({{seconds}}초)가 최대 허용 길이({{max}}초)를 초과합니다.",
+    "videoDurationUnknown": "영상 길이를 확인할 수 없어 올릴 수 없어요",
     "uploadFailed": "업로드 실패 ({{status}})",
     "timeout": "업로드가 너무 오래 걸려 중단했어요. 네트워크 상태를 확인하고 다시 시도해 주세요.",
     "permissionMessage": "사진/동영상 접근 권한을 허용해주세요.",

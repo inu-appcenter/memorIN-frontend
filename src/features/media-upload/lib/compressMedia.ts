@@ -111,8 +111,17 @@ async function prepareVideo(
   asset: MediaAsset,
   originalSize: number
 ): Promise<CompressedMedia> {
+  // 웹 ImagePicker의 duration은 video.duration을 그대로 넣어 단위가 초이고, 길이를 모르면
+  // Infinity, 읽지 못하면 0이다(네이티브는 밀리초). 웹에서는 이 값을 쓰지 않고 직접 잰다.
   const durationMs =
-    asset.durationMs ?? (await probeVideoDurationMs(asset.uri));
+    Platform.OS === 'web'
+      ? await probeVideoDurationMs(asset.uri)
+      : (asset.durationMs ?? null);
+  // 길이를 모르면 15초 제한을 확인할 수 없으므로 웹에서는 거부한다. 네이티브는
+  // ImagePicker 값을 그대로 쓰고, 값이 없으면 길이 검사를 건너뛴다.
+  if (durationMs == null && Platform.OS === 'web') {
+    throw new Error(i18next.t('upload.videoDurationUnknown'));
+  }
   if (durationMs != null && durationMs > MAX_VIDEO_DURATION_SEC * 1000) {
     const seconds = (durationMs / 1000).toFixed(1);
     throw new Error(
@@ -150,19 +159,55 @@ async function prepareVideo(
   };
 }
 
-// 웹에서는 ImagePicker가 duration을 채워주지 않는 경우가 많아, HTML5 video 엘리먼트로
-// 메타데이터를 직접 읽어 보정한다. 네이티브는 asset.duration이 이미 채워져 있어 호출되지 않는다.
+// 메타데이터를 끝내 못 읽는 파일이 있어서 기다리는 시간을 정해 둔다.
+const PROBE_TIMEOUT_MS = 5000;
+
+// 웹 전용. HTML5 video 엘리먼트로 길이를 읽는다. 못 읽으면 null이다.
 async function probeVideoDurationMs(uri: string): Promise<number | null> {
   if (Platform.OS !== 'web') return null;
-  return new Promise((resolve) => {
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    video.onloadedmetadata = () => {
-      resolve(Number.isFinite(video.duration) ? video.duration * 1000 : null);
-    };
-    video.onerror = () => resolve(null);
-    video.src = uri;
-  });
+  const video = document.createElement('video');
+  video.preload = 'metadata';
+  video.muted = true;
+  try {
+    const seconds = await new Promise<number | null>((resolve) => {
+      const timer = setTimeout(() => resolve(null), PROBE_TIMEOUT_MS);
+      const finish = (value: number | null) => {
+        clearTimeout(timer);
+        resolve(value);
+      };
+      const finiteDuration = () =>
+        Number.isFinite(video.duration) && video.duration > 0
+          ? video.duration
+          : null;
+
+      video.onerror = () => finish(null);
+      video.onloadedmetadata = () => {
+        const duration = finiteDuration();
+        if (duration != null) {
+          finish(duration);
+          return;
+        }
+        // MediaRecorder로 만든 WebM 등은 헤더에 길이가 없어 Infinity로 온다. 끝으로
+        // 탐색하면 브라우저가 파일을 훑어 실제 길이를 durationchange로 알려 준다.
+        video.ondurationchange = () => {
+          const found = finiteDuration();
+          if (found != null) finish(found);
+        };
+        video.onseeked = () => finish(finiteDuration());
+        video.currentTime = Number.MAX_SAFE_INTEGER;
+      };
+      video.src = uri;
+    });
+    return seconds == null ? null : seconds * 1000;
+  } finally {
+    // src를 비우고 load()까지 해야 브라우저가 붙잡은 디코더와 버퍼를 놓는다.
+    video.onloadedmetadata = null;
+    video.ondurationchange = null;
+    video.onseeked = null;
+    video.onerror = null;
+    video.removeAttribute('src');
+    video.load();
+  }
 }
 
 async function getFileSize(uri: string): Promise<number> {
