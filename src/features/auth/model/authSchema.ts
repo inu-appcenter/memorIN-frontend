@@ -27,9 +27,13 @@ export const signUpSchema = z
       .min(1, { error: () => i18next.t('auth.emailRequired') })
       .email({ error: () => i18next.t('auth.emailInvalid') }),
     // 비밀번호 원문. 서버 저장 시 해시 처리
+    // 최대 64자는 backend SignupRequest의 @Size(max = 64)와 같다. 서버는 BCrypt가
+    // 72바이트까지만 쓰기 때문에 이 길이로 제한하고, 넘으면 400을 준다. Java @Size와
+    // string.length는 둘 다 UTF-16 코드 단위로 세어 기준이 같다.
     password: z
       .string()
       .min(8, { error: () => i18next.t('auth.passwordMinLength') })
+      .max(64, { error: () => i18next.t('auth.passwordMaxLength') })
       .regex(/[A-Za-z]/, { error: () => i18next.t('auth.passwordNeedsLetter') })
       .regex(/[0-9]/, { error: () => i18next.t('auth.passwordNeedsNumber') }),
     passwordConfirm: z

@@ -156,6 +156,7 @@
     "emailInvalid": "That's not a valid email address",
     "passwordRequired": "Enter your password",
     "passwordMinLength": "Password must be at least 8 characters",
+    "passwordMaxLength": "Password must be at most 64 characters",
     "passwordNeedsLetter": "Must include a letter",
     "passwordNeedsNumber": "Must include a number",
     "passwordMismatch": "Passwords don't match",
