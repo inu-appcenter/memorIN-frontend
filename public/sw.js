@@ -3,7 +3,7 @@
  * 번들러를 안 거치는 순수 JS.
  *
  * 백엔드 WebPushService가 보내는 페이로드:
- *   { title, body, type, referenceId, actorId }
+ *   { title, body, type, referenceId, postId, actorId }
  *   type = FOLLOW_REQUEST | FOLLOW_ACCEPTED | COMMENT | LIKE | MESSAGE
  */
 
@@ -30,7 +30,7 @@ function parsePayload(event) {
 
 // src/features/push/lib/notificationRoute.ts와 NotificationsPage에 같은 매핑이
 // 있다. 서비스워커는 번들러를 안 거쳐서 import가 안 된다. 바꿀 때 같이 바꾼다.
-function routeOf(type, referenceId) {
+function routeOf(type, referenceId, postId) {
   switch (type) {
     case 'FOLLOW_REQUEST':
     case 'FOLLOW_ACCEPTED':
@@ -41,10 +41,10 @@ function routeOf(type, referenceId) {
     // LIKE의 referenceId는 postId다.
     case 'LIKE':
       return referenceId ? '/post/' + referenceId : '/feed';
-    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없다. 백엔드가 postId를
-    // 주기 전까지 알림 목록으로 보낸다.
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없어 postId를 쓴다.
+    // postId가 null이면 알림 목록으로 보낸다.
     case 'COMMENT':
-      return '/notifications';
+      return postId ? '/post/' + postId : '/notifications';
     default:
       return '/feed';
   }
@@ -61,7 +61,7 @@ self.addEventListener('push', (event) => {
       // 같은 종류가 여러 개 쌓이지 않게 묶는다. renotify는 tag가 있어야 동작한다.
       tag: TAG_PREFIX + (payload.type || 'general'),
       renotify: true,
-      data: { url: routeOf(payload.type, payload.referenceId) },
+      data: { url: routeOf(payload.type, payload.referenceId, payload.postId) },
     })
   );
 });

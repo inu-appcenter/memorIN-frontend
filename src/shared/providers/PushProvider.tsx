@@ -42,6 +42,7 @@ if (Platform.OS !== 'web') {
 interface PushPayloadData {
   type?: string;
   referenceId?: string;
+  postId?: string;
 }
 
 // 처리한 알림 응답. 프로바이더가 다시 마운트돼도 유지되도록 모듈에 둔다.
@@ -51,7 +52,7 @@ let lastHandledResponseId: string | null = null;
 // 로그아웃하고 B로 들어오면 같은 구독이 A에게 묶인 채 남는다. 그래서 로그인
 // 시 현재 사용자로 다시 등록한다.
 //
-// 서버 쪽 등록은 로그아웃 요청이 함께 지운다(useLogout → getCurrentPushTarget).
+// 서버 쪽 등록은 로그아웃 요청이 함께 지운다(본문 없이 보내면 전 기기).
 // 여기서는 브라우저 구독만 끊는다. 로그아웃 뒤에는 인증이 없어 삭제 API를
 // 부를 수 없다.
 export function PushProvider({ children }: { children: ReactNode }) {
@@ -168,7 +169,9 @@ export function PushProvider({ children }: { children: ReactNode }) {
       const data = response.notification.request.content
         .data as PushPayloadData;
       invalidateFor(data?.type);
-      router.navigate(routeOfNotification(data?.type, data?.referenceId));
+      router.navigate(
+        routeOfNotification(data?.type, data?.referenceId, data?.postId)
+      );
     };
 
     // 앱이 완전히 종료된 상태에서 알림을 탭해 실행된 경우, 리스너가 붙기 전에

@@ -7,7 +7,8 @@
 // 푸시 페이로드의 type은 문자열이라 모르는 값이 올 수 있어 default를 둔다.
 export function routeOfNotification(
   type?: string,
-  referenceId?: string
+  referenceId?: string,
+  postId?: string
 ): string {
   switch (type) {
     case 'FOLLOW_REQUEST':
@@ -19,10 +20,11 @@ export function routeOfNotification(
     // LIKE의 referenceId는 postId다.
     case 'LIKE':
       return referenceId ? `/post/${referenceId}` : '/feed';
-    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없다. 백엔드가 postId를
-    // 주기 전까지 알림 목록으로 보낸다.
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없어 postId를 쓴다.
+    // postId 도입 전에 쌓인 알림은 null이고, FCM data는 null을 빈 문자열로
+    // 보내므로 falsy로 거르고 알림 목록으로 보낸다.
     case 'COMMENT':
-      return '/notifications';
+      return postId ? `/post/${postId}` : '/notifications';
     default:
       return '/feed';
   }

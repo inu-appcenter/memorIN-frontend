@@ -59,10 +59,10 @@ function routeOf(notification: NotificationItem): string | null {
       return notification.referenceId
         ? `/post/${notification.referenceId}`
         : '/feed';
-    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없다. 백엔드가 postId를
-    // 주기 전까지 이동하지 않는다. 푸시는 이 화면으로 보낸다.
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없어 postId를 쓴다.
+    // postId 도입 전에 쌓인 알림은 null이라 이동하지 않는다.
     case 'COMMENT':
-      return null;
+      return notification.postId ? `/post/${notification.postId}` : null;
     // MESSAGE의 referenceId는 roomId다(백엔드 NotificationService.saveMessages).
     case 'MESSAGE':
       return notification.referenceId

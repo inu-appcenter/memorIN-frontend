@@ -17,6 +17,8 @@ export interface NotificationItem {
   // 타입마다 가리키는 대상이 다르다. LIKE는 postId, COMMENT는 댓글 id,
   // MESSAGE는 roomId, 팔로우 계열은 팔로우 관계 id.
   referenceId: string | null;
+  // COMMENT(답글 포함)만 댓글이 달린 게시물 id를 담고, 나머지 타입은 null이다.
+  postId?: string | null;
   read: boolean;
   createdAt: string;
 }

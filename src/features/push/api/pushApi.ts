@@ -22,8 +22,8 @@ export async function saveWebPushSubscription(
 
 // DELETE에 본문을 실어야 해서 axios config의 data로 넘긴다.
 //
-// 로그아웃 때는 이걸 부르지 않는다. 로그아웃 요청 본문에 endpoint를 담으면
-// 서버가 함께 지운다(getCurrentPushTarget).
+// 로그아웃 때는 이걸 부르지 않는다. 로그아웃 요청을 본문 없이 보내면
+// 서버가 그 사용자의 모든 기기 푸시 등록을 함께 지운다.
 export async function deleteWebPushSubscription(
   endpoint: string
 ): Promise<void> {

@@ -9,4 +9,3 @@ export {
   type NotificationKind,
   type NotificationPreference,
 } from './lib/notificationPreference';
-export { getCurrentPushTarget, type PushDeviceTarget } from './lib/pushDevice';
