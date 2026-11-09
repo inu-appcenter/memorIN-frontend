@@ -55,6 +55,10 @@ const LEAVE_DIALOG_KEYS = {
   { title: string; message: string; keep: string }
 >;
 
+function clampCaptionHeight(height: number): number {
+  return Math.min(Math.max(height, CAPTION_MIN_HEIGHT), CAPTION_MAX_HEIGHT);
+}
+
 function resolveContentWidth(viewportWidth: number): number {
   const progress =
     (viewportWidth - MIN_VIEWPORT_WIDTH) /
@@ -95,10 +99,23 @@ export function UploadPage() {
   useEffect(() => () => uploadAbortRef.current?.abort(), []);
 
   const [contentHeight, setContentHeight] = useState(CAPTION_MIN_HEIGHT);
-  const captionInputHeight = Math.min(
-    Math.max(contentHeight, CAPTION_MIN_HEIGHT),
-    CAPTION_MAX_HEIGHT
-  );
+  const captionInputHeight = clampCaptionHeight(contentHeight);
+  const captionRef = useRef<TextInput>(null);
+
+  // 웹의 textarea는 scrollHeight가 지금 높이보다 작아지지 않아, onContentSizeChange로는
+  // 줄을 지워도 칸이 줄지 않는다. 높이를 잠깐 auto로 풀어 내용 높이를 다시 잰다.
+  const handleCaptionChange = (text: string) => {
+    setCaption(text);
+    if (Platform.OS !== 'web') return;
+    // react-native-web의 TextInput ref는 DOM textarea다.
+    const element = captionRef.current as unknown as HTMLTextAreaElement | null;
+    if (!element) return;
+    element.style.height = 'auto';
+    const next = clampCaptionHeight(element.scrollHeight);
+    // 높이가 그대로면 리렌더가 없어 auto가 남으므로 직접 되돌린다.
+    element.style.height = `${next}px`;
+    setContentHeight(next);
+  };
 
   const cover = assets[0];
   const isDirty =
@@ -243,15 +260,18 @@ export function UploadPage() {
           style={{ paddingVertical: CAPTION_VERTICAL_PADDING }}
         >
           <TextInput
+            ref={captionRef}
             value={caption}
-            onChangeText={setCaption}
+            onChangeText={handleCaptionChange}
             placeholder={t('uploadPage.captionPlaceholderPhone')}
             placeholderTextColor={COLORS.textMuted}
             multiline
             editable={!isPending}
             textAlignVertical="top"
-            onContentSizeChange={(e) =>
-              setContentHeight(e.nativeEvent.contentSize.height)
+            onContentSizeChange={
+              Platform.OS === 'web'
+                ? undefined
+                : (e) => setContentHeight(e.nativeEvent.contentSize.height)
             }
             style={{ height: captionInputHeight, padding: 0 }}
             className="text-[14px] leading-[150%] text-primary"
