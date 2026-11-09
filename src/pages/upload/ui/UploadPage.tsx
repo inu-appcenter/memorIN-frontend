@@ -13,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
+import { toast } from '@/shared/lib/toast';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { DashedBox } from '@/shared/ui/dashedBox';
 import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
@@ -108,9 +109,10 @@ export function UploadPage() {
     ]);
   };
 
+  // 오류 안내는 모든 플랫폼에서 토스트로 한다. 웹에서 Alert.alert는 아무것도 띄우지 않는다.
   const handleSubmit = () => {
     if (!cover) {
-      Alert.alert(t('uploadPage.needMedia'));
+      toast.error(t('uploadPage.needMedia'));
       return;
     }
     submitPost(
@@ -123,10 +125,12 @@ export function UploadPage() {
       },
       {
         onSuccess: () => router.replace('/feed'),
+        // 실패 메시지(용량 초과, 업로드 실패 (403) 등)가 이미 완결된 문장이라 제목을 붙이지 않는다.
         onError: (error) =>
-          Alert.alert(
-            t('uploadPage.failTitle'),
-            error instanceof Error ? error.message : t('postEdit.unknownError')
+          toast.error(
+            error instanceof Error && error.message
+              ? error.message
+              : t('postEdit.unknownError')
           ),
       }
     );

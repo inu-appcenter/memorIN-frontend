@@ -177,7 +177,6 @@
     "fileTooLarge": "파일 크기({{sizeMb}}MB)가 최대 업로드 용량(50MB)을 초과합니다.",
     "videoTooLong": "동영상 길이({{seconds}}초)가 최대 허용 길이({{max}}초)를 초과합니다.",
     "uploadFailed": "업로드 실패 ({{status}})",
-    "permissionTitle": "권한 필요",
     "permissionMessage": "사진/동영상 접근 권한을 허용해주세요.",
     "pickerTitle": "사진 또는 영상 추가",
     "pickerSubtitle": "오늘의 순간을 담아보세요"
@@ -291,7 +290,6 @@
     "captionPlaceholder": "이 순간을 기록해보세요...",
     "captionPlaceholderPhone": "무슨 순간이었나요?",
     "needMedia": "사진/영상을 추가해주세요",
-    "failTitle": "업로드 실패",
     "submitting": "업로드 중...",
     "done": "완료",
     "assetCount": "{{count}}장 · 자동 압축됨",

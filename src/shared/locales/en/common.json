@@ -177,7 +177,6 @@
     "fileTooLarge": "File size ({{sizeMb}}MB) exceeds the 50MB upload limit.",
     "videoTooLong": "Video length ({{seconds}}s) exceeds the {{max}}s limit.",
     "uploadFailed": "Upload failed ({{status}})",
-    "permissionTitle": "Permission needed",
     "permissionMessage": "Please allow access to your photos and videos.",
     "pickerTitle": "Add a photo or video",
     "pickerSubtitle": "Capture a moment from today"
@@ -291,7 +290,6 @@
     "captionPlaceholder": "Write about this moment...",
     "captionPlaceholderPhone": "What was this moment?",
     "needMedia": "Add a photo or video first",
-    "failTitle": "Upload failed",
     "submitting": "Uploading...",
     "done": "Done",
     "assetCount": "{{count}} files · auto-compressed",
