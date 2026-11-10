@@ -177,6 +177,7 @@
     "fileTooLarge": "File size ({{sizeMb}}MB) exceeds the 50MB upload limit.",
     "videoTooLong": "Video length ({{seconds}}s) exceeds the {{max}}s limit.",
     "videoDurationUnknown": "Couldn't read the video length, so it can't be uploaded",
+    "unsupportedFormat": "This file type can't be uploaded. Choose a photo or an MP4/MOV video.",
     "uploadFailed": "Upload failed ({{status}})",
     "timeout": "The upload took too long and was stopped. Check your connection and try again.",
     "permissionMessage": "Please allow access to your photos and videos.",

@@ -25,14 +25,19 @@ export async function uploadMedia(
 ): Promise<UploadedAttachment> {
   // 압축(네이티브 영상)은 중간에 멈출 수 없어 끝난 뒤에 취소 여부를 본다.
   throwIfAborted(signal);
-  const { uri, contentType, contentLength, width, height } =
+  const { uri, contentType, contentLength, width, height, release } =
     await compressMedia(asset);
-  throwIfAborted(signal);
-  const presigned = await getPresignedUploadUrl(
-    { fileName, contentType, contentLength },
-    signal
-  );
-  await uploadToStorage(presigned, uri, { contentLength, signal });
+  let presigned;
+  try {
+    throwIfAborted(signal);
+    presigned = await getPresignedUploadUrl(
+      { fileName, contentType, contentLength },
+      signal
+    );
+    await uploadToStorage(presigned, uri, { contentLength, signal });
+  } finally {
+    release?.();
+  }
   return {
     fileKey: presigned.objectKey,
     mimeType: contentType,

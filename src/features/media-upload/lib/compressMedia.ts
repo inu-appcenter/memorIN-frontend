@@ -1,11 +1,17 @@
 import { Platform } from 'react-native';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { Video } from 'react-native-compressor';
+import { Video, getVideoMetaData } from 'react-native-compressor';
 import * as FileSystem from 'expo-file-system/legacy';
 import i18next from '@/shared/lib/i18n';
+import { stripVideoMetadata } from './stripVideoMetadata';
 
 // 백엔드 MINIO_MAX_UPLOAD_SIZE_BYTES 기본값과 동일 (50MiB)
 const MAX_UPLOAD_SIZE_BYTES = 52428800;
+
+// 백엔드 MINIO_ALLOWED_CONTENT_TYPES 기본값과 같은 형식만 올린다. 그 밖의 형식은 presigned
+// URL 발급이 400으로 실패하는데, 그 전에 무엇이 문제인지 알려 준다.
+// 이미지는 다시 인코딩한 결과(JPEG·PNG)나 그대로 올리는 GIF만 나가므로 따로 목록을 두지 않는다.
+const ALLOWED_VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime']);
 
 // 갤러리 선택(launchImageLibraryAsync) 파일 검증
 export const MAX_VIDEO_DURATION_SEC = 15;
@@ -20,6 +26,8 @@ export interface CompressedMedia {
   contentLength: number;
   width?: number | null;
   height?: number | null;
+  // uri를 이 함수에서 새로 만든 경우(웹 blob URL) 업로드가 끝나면 불러 메모리를 놓는다.
+  release?: () => void;
 }
 
 interface MediaAsset {
@@ -41,44 +49,69 @@ export async function compressMedia(
       ? await prepareVideo(asset, originalSize)
       : await compressImage(asset.uri, originalSize, asset.mimeType);
 
-  if (result.contentLength > MAX_UPLOAD_SIZE_BYTES) {
-    const sizeMb = (result.contentLength / (1024 * 1024)).toFixed(1);
-    throw new Error(i18next.t('upload.fileTooLarge', { sizeMb }));
+  try {
+    assertWithinSizeLimit(result.contentLength);
+  } catch (error) {
+    result.release?.();
+    throw error;
   }
   return result;
 }
 
+function assertWithinSizeLimit(contentLength: number): void {
+  if (contentLength > MAX_UPLOAD_SIZE_BYTES) {
+    const sizeMb = (contentLength / (1024 * 1024)).toFixed(1);
+    throw new Error(i18next.t('upload.fileTooLarge', { sizeMb }));
+  }
+}
+
+function unsupportedFormatError(): Error {
+  return new Error(i18next.t('upload.unsupportedFormat'));
+}
+
+// 사진은 항상 다시 인코딩한다. 원본에는 EXIF(촬영 위치·기기 정보)가 들어 있고, 다시
+// 인코딩한 결과에는 남지 않는다. HEIC·AVIF처럼 서버가 받지 않는 형식도 이 과정에서
+// JPEG가 된다. 원본이 더 작더라도 원본을 올리지 않는다.
+// GIF만 원본을 올린다. 다시 인코딩하면 첫 프레임만 남고, 위치 정보를 담는 형식이 아니다.
 async function compressImage(
   localUri: string,
   originalSize: number,
   originalMimeType?: string,
   maxWidth = 1080
 ): Promise<CompressedMedia> {
-  const probe = await ImageManipulator.manipulate(localUri).renderAsync();
-  const context = ImageManipulator.manipulate(localUri);
-  if (probe.width > maxWidth) {
-    context.resize({ width: maxWidth });
+  let probe: { width: number; height: number };
+  try {
+    probe = await ImageManipulator.manipulate(localUri).renderAsync();
+  } catch {
+    // 이 기기(웹이면 브라우저)가 읽지 못하는 형식이다. 예: Chrome의 HEIC.
+    throw unsupportedFormatError();
   }
-  const image = await context.renderAsync();
-  const result = await image.saveAsync({
-    compress: 0.8,
-    format: SaveFormat.JPEG,
-  });
-  const contentLength = await getFileSize(result.uri);
 
-  const isSafeToKeepOriginal = originalMimeType != null;
-  if (isSafeToKeepOriginal && contentLength >= originalSize) {
+  if (originalMimeType === 'image/gif') {
     return {
       uri: localUri,
-      contentType: originalMimeType!,
+      contentType: 'image/gif',
       contentLength: originalSize,
       width: probe.width,
       height: probe.height,
     };
   }
+
+  const context = ImageManipulator.manipulate(localUri);
+  if (probe.width > maxWidth) {
+    context.resize({ width: maxWidth });
+  }
+  const image = await context.renderAsync();
+  // PNG는 투명 배경이 있을 수 있어 PNG로 둔다. JPEG로 바꾸면 투명한 곳이 검게 칠해진다.
+  const keepPng = originalMimeType === 'image/png';
+  const result = await image.saveAsync({
+    compress: 0.8,
+    format: keepPng ? SaveFormat.PNG : SaveFormat.JPEG,
+  });
+  const contentLength = await getFileSize(result.uri);
   return {
     uri: result.uri,
-    contentType: 'image/jpeg',
+    contentType: keepPng ? 'image/png' : 'image/jpeg',
     contentLength,
     width: image.width,
     height: image.height,
@@ -111,43 +144,30 @@ async function prepareVideo(
   asset: MediaAsset,
   originalSize: number
 ): Promise<CompressedMedia> {
-  // 웹 ImagePicker의 duration은 video.duration을 그대로 넣어 단위가 초이고, 길이를 모르면
-  // Infinity, 읽지 못하면 0이다(네이티브는 밀리초). 웹에서는 이 값을 쓰지 않고 직접 잰다.
-  const durationMs =
-    Platform.OS === 'web'
-      ? await probeVideoDurationMs(asset.uri)
-      : (asset.durationMs ?? null);
-  // 길이를 모르면 15초 제한을 확인할 수 없으므로 웹에서는 거부한다. 네이티브는
-  // ImagePicker 값을 그대로 쓰고, 값이 없으면 길이 검사를 건너뛴다.
-  if (durationMs == null && Platform.OS === 'web') {
-    throw new Error(i18next.t('upload.videoDurationUnknown'));
-  }
-  if (durationMs != null && durationMs > MAX_VIDEO_DURATION_SEC * 1000) {
-    const seconds = (durationMs / 1000).toFixed(1);
-    throw new Error(
-      i18next.t('upload.videoTooLong', {
-        seconds,
-        max: MAX_VIDEO_DURATION_SEC,
-      })
-    );
+  if (Platform.OS === 'web') {
+    return prepareVideoOnWeb(asset, originalSize);
   }
 
-  if (Platform.OS === 'web') {
-    // 원본을 그대로 올리므로 크기도 원본 그대로다.
-    return {
-      uri: asset.uri,
-      contentType: asset.mimeType ?? 'video/mp4',
-      contentLength: originalSize,
-      width: asset.width ?? null,
-      height: asset.height ?? null,
-    };
+  // ImagePicker가 길이를 못 준 경우(0·null) 파일에서 다시 읽는다. 그래도 모르면
+  // 15초 제한을 확인할 수 없으므로 거부한다.
+  const durationMs =
+    positiveOrNull(asset.durationMs) ?? (await readNativeDurationMs(asset.uri));
+  if (durationMs == null) {
+    throw new Error(i18next.t('upload.videoDurationUnknown'));
   }
+  assertWithinDurationLimit(durationMs);
 
   const compressedUri = await Video.compress(asset.uri, {
     compressionMethod: 'manual',
     stripAudio: true,
     maxSize: VIDEO_MAX_SIZE_PX,
   });
+  // 조각난(fragmented) MP4는 Android가 첫 조각 길이만 읽어 20초 영상을 0.89초로 알려 준다.
+  // 압축 결과는 보통 MP4라 길이가 바르게 들어 있어 한 번 더 확인한다.
+  const compressedDurationMs = await readNativeDurationMs(compressedUri);
+  if (compressedDurationMs != null) {
+    assertWithinDurationLimit(compressedDurationMs);
+  }
   const contentLength = await getFileSize(compressedUri);
   const scaled = scaleToMaxSize(asset.width, asset.height, VIDEO_MAX_SIZE_PX);
   return {
@@ -156,6 +176,73 @@ async function prepareVideo(
     contentLength,
     width: scaled.width,
     height: scaled.height,
+  };
+}
+
+function positiveOrNull(value: number | null | undefined): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
+function assertWithinDurationLimit(durationMs: number): void {
+  if (durationMs > MAX_VIDEO_DURATION_SEC * 1000) {
+    const seconds = (durationMs / 1000).toFixed(1);
+    throw new Error(
+      i18next.t('upload.videoTooLong', {
+        seconds,
+        max: MAX_VIDEO_DURATION_SEC,
+      })
+    );
+  }
+}
+
+// 네이티브 전용. react-native-compressor의 getVideoMetaData는 길이를 초 단위로 준다.
+async function readNativeDurationMs(uri: string): Promise<number | null> {
+  try {
+    const { duration } = await getVideoMetaData(uri);
+    const seconds = positiveOrNull(Number(duration));
+    return seconds == null ? null : seconds * 1000;
+  } catch {
+    return null;
+  }
+}
+
+// 웹은 영상을 압축하지 않고 원본을 올린다. 형식 → 크기 → 길이 순으로 확인한다. 원본
+// 크기가 곧 올릴 크기라 길이를 재기 전에 거를 수 있다.
+async function prepareVideoOnWeb(
+  asset: MediaAsset,
+  originalSize: number
+): Promise<CompressedMedia> {
+  // mimeType이 없으면 MP4로 보고, 아래에서 MP4·MOV 구조인지 직접 확인한다.
+  const contentType = asset.mimeType || 'video/mp4';
+  if (!ALLOWED_VIDEO_TYPES.has(contentType)) {
+    throw unsupportedFormatError();
+  }
+  assertWithinSizeLimit(originalSize);
+
+  // 웹 ImagePicker의 duration은 video.duration을 그대로 넣어 단위가 초이고, 길이를 모르면
+  // Infinity, 읽지 못하면 0이다(네이티브는 밀리초). 이 값을 쓰지 않고 직접 잰다.
+  const durationMs = await probeVideoDurationMs(asset.uri);
+  if (durationMs == null) {
+    throw new Error(i18next.t('upload.videoDurationUnknown'));
+  }
+  assertWithinDurationLimit(durationMs);
+
+  const bytes = new Uint8Array(await (await fetch(asset.uri)).arrayBuffer());
+  const { valid } = stripVideoMetadata(bytes);
+  if (!valid) {
+    throw unsupportedFormatError();
+  }
+  const uri = URL.createObjectURL(new Blob([bytes], { type: contentType }));
+  return {
+    uri,
+    contentType,
+    // 상자 이름만 바꿔 크기는 원본과 같다.
+    contentLength: bytes.byteLength,
+    width: asset.width ?? null,
+    height: asset.height ?? null,
+    release: () => URL.revokeObjectURL(uri),
   };
 }
 
