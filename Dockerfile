@@ -25,6 +25,7 @@ FROM nginx:stable-alpine AS runtime
 # envsubst가 이미 alpine 베이스에 포함되어 있다 — 아래 엔트리포인트가
 # default.conf.template을 컨테이너 기동 시 실제 conf.d 설정으로 변환한다.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
+COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
 RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh
 
