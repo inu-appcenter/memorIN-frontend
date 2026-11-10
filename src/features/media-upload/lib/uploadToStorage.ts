@@ -53,13 +53,21 @@ async function uploadOnWeb(
   fileUri: string,
   signal: AbortSignal
 ): Promise<void> {
-  const blob = await (await fetch(fileUri, { signal })).blob();
-  const res = await fetch(presigned.uploadUrl, {
-    method: presigned.method, // PUT
-    headers: presigned.requiredHeaders,
-    body: blob,
-    signal,
-  });
+  let res: Response;
+  try {
+    const blob = await (await fetch(fileUri, { signal })).blob();
+    res = await fetch(presigned.uploadUrl, {
+      method: presigned.method, // PUT
+      headers: presigned.requiredHeaders,
+      body: blob,
+      signal,
+    });
+  } catch (error) {
+    // fetch는 연결 실패를 브라우저마다 다른 영어 문구(Failed to fetch 등)로 던진다.
+    // 취소·타임아웃은 호출부가 가리므로 그대로 넘긴다.
+    if (signal.aborted) throw error;
+    throw new Error(i18next.t('error.network'));
+  }
   if (!res.ok) {
     throw new Error(i18next.t('upload.uploadFailed', { status: res.status }));
   }
@@ -83,7 +91,14 @@ async function uploadOnNative(
   if (signal.aborted) throw createAbortError();
   signal.addEventListener('abort', cancel);
   try {
-    const result = await task.uploadAsync();
+    let result: Awaited<ReturnType<typeof task.uploadAsync>>;
+    try {
+      result = await task.uploadAsync();
+    } catch (error) {
+      // 연결 실패는 네이티브 모듈의 영어 오류 문구로 온다. 안내 문구로 바꾼다.
+      if (signal.aborted) throw error;
+      throw new Error(i18next.t('error.network'));
+    }
     // 취소된 작업은 결과 없이 끝날 수 있다. 사용자 취소인지 타임아웃인지는 호출부가 가린다.
     if (signal.aborted) throw createAbortError();
     if (!result) {
