@@ -97,8 +97,7 @@ cp .env.example .env
 
 ## 기여
 
-- `main`에서 브랜치를 만들어 `main`으로 PR을 올리고, squash로 머지합니다.
-- PR 제목은 `<type>: <설명>` 형식입니다(`feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `style`, `perf`). CI가 제목, 타입 검사, lint, 이미지 빌드를 확인합니다.
+브랜치, PR 제목, 검사 항목, 의존성 규칙은 [CONTRIBUTING.md](CONTRIBUTING.md)를 봅니다. 보안 문제는 [SECURITY.md](SECURITY.md)의 절차로 제보해 주세요.
 
 ## 라이선스
 
