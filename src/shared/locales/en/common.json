@@ -176,8 +176,10 @@
   "upload": {
     "fileTooLarge": "File size ({{sizeMb}}MB) exceeds the 50MB upload limit.",
     "videoTooLong": "Video length ({{seconds}}s) exceeds the {{max}}s limit.",
+    "videoDurationUnknown": "Couldn't read the video length, so it can't be uploaded",
+    "unsupportedFormat": "This file type can't be uploaded. Choose a photo or an MP4/MOV video.",
     "uploadFailed": "Upload failed ({{status}})",
-    "permissionTitle": "Permission needed",
+    "timeout": "The upload took too long and was stopped. Check your connection and try again.",
     "permissionMessage": "Please allow access to your photos and videos.",
     "pickerTitle": "Add a photo or video",
     "pickerSubtitle": "Capture a moment from today"
@@ -291,7 +293,6 @@
     "captionPlaceholder": "Write about this moment...",
     "captionPlaceholderPhone": "What was this moment?",
     "needMedia": "Add a photo or video first",
-    "failTitle": "Upload failed",
     "submitting": "Uploading...",
     "done": "Done",
     "assetCount": "{{count}} files · auto-compressed",
@@ -302,7 +303,10 @@
     "discardTitle": "Discard this record?",
     "discardMessage": "The selected photo and text will be lost.",
     "discardCancel": "Keep writing",
-    "discardConfirm": "Discard"
+    "discardConfirm": "Discard",
+    "cancelUploadTitle": "Cancel the upload and leave?",
+    "cancelUploadMessage": "This record won't be posted, and the selected photo and text will be lost.",
+    "cancelUploadKeep": "Keep uploading"
   },
   "feed": {
     "title": "Feed",

@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigation, useRouter } from 'expo-router';
+import { usePreventRemove } from '@react-navigation/native';
 import {
   Alert,
   Image,
@@ -13,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Text } from '@/shared/ui/text';
 import { COLORS } from '@/shared/lib/theme';
+import { toast } from '@/shared/lib/toast';
 import { useBreakpoints } from '@/shared/lib/useBreakpoints';
 import { DashedBox } from '@/shared/ui/dashedBox';
 import BackArrowIcon from '@/shared/assets/icons/back-arrow.svg';
@@ -36,6 +38,28 @@ const MAX_VIEWPORT_WIDTH = 1200;
 const MIN_CONTENT_WIDTH = 654;
 const MAX_CONTENT_WIDTH = 720;
 
+// 나가기 확인 문구. 업로드 중에는 쓰던 글뿐 아니라 진행 중인 업로드도 멈추므로 따로 묻는다.
+type LeaveMode = 'editing' | 'uploading';
+const LEAVE_DIALOG_KEYS = {
+  editing: {
+    title: 'uploadPage.discardTitle',
+    message: 'uploadPage.discardMessage',
+    keep: 'uploadPage.discardCancel',
+  },
+  uploading: {
+    title: 'uploadPage.cancelUploadTitle',
+    message: 'uploadPage.cancelUploadMessage',
+    keep: 'uploadPage.cancelUploadKeep',
+  },
+} as const satisfies Record<
+  LeaveMode,
+  { title: string; message: string; keep: string }
+>;
+
+function clampCaptionHeight(height: number): number {
+  return Math.min(Math.max(height, CAPTION_MIN_HEIGHT), CAPTION_MAX_HEIGHT);
+}
+
 function resolveContentWidth(viewportWidth: number): number {
   const progress =
     (viewportWidth - MIN_VIEWPORT_WIDTH) /
@@ -47,6 +71,7 @@ function resolveContentWidth(viewportWidth: number): number {
 
 export function UploadPage() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { t } = useTranslation();
   const { device } = useBreakpoints();
   const { width: viewportWidth } = useWindowDimensions();
@@ -71,48 +96,108 @@ export function UploadPage() {
   } = usePostForm();
   const { mutate: submitPost, isPending } = useCreatePost();
 
+  // 진행 중인 업로드. 화면을 떠나면 끊어서 나간 뒤에 게시물이 생기지 않게 한다.
+  const uploadAbortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => uploadAbortRef.current?.abort(), []);
+
   const [contentHeight, setContentHeight] = useState(CAPTION_MIN_HEIGHT);
-  const captionInputHeight = Math.min(
-    Math.max(contentHeight, CAPTION_MIN_HEIGHT),
-    CAPTION_MAX_HEIGHT
-  );
+  const captionInputHeight = clampCaptionHeight(contentHeight);
+  const captionRef = useRef<TextInput>(null);
+
+  // 웹의 textarea는 scrollHeight가 지금 높이보다 작아지지 않아, onContentSizeChange로는
+  // 줄을 지워도 칸이 줄지 않는다. 높이를 잠깐 auto로 풀어 내용 높이를 다시 잰다.
+  const handleCaptionChange = (text: string) => {
+    setCaption(text);
+    if (Platform.OS !== 'web') return;
+    // react-native-web의 TextInput ref는 DOM textarea다.
+    const element = captionRef.current as unknown as HTMLTextAreaElement | null;
+    if (!element) return;
+    element.style.height = 'auto';
+    const next = clampCaptionHeight(element.scrollHeight);
+    // 높이가 그대로면 리렌더가 없어 auto가 남으므로 직접 되돌린다.
+    element.style.height = `${next}px`;
+    setContentHeight(next);
+  };
 
   const cover = assets[0];
   const isDirty =
     assets.length > 0 || caption.trim().length > 0 || tags.length > 0;
 
-  const handleBack = () => {
-    if (!isDirty) {
-      router.back();
-      return;
-    }
+  // 나가도 된다고 정해진 이동. 아래 usePreventRemove가 다시 묻지 않게 한다.
+  const leaveAllowedRef = useRef(false);
+
+  const confirmLeave = (mode: LeaveMode, onLeave: () => void) => {
+    const keys = LEAVE_DIALOG_KEYS[mode];
 
     if (Platform.OS === 'web') {
-      if (
-        window.confirm(
-          `${t('uploadPage.discardTitle')}\n${t('uploadPage.discardMessage')}`
-        )
-      ) {
-        router.back();
+      if (window.confirm(`${t(keys.title)}\n${t(keys.message)}`)) {
+        onLeave();
       }
       return;
     }
 
-    Alert.alert(t('uploadPage.discardTitle'), t('uploadPage.discardMessage'), [
-      { text: t('uploadPage.discardCancel'), style: 'cancel' },
+    Alert.alert(t(keys.title), t(keys.message), [
+      { text: t(keys.keep), style: 'cancel' },
       {
         text: t('uploadPage.discardConfirm'),
         style: 'destructive',
-        onPress: () => router.back(),
+        onPress: onLeave,
       },
     ]);
   };
 
-  const handleSubmit = () => {
-    if (!cover) {
-      Alert.alert(t('uploadPage.needMedia'));
+  const leave = () => {
+    leaveAllowedRef.current = true;
+    uploadAbortRef.current?.abort();
+    router.back();
+  };
+
+  const handleBack = () => {
+    if (!isDirty && !isPending) {
+      router.back();
       return;
     }
+    confirmLeave(isPending ? 'uploading' : 'editing', leave);
+  };
+
+  // 웹에서 업로드 중에 탭을 닫거나 새로고침하면 업로드가 경고 없이 사라진다. 브라우저가
+  // 정한 확인 창을 띄운다(문구는 바꿀 수 없다).
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !isPending) return;
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      // 오래된 브라우저는 returnValue가 있어야 확인 창을 띄운다.
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
+  }, [isPending]);
+
+  // 헤더 버튼이 아닌 길(Android 뒤로 가기 버튼, iOS 스와이프)로 나갈 때도 업로드 중이면
+  // 묻는다. 브라우저 뒤로 가기는 막을 수 없어, 그때는 언마운트에서 업로드만 끊는다.
+  usePreventRemove(isPending, ({ data }) => {
+    if (leaveAllowedRef.current) {
+      navigation.dispatch(data.action);
+      return;
+    }
+    confirmLeave('uploading', () => {
+      leaveAllowedRef.current = true;
+      uploadAbortRef.current?.abort();
+      navigation.dispatch(data.action);
+    });
+  });
+
+  // 오류 안내는 모든 플랫폼에서 토스트로 한다. 웹에서 Alert.alert는 아무것도 띄우지 않는다.
+  const handleSubmit = () => {
+    if (!cover) {
+      toast.error(t('uploadPage.needMedia'));
+      return;
+    }
+    // isPending은 다음 렌더에 반영돼 빠른 연타는 버튼 disabled를 지나친다. 두 번째
+    // 업로드가 생기면 ref가 덮여 첫 업로드를 나갈 때 끊지 못한다.
+    if (uploadAbortRef.current) return;
+    const controller = new AbortController();
+    uploadAbortRef.current = controller;
     submitPost(
       {
         content: JSON.stringify([{ text: caption }]),
@@ -120,14 +205,30 @@ export function UploadPage() {
         timeslotType: timeslot,
         assets,
         tags,
+        signal: controller.signal,
       },
       {
-        onSuccess: () => router.replace('/feed'),
-        onError: (error) =>
-          Alert.alert(
-            t('uploadPage.failTitle'),
-            error instanceof Error ? error.message : t('postEdit.unknownError')
-          ),
+        onSuccess: () => {
+          // 이 시점에는 isPending이 아직 true라 usePreventRemove가 이동을 막는다.
+          leaveAllowedRef.current = true;
+          router.replace('/feed');
+        },
+        // 실패 메시지(용량 초과, 업로드 실패 (403) 등)가 이미 완결된 문장이라 제목을 붙이지 않는다.
+        onError: (error) => {
+          // 사용자가 나가서 끊은 경우다. axios는 취소도 NETWORK 오류로 바꾸므로
+          // 오류 종류가 아니라 signal로 판단한다.
+          if (controller.signal.aborted) return;
+          toast.error(
+            error instanceof Error && error.message
+              ? error.message
+              : t('postEdit.unknownError')
+          );
+        },
+        onSettled: () => {
+          if (uploadAbortRef.current === controller) {
+            uploadAbortRef.current = null;
+          }
+        },
       }
     );
   };
@@ -202,15 +303,18 @@ export function UploadPage() {
           style={{ paddingVertical: CAPTION_VERTICAL_PADDING }}
         >
           <TextInput
+            ref={captionRef}
             value={caption}
-            onChangeText={setCaption}
+            onChangeText={handleCaptionChange}
             placeholder={t('uploadPage.captionPlaceholderPhone')}
             placeholderTextColor={COLORS.textMuted}
             multiline
             editable={!isPending}
             textAlignVertical="top"
-            onContentSizeChange={(e) =>
-              setContentHeight(e.nativeEvent.contentSize.height)
+            onContentSizeChange={
+              Platform.OS === 'web'
+                ? undefined
+                : (e) => setContentHeight(e.nativeEvent.contentSize.height)
             }
             style={{ height: captionInputHeight, padding: 0 }}
             className="text-[14px] leading-[150%] text-primary"

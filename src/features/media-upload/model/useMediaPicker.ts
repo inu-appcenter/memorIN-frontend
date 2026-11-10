@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MAX_VIDEO_DURATION_SEC } from '../lib/compressMedia';
 import i18next from '@/shared/lib/i18n';
+import { toast } from '@/shared/lib/toast';
 
 export interface PickedMediaAsset {
   uri: string;
@@ -30,10 +30,8 @@ export function useMediaPicker() {
   const pickAssets = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert(
-        i18next.t('upload.permissionTitle'),
-        i18next.t('upload.permissionMessage')
-      );
+      // 웹에서 Alert.alert는 아무것도 띄우지 않는다. 모든 플랫폼에서 토스트를 쓴다.
+      toast.error(i18next.t('upload.permissionMessage'));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({

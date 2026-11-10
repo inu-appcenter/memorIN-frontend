@@ -1,6 +1,7 @@
 import { compressMedia } from './compressMedia';
 import { getPresignedUploadUrl } from '../api/mediaApi';
 import { uploadToStorage } from './uploadToStorage';
+import { throwIfAborted } from './abortable';
 
 export interface UploadedAttachment {
   fileKey: string;
@@ -19,16 +20,24 @@ export async function uploadMedia(
     width?: number | null;
     height?: number | null;
   },
-  fileName: string
+  fileName: string,
+  signal?: AbortSignal
 ): Promise<UploadedAttachment> {
-  const { uri, contentType, contentLength, width, height } =
+  // 압축(네이티브 영상)은 중간에 멈출 수 없어 끝난 뒤에 취소 여부를 본다.
+  throwIfAborted(signal);
+  const { uri, contentType, contentLength, width, height, release } =
     await compressMedia(asset);
-  const presigned = await getPresignedUploadUrl({
-    fileName,
-    contentType,
-    contentLength,
-  });
-  await uploadToStorage(presigned, uri);
+  let presigned;
+  try {
+    throwIfAborted(signal);
+    presigned = await getPresignedUploadUrl(
+      { fileName, contentType, contentLength },
+      signal
+    );
+    await uploadToStorage(presigned, uri, { contentLength, signal });
+  } finally {
+    release?.();
+  }
   return {
     fileKey: presigned.objectKey,
     mimeType: contentType,
