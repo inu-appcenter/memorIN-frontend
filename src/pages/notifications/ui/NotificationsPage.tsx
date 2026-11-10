@@ -43,21 +43,26 @@ type ListRow =
   | { kind: 'header'; key: string; group: GroupKey }
   | { kind: 'item'; key: string; notification: NotificationItem };
 
-// 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커/PushProvider가 따로 처리하며,
-// 그쪽은 이 화면 자체를 목적지로 삼는다.
+// 목록 안에서의 이동. 푸시 알림 클릭은 서비스워커(public/sw.js)와
+// notificationRoute.ts가 따로 처리한다. 셋의 매핑을 같이 맞춘다.
+// null이면 이동하지 않고 읽음 처리만 한다.
 //
 // default를 두지 않는다 — NotificationType에 값이 추가되면 컴파일러가
 // "리턴하지 않는 경로가 있다"고 여기를 짚어준다.
-function routeOf(notification: NotificationItem): string {
+function routeOf(notification: NotificationItem): string | null {
   switch (notification.type) {
     case 'FOLLOW_REQUEST':
     case 'FOLLOW_ACCEPTED':
       return '/social';
-    case 'COMMENT':
+    // LIKE의 referenceId는 postId다.
     case 'LIKE':
       return notification.referenceId
         ? `/post/${notification.referenceId}`
         : '/feed';
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없어 postId를 쓴다.
+    // postId 도입 전에 쌓인 알림은 null이라 이동하지 않는다.
+    case 'COMMENT':
+      return notification.postId ? `/post/${notification.postId}` : null;
     // MESSAGE의 referenceId는 roomId다(백엔드 NotificationService.saveMessages).
     case 'MESSAGE':
       return notification.referenceId
@@ -188,7 +193,8 @@ export function NotificationsPage() {
       if (!notification.read) {
         readNotification.mutate(notification.id);
       }
-      router.navigate(routeOf(notification));
+      const route = routeOf(notification);
+      if (route) router.navigate(route);
     },
     [readNotification, router]
   );

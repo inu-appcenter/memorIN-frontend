@@ -39,6 +39,10 @@ export async function signup(input: SignUpInput): Promise<void> {
 }
 
 // DELETE /auth/logout — 인증 필요. 서버의 refresh_token 행을 삭제한다.
+// refresh 토큰이 사용자당 하나라 로그아웃하면 다른 기기의 세션도 끝난다. 본문을
+// 보내지 않으면 백엔드가 그 사용자의 모든 기기 푸시 등록을 함께 지워, 세션이
+// 끝난 기기로 알림이 계속 가는 일이 없다. 응답은 204라 봉투가 없다.
 export async function logout(): Promise<void> {
-  await client.delete('/auth/logout'); // Bearer는 인터셉터가 자동 첨부
+  // Bearer는 인터셉터가 자동 첨부.
+  await client.delete('/auth/logout');
 }

@@ -1,10 +1,14 @@
 // 알림 종류별 이동 경로.
 //
-// public/sw.js에도 같은 매핑이 있다. 서비스워커는 번들러를 안 거쳐서 import를
-// 할 수 없기 때문에 어쩔 수 없이 두 곳에 둔다. 바꿀 때 같이 바꿔야 한다.
+// public/sw.js와 NotificationsPage에도 같은 매핑이 있다. 서비스워커는 번들러를
+// 안 거쳐서 import를 할 수 없기 때문에 어쩔 수 없이 따로 둔다. 바꿀 때 같이
+// 바꿔야 한다.
+//
+// 푸시 페이로드의 type은 문자열이라 모르는 값이 올 수 있어 default를 둔다.
 export function routeOfNotification(
   type?: string,
-  referenceId?: string
+  referenceId?: string,
+  postId?: string
 ): string {
   switch (type) {
     case 'FOLLOW_REQUEST':
@@ -13,10 +17,14 @@ export function routeOfNotification(
     // MESSAGE의 referenceId는 roomId다.
     case 'MESSAGE':
       return referenceId ? `/chat/${referenceId}` : '/chat';
-    // 게시물 상세는 아직 단독 라우트가 아니라 피드 위에 뜨는 모달이다.
-    // 알림 화면이 붙으면 '/notifications'로 바꾼다.
-    case 'COMMENT':
+    // LIKE의 referenceId는 postId다.
     case 'LIKE':
+      return referenceId ? `/post/${referenceId}` : '/feed';
+    // COMMENT의 referenceId는 댓글 id라 게시물을 열 수 없어 postId를 쓴다.
+    // postId 도입 전에 쌓인 알림은 null이고, FCM data는 null을 빈 문자열로
+    // 보내므로 falsy로 거르고 알림 목록으로 보낸다.
+    case 'COMMENT':
+      return postId ? `/post/${postId}` : '/notifications';
     default:
       return '/feed';
   }
