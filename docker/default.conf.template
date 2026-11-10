@@ -1,4 +1,4 @@
-# nginx:alpine 엔트리포인트가 기동 시 envsubst로 ${BACKEND_ORIGIN} 등을 치환해
+# nginx 공식 이미지 엔트리포인트가 기동 시 envsubst로 ${BACKEND_ORIGIN} 등을 치환해
 # /etc/nginx/conf.d/default.conf로 내보낸다. 이 치환은 셸 환경변수로 "설정된" 이름만
 # 건드리므로 $uri, $host 같은 nginx 내장 변수는 영향받지 않는다(nginx 공식 이미지의
 # 20-envsubst-on-templates.sh가 `env`에 나열된 이름만 envsubst 대상으로 넘긴다).

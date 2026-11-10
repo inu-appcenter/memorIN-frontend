@@ -20,9 +20,12 @@ ENV EXPO_PUBLIC_API_BASE_URL=""
 RUN npx expo export --platform web --output-dir dist
 
 # ─── 2단계: 실행 ───────────────────────────────────────────────
-FROM nginx:stable-alpine AS runtime
+# Alpine 판(nginx:stable-alpine)은 libseccomp가 오래된 호스트(앱센터 서버 CentOS 7, libseccomp 2.3.1)에서
+# pwrite()가 "Operation not permitted"로 막혀 nginx.pid를 쓰지 못하고 재시작을 반복한다.
+# 그래서 Debian 판을 쓴다. 이 판에는 wget이 없으니 healthcheck는 curl로 한다(memorIN-deploy의 compose.yaml).
+FROM nginx:stable AS runtime
 
-# envsubst가 이미 alpine 베이스에 포함되어 있다 — 아래 엔트리포인트가
+# envsubst는 nginx 공식 이미지에 포함되어 있다 — 아래 엔트리포인트가
 # default.conf.template을 컨테이너 기동 시 실제 conf.d 설정으로 변환한다.
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
