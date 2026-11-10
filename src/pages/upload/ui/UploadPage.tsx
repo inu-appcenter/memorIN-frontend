@@ -211,7 +211,10 @@ export function UploadPage() {
         onSuccess: () => {
           // 이 시점에는 isPending이 아직 true라 usePreventRemove가 이동을 막는다.
           leaveAllowedRef.current = true;
-          router.replace('/feed');
+          // replace는 업로드 화면 자리에 피드를 새로 띄워, 아래에 있던 피드와 함께 피드가
+          // 업로드할 때마다 하나씩 쌓인다(피드마다 영상 플레이어를 들고 있어 메모리가 계속 는다).
+          // 아래에 있는 피드로 돌아가고, 없으면 이 화면을 피드로 바꾼다.
+          router.dismissTo('/feed');
         },
         // 실패 메시지(용량 초과, 업로드 실패 (403) 등)가 이미 완결된 문장이라 제목을 붙이지 않는다.
         onError: (error) => {
