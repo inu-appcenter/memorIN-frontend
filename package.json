@@ -20,8 +20,8 @@
     "@rn-primitives/slot": "^1.5.2",
     "@shopify/flash-list": "2.0.2",
     "@stomp/stompjs": "^7.5.0",
-    "@tanstack/react-query": "^5.106.1",
-    "axios": "^1.21.0",
+    "@tanstack/react-query": "^5.107.1",
+    "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cross-env": "^10.1.0",
@@ -47,7 +47,7 @@
     "nativewind": "^4.2.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-hook-form": "^7.91.0",
+    "react-hook-form": "^7.92.0",
     "react-i18next": "^17.1.13",
     "react-native": "0.81.5",
     "react-native-compressor": "^1.19.4",
@@ -60,7 +60,7 @@
     "tailwind-merge": "^3.7.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.6.7",
-    "zustand": "^5.0.16"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
@@ -71,7 +71,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-i18n-json": "^4.0.1",
     "eslint-plugin-i18next": "^6.1.5",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "react-native-svg-transformer": "^1.5.3",
     "tailwindcss": "^3.4.19",
