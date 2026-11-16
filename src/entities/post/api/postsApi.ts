@@ -1,4 +1,9 @@
-import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import {
+  client,
+  ApiError,
+  pathId,
+  type ApiResponse,
+} from '@/shared/api/client';
 import i18next from '@/shared/lib/i18n';
 
 export type VisibilityType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
@@ -254,7 +259,7 @@ export async function updatePost(
   params: UpdatePostParams
 ): Promise<PostDetail> {
   const { data } = await client.patch<ApiResponse<PostDetail>>(
-    `/api/posts/${postId}`,
+    `/api/posts/${pathId(postId)}`,
     params
   );
 
@@ -271,7 +276,7 @@ export async function updatePost(
 // DELETE /api/posts/{postId} — 인증 필요, 소프트 삭제. 응답 data는 항상 null
 export async function deletePost(postId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
-    `/api/posts/${postId}`
+    `/api/posts/${pathId(postId)}`
   );
 
   if (!data.success) {
@@ -286,7 +291,7 @@ export async function deletePost(postId: string): Promise<void> {
 // 작성자 본인이 아니면 서버가 조회수를 1 올림
 export async function getPost(postId: string): Promise<PostDetail> {
   const { data } = await client.get<ApiResponse<PostDetail>>(
-    `/api/posts/${postId}`
+    `/api/posts/${pathId(postId)}`
   );
 
   if (!data.success || !data.data) {

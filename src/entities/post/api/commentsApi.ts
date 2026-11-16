@@ -1,4 +1,9 @@
-import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import {
+  client,
+  ApiError,
+  pathId,
+  type ApiResponse,
+} from '@/shared/api/client';
 import type { EmojiSummary } from '@/entities/reaction';
 import i18next from '@/shared/lib/i18n';
 
@@ -42,7 +47,7 @@ export async function getCommentThread(
   params: GetCommentThreadParams = {}
 ): Promise<CommentPage> {
   const { data } = await client.get<ApiResponse<CommentPage>>(
-    `/api/posts/${postId}/comments`,
+    `/api/posts/${pathId(postId)}/comments`,
     { params: { cursor: params.cursor, size: params.size } }
   );
   if (!data.success || !data.data) {
@@ -59,7 +64,7 @@ export async function createComment(
   params: CreateCommentParams
 ): Promise<PostComment> {
   const { data } = await client.post<ApiResponse<PostComment>>(
-    `/api/posts/${postId}/comments`,
+    `/api/posts/${pathId(postId)}/comments`,
     params
   );
   if (!data.success || !data.data) {
@@ -77,7 +82,7 @@ export async function updateComment(
   body: string
 ): Promise<PostComment> {
   const { data } = await client.patch<ApiResponse<PostComment>>(
-    `/api/comments/${commentId}`,
+    `/api/comments/${pathId(commentId)}`,
     { body }
   );
   if (!data.success || !data.data) {
@@ -92,7 +97,7 @@ export async function updateComment(
 // DELETE /api/comments/{commentId} — 작성자 본인만 가능
 export async function deleteComment(commentId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
-    `/api/comments/${commentId}`
+    `/api/comments/${pathId(commentId)}`
   );
   if (!data.success) {
     throw new ApiError(

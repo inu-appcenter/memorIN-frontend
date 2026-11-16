@@ -1,4 +1,9 @@
-import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import {
+  client,
+  ApiError,
+  pathId,
+  type ApiResponse,
+} from '@/shared/api/client';
 import i18next from '@/shared/lib/i18n';
 
 // 백엔드 domain/users, domain/follows DTO를 그대로 미러링한 타입.
@@ -65,7 +70,7 @@ export async function getFollowers(
   params: GetPageParams = {}
 ): Promise<UserFollowPage> {
   const { data } = await client.get<ApiResponse<UserFollowPage>>(
-    `/api/users/${userId}/followers`,
+    `/api/users/${pathId(userId)}/followers`,
     { params }
   );
 
@@ -85,7 +90,7 @@ export async function getFollowings(
   params: GetPageParams = {}
 ): Promise<UserFollowPage> {
   const { data } = await client.get<ApiResponse<UserFollowPage>>(
-    `/api/users/${userId}/followings`,
+    `/api/users/${pathId(userId)}/followings`,
     { params }
   );
 
@@ -148,7 +153,7 @@ export async function requestFollow(followingId: string): Promise<void> {
 // followId는 유저 id가 아니라 관계(Follows) 행의 id — 받은 요청 목록 응답에서 내려받아야 한다.
 export async function acceptFollow(followId: string): Promise<void> {
   const { data } = await client.patch<ApiResponse<null>>(
-    `/api/follows/${followId}/accept`
+    `/api/follows/${pathId(followId)}/accept`
   );
 
   if (!data.success) {
@@ -172,7 +177,7 @@ export async function getPublicProfile(
   userId: string
 ): Promise<UserPublicProfile> {
   const { data } = await client.get<ApiResponse<UserPublicProfile>>(
-    `/api/users/${userId}`
+    `/api/users/${pathId(userId)}`
   );
 
   if (!data.success || !data.data) {
@@ -189,7 +194,7 @@ export async function getPublicProfile(
 // "내가(follower) 상대(followingId)를 팔로우한 관계"를 지운다.
 export async function unfollow(followingId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
-    `/api/follows/${followingId}`
+    `/api/follows/${pathId(followingId)}`
   );
 
   if (!data.success) {
@@ -203,7 +208,7 @@ export async function unfollow(followingId: string): Promise<void> {
 // DELETE /api/follows/requests/{followId} — 인증 필요, 요청을 받은(following) 쪽만 가능.
 export async function rejectFollowRequest(followId: string): Promise<void> {
   const { data } = await client.delete<ApiResponse<null>>(
-    `/api/follows/requests/${followId}`
+    `/api/follows/requests/${pathId(followId)}`
   );
 
   if (!data.success) {

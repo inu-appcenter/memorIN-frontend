@@ -1,4 +1,4 @@
-import { client } from '@/shared/api/client';
+import { client, pathId } from '@/shared/api/client';
 import type { EmojiType } from '../model/emojiTypeMap';
 
 export interface EmojiSummary {
@@ -13,7 +13,7 @@ export async function toggleCommentEmojis(
   emojiType: EmojiType
 ): Promise<{ emojiType: EmojiType; added: boolean }> {
   const { data } = await client.post<{ emojiType: EmojiType; added: boolean }>(
-    `/api/comments/${commentId}/emojis`,
+    `/api/comments/${pathId(commentId)}/emojis`,
     { emojiType }
   );
   return data;

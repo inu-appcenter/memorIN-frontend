@@ -1,4 +1,9 @@
-import { client, ApiError, type ApiResponse } from '@/shared/api/client';
+import {
+  client,
+  ApiError,
+  pathId,
+  type ApiResponse,
+} from '@/shared/api/client';
 import i18next from '@/shared/lib/i18n';
 
 export type NotificationType =
@@ -56,7 +61,7 @@ export async function getNotifications(
 // PATCH /api/notifications/{id}/read
 export async function readNotification(notificationId: string): Promise<void> {
   const { data } = await client.patch<ApiResponse<null>>(
-    `/api/notifications/${notificationId}/read`
+    `/api/notifications/${pathId(notificationId)}/read`
   );
 
   if (!data.success) {
