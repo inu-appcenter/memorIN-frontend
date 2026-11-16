@@ -7,7 +7,7 @@
     "noRefreshToken": "저장된 refresh token이 없습니다",
     "sessionExpired": "다시 로그인하여 주세요.",
     "network": "서버에 연결할 수 없습니다",
-    "invalidId": "잘못된 주소예요",
+    "invalidId": "잘못된 주소입니다",
     "commentsLoad": "댓글을 불러오지 못했습니다",
     "commentCreate": "댓글을 작성하지 못했습니다",
     "feedLoad": "피드를 불러오지 못했습니다",
