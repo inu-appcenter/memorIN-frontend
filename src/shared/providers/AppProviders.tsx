@@ -11,6 +11,7 @@ import { AppState, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SocketProvider } from './SocketProvider';
 import { PushProvider } from './PushProvider';
+import { syncOnlineManagerWithNetInfo } from '@/shared/lib/networkStatus';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,8 +47,13 @@ function useAppStateFocus() {
   }, []);
 }
 
+function useOnlineManagerSync() {
+  useEffect(() => syncOnlineManagerWithNetInfo(), []);
+}
+
 export function AppProviders({ children }: { children: ReactNode }) {
   useAppStateFocus();
+  useOnlineManagerSync();
 
   return (
     <QueryClientProvider client={queryClient}>
