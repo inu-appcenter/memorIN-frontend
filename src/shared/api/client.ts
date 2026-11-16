@@ -41,6 +41,20 @@ export class ApiError extends Error {
   }
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// API 경로에 넣는 ID는 반드시 이 함수를 거친다. ID는 대부분 라우트 파라미터에서
+// 오는데, expo-router가 `%2F`를 `/`로 디코딩하므로 `..%2Fposts%2F<id>` 같은 링크가
+// 그대로 경로에 들어가면 사용자 토큰을 단 채 다른 API를 호출하게 된다.
+// 백엔드 경로 변수는 모두 UUID라 형식이 다르면 요청을 보내지 않는다.
+export function pathId(id: string): string {
+  if (!UUID_PATTERN.test(id)) {
+    throw new ApiError('INVALID_ID', i18next.t('error.invalidId'));
+  }
+  return id;
+}
+
 export function resolveApiBaseUrl(): string | undefined {
   const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (Platform.OS === 'android' && baseUrl) {
