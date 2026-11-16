@@ -218,8 +218,9 @@ export function UploadPage() {
         },
         // 실패 메시지(용량 초과, 업로드 실패 (403) 등)가 이미 완결된 문장이라 제목을 붙이지 않는다.
         onError: (error) => {
-          // 사용자가 나가서 끊은 경우다. axios는 취소도 NETWORK 오류로 바꾸므로
-          // 오류 종류가 아니라 signal로 판단한다.
+          // 사용자가 나가서 끊은 경우다. 취소는 API 요청(ApiError CANCELED)과 스토리지
+          // 업로드(fetch AbortError)에서 서로 다른 오류로 오므로 오류 종류가 아니라
+          // signal로 판단한다.
           if (controller.signal.aborted) return;
           toast.error(
             error instanceof Error && error.message

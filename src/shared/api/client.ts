@@ -7,6 +7,7 @@ import {
   REFRESH_TOKEN_KEY,
 } from '@/entities/session/lib/tokenStorage';
 import i18next from '@/shared/lib/i18n';
+import { isOffline } from '@/shared/lib/networkStatus';
 // axois 인터셉터, 인스턴스 등을 정의
 
 // 백엔드 API 명세서의 공통 응답 포맷을 따른다
@@ -185,7 +186,81 @@ client.interceptors.response.use(
         new ApiError(serverError.code, serverError.message)
       );
     }
-    // 네트워크/타임아웃 등 응답 자체가 없는 경우
-    return Promise.reject(new ApiError('NETWORK', i18next.t('error.network')));
+    return Promise.reject(await toEnvelopeLessError(error));
   }
 );
+
+// 서버 오류 봉투가 없는 실패. nginx·Spring CORS 필터처럼 백엔드 컨트롤러에 닿기 전에
+// 끝난 응답이거나, 응답 자체가 없는 경우다.
+async function toEnvelopeLessError(error: AxiosError): Promise<ApiError> {
+  if (error.code === AxiosError.ERR_CANCELED) {
+    return new ApiError('CANCELED', i18next.t('error.canceled'));
+  }
+  if (
+    error.code === AxiosError.ECONNABORTED ||
+    error.code === AxiosError.ETIMEDOUT
+  ) {
+    return new ApiError('TIMEOUT', i18next.t('error.timeout'));
+  }
+
+  const status = error.response?.status;
+  if (status !== undefined) {
+    switch (status) {
+      // 백엔드의 일반 403은 RestAccessDeniedHandler가 봉투를 붙인다. 봉투 없는 403은
+      // Origin이 CORS_ALLOWED_ORIGINS에 없을 때 Spring CORS 필터가 내는
+      // "Invalid CORS request"다. 운영은 웹과 API가 같은 도메인이라 브라우저가 이
+      // 응답을 그대로 넘겨 주므로 여기서 구분할 수 있다.
+      case 403:
+        if (__DEV__) {
+          console.warn(
+            `[api] 403 without an error envelope (likely "Invalid CORS request"). ` +
+              `Check that backend CORS_ALLOWED_ORIGINS includes ${currentOrigin()}.`
+          );
+        }
+        return new ApiError('CORS_REJECTED', i18next.t('error.corsRejected'));
+      case 413:
+        return new ApiError(
+          'PAYLOAD_TOO_LARGE',
+          i18next.t('error.payloadTooLarge')
+        );
+      case 429:
+        return new ApiError(
+          'TOO_MANY_REQUESTS',
+          i18next.t('error.tooManyRequests')
+        );
+      case 502:
+      case 503:
+      case 504:
+        return new ApiError(
+          'SERVER_UNAVAILABLE',
+          i18next.t('error.serverUnavailable')
+        );
+      default:
+        return new ApiError(
+          'HTTP_ERROR',
+          i18next.t('error.httpStatus', { status })
+        );
+    }
+  }
+
+  if (await isOffline()) {
+    return new ApiError('OFFLINE', i18next.t('error.offline'));
+  }
+  // 로컬 개발은 웹(:8081)과 API(:8080)의 출처가 달라, CORS 거부도 브라우저가 응답을
+  // 막아 여기로 온다. 서버가 꺼진 것과 구분할 수 없으므로 개발 모드 안내만 남긴다.
+  if (__DEV__) {
+    console.warn(
+      `[api] No response from ${client.defaults.baseURL || currentOrigin()}. ` +
+        `Check that the backend is running and the API base URL is correct. ` +
+        `On local web dev, a CORS rejection also ends up here: ` +
+        `check backend CORS_ALLOWED_ORIGINS includes ${currentOrigin()}.`
+    );
+  }
+  return new ApiError('NETWORK', i18next.t('error.network'));
+}
+
+function currentOrigin(): string {
+  return Platform.OS === 'web' && typeof window !== 'undefined'
+    ? window.location.origin
+    : 'the app origin';
+}
