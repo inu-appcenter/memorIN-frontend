@@ -3,10 +3,13 @@
 ## 시작하기
 - 로컬 실행은 [README의 시작하기](README.md#시작하기)를 따릅니다(Node 24, `npm ci`).
 - API 서버는 memorIN-backend를 로컬에서 함께 띄웁니다.
+- 작업은 이슈에서 시작합니다. 이슈 양식(버그 신고, 기능 요청, 작업 요청)으로 열고 담당자를 지정합니다.
+- 우선순위(P0~P3)와 진행판 규칙은 [memorIN-deploy CONTRIBUTING의 "이슈와 진행판"](https://github.com/inu-appcenter/memorIN-deploy/blob/main/CONTRIBUTING.md#이슈와-진행판-memorin-저장소-3개-공통)을 따릅니다.
 
 ## 브랜치
 - `main`에서 브랜치를 만들어 `main`으로 PR을 올립니다.
-- 브랜치 이름은 이슈에서 만든 브랜치(`112-fix-...`)나 `<type>/<요약>`을 씁니다.
+- 브랜치 이름은 이슈 화면의 "Create a branch"로 만든 브랜치(`112-fix-...`)나 `<type>/<이슈 번호>-<요약>`을 씁니다.
+  - 이슈 번호를 넣으면 진행판에서 그 이슈가 "진행 중"으로 옮겨집니다.
 - PR은 squash로 병합합니다.
 - `main`은 직접 푸시, force push, 삭제가 막혀 있고, 병합된 브랜치는 자동으로 삭제됩니다.
 
